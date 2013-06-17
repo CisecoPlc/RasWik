@@ -138,30 +138,40 @@ class GuiPart:
                ).grid(row=12, column=6)
         Button(gframe, text='PWM', command=lambda: slef.pwm(13)
                ).grid(row=12, column=7)
-        Entry(gframe, textvariable=self.outputEntry['13'], validation=self.vpwm
+        Entry(gframe, textvariable=self.outputEntry['13'], validation='key',
+              invalidcommand='bell',
+              validatecommand=self.vpwm
               ).grid(row=12, column=8)
 
+        # servo button
+        self.vservo = (master.register(self.validServo), '%P', '%W')
+        self.servoEntry = StringVar()
+        Button(gframe, text='SERVO', command=lambda: self.servo
+               ).grid(row=23, column=5)
+        Entry(gframe, textvariable=self.servoEntry, validation='key',
+              invalidcommand='bell',
+              validatecommand=self.vservo
+              ).grid(row=23, column=6)
+
+        # count button
+        self.vcount = (master.register(self.validCount), '%P', '%W')
+        self.countEntry = StringVar()
+        Button(gframe, text='READ', command=lambda: self.count('READ')
+               ).grid(row=24, column=5)
+        Button(gframe, text='SET', command=lambda: self.count('SET')
+               ).grid(row=24, column=6)
+        Entry(gframe, textvariable=self.countEntry, validation='key',
+              invalidcommand='bell',
+              validatecommand=self.vcount
+              ).grid(row=24, column=7)
 
 
-#        for n in range(10):
-#            Button(gframe, text='READ', command=lambda n=n: self.read(n)).grid(row=n, column=0)
-#            Button(gframe, text='Off', command=lambda n=n: self.off(n)).grid(row=n, column=1)
-#            Button(gframe, text='On', command=lambda n=n: self.on(n)).grid(row=n, column=2)
-        
-        
-
-#        for n in range(10,20):
-#            Button(gframe, text='READ', command=lambda n=n: self.read(n)).grid(row=n, column=6)
-#            Button(gframe, text='Off', command=lambda n=n: self.off(n)).grid(row=n, column=5)
-#            Button(gframe, text='On', command=lambda n=n: self.on(n)).grid(row=n, column=4)
-     
-     
         # bottom frame
         frame = Frame(master, relief=RAISED, borderwidth=1)
         frame.pack()
         # serial console
         self.text = Text(frame, state=DISABLED, relief=RAISED, borderwidth=1,
-                         height=12, name='frame1')
+                         height=6, name='frame1')
         self.text.pack(fill=BOTH, expand=1)
         
         labela = Label(frame, text='a')
@@ -220,6 +230,12 @@ class GuiPart:
     def pwm(self, num):
         print("pwm: {}".format(num))
     
+    def servo(self):
+        print("servo")
+    
+    def count(self, mode):
+        print("count: {}".format(mode))
+    
     # valid percent substitutions (from the Tk entry man page)
     # %d = Type of action (1=insert, 0=delete, -1 for others)
     # %i = index of char string to be inserted/deleted, or -1
@@ -236,6 +252,12 @@ class GuiPart:
         return (len(P) <= l)
     
     def validPWM(self, P, W):
+        return True
+    
+    def validServo(self, P, W):
+        return True
+    
+    def validCount(self, P, W):
         return True
     
     def sendCommand(self):
