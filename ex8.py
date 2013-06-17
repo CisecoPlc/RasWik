@@ -35,8 +35,20 @@ class GuiPart:
         
         # pack the grid to get the damn size right
         for n in range(29):
-            Canvas(gframe, bg=("black" if n%2 else "gray"), bd=0, relief=FLAT, width=50, height=28, highlightthickness=0, highlightcolor='white').grid(row=n, column=2)
-        #            Canvas(gframe, bg=("black" if n%2 else "white"), bd=0, relief=FLAT, width=50, height=28, highlightthickness=0, highlightcolor='white').grid(row=n, column=7)
+            Canvas(gframe, bg=("black" if n%2 else "gray"), bd=0, relief=FLAT,
+                   width=50, height=28, highlightthickness=0,
+                   highlightcolor='white'
+                   ).grid(row=n, column=0)
+            
+            Canvas(gframe, bg=("black" if n%2 else "gray"), bd=0, relief=FLAT,
+                   width=50, height=28, highlightthickness=0,
+                   highlightcolor='white'
+                   ).grid(row=n, column=1)
+            
+            Canvas(gframe, bg=("black" if n%2 else "gray"), bd=0, relief=FLAT,
+                   width=50, height=28, highlightthickness=0,
+                   highlightcolor='white'
+                   ).grid(row=n, column=2)
         
         canvas = Canvas(gframe, bg="white", width=574, height=784, bd=0,
                         relief=FLAT, highlightthickness=0)
@@ -46,15 +58,51 @@ class GuiPart:
         self.photoimage = PhotoImage(file="XinoRF.gif")
         canvas.create_image(286, 407, image=self.photoimage)
         
-        self.anaLabel = {'0': StringVar(), '1': StringVar(), '2': StringVar(), '3': StringVar(), '4': StringVar(), '5': StringVar()}
+        # analog buttons
+        self.anaLabel = {'0': StringVar(),
+                         '1': StringVar(),
+                         '2': StringVar(),
+                         '3': StringVar(),
+                         '4': StringVar(),
+                         '5': StringVar()}
         
         for n in range(6):
-            Button(gframe, text='Read', command=lambda n=n: self.anaRead(n)).grid(row=21+n, column=0)
-            Label(gframe, textvariable=self.anaLabel['{}'.format(n)]).grid(row=21+n, column=1)
+            Button(gframe, text='Read',
+                   command=lambda n=n: self.anaRead(n)
+                   ).grid(row=21+n, column=2)
+            Label(gframe, width=5,
+                  textvariable=self.anaLabel['{}'.format(n)]
+                  ).grid(row=21+n, column=1)
 
-        for n in range(29):
-            Canvas(gframe, bg=("black" if n%2 else "gray"), bd=0, relief=FLAT, width=50, height=28, highlightthickness=0, highlightcolor='white').grid(row=n, column=2)
-#            Canvas(gframe, bg=("black" if n%2 else "white"), bd=0, relief=FLAT, width=50, height=28, highlightthickness=0, highlightcolor='white').grid(row=n, column=7)
+        # input buttons
+        self.inputLabel = {'2': StringVar(),
+                           '3': StringVar(),
+                           '7': StringVar(),
+                           '10': StringVar(),
+                           '12': StringVar()}
+        Button(gframe, text='Read', command=lambda: self.read(2)
+               ).grid(row=24, column=4)
+        Label(gframe, width=5, textvariable=self.inputLabel['2']
+              ).grid(row=24, column=5)
+        Button(gframe, text='Read', command=lambda: self.read(3)
+               ).grid(row=23, column=4)
+        Label(gframe, width=5, textvariable=self.inputLabel['3']
+              ).grid(row=23, column=5)
+        Button(gframe, text='Read', command=lambda: self.read(7)
+               ).grid(row=19, column=4)
+        Label(gframe, width=5, textvariable=self.inputLabel['7']
+              ).grid(row=19, column=5)
+        Button(gframe, text='Read', command=lambda: self.read(10)
+               ).grid(row=15, column=4)
+        Label(gframe, width=5, textvariable=self.inputLabel['10']
+              ).grid(row=15, column=5)
+        Button(gframe, text='Read', command=lambda: self.read(12)
+               ).grid(row=13, column=4)
+        Label(gframe, width=5, textvariable=self.inputLabel['12']
+              ).grid(row=13, column=5)
+
+
+
 
 #        for n in range(10):
 #            Button(gframe, text='Read', command=lambda n=n: self.read(n)).grid(row=n, column=0)
@@ -68,11 +116,13 @@ class GuiPart:
 #            Button(gframe, text='Off', command=lambda n=n: self.off(n)).grid(row=n, column=5)
 #            Button(gframe, text='On', command=lambda n=n: self.on(n)).grid(row=n, column=4)
      
-        
+     
+        # bottom frame
         frame = Frame(master, relief=RAISED, borderwidth=1)
         frame.pack()
-        
-        self.text = Text(frame, state=DISABLED, relief=RAISED, borderwidth=1, height=12, name='frame1')
+        # serial console
+        self.text = Text(frame, state=DISABLED, relief=RAISED, borderwidth=1,
+                         height=12, name='frame1')
         self.text.pack(fill=BOTH, expand=1)
         
         labela = Label(frame, text='a')
@@ -81,10 +131,10 @@ class GuiPart:
         self.devID = StringVar()
         self.payload = StringVar()
 
-        
 
-        self.vcmd = (master.register(self.validLenght),
-                            '%P', '%W')
+
+        self.vcmd = (master.register(self.validLenght), '%P', '%W')
+        
         self.devIDInput = Entry(frame, width=2, validate='key',
                                         textvariable=self.devID,
                                         invalidcommand='bell',
@@ -100,14 +150,13 @@ class GuiPart:
                                    name='payloadInput')
         self.input.pack(side=LEFT)
         
-        self.maxLenght= {str(self.devIDInput): 2, str(self.input): 9}
-        
-        
-        send = Button(frame, text='Send', command=self.sendCommand)
-        send.pack(side=LEFT)
-        
-        console = Button(frame, text='Done', command=endCommand)
-        console.pack(side=RIGHT)
+        self.maxLenght = {str(self.devIDInput): 2, str(self.input): 9}
+        self.devID.set("XX")
+        self.payload.set("HELLO")
+
+        Button(frame, text='Send', command=self.sendCommand).pack(side=LEFT)
+        Button(frame, text='Done', command=endCommand).pack(side=RIGHT)
+
         
         frame2 = Frame(master, relief=RAISED, borderwidth=1)
         frame2.pack(fill=BOTH, expand=1)
@@ -144,7 +193,7 @@ class GuiPart:
         return (len(P) <= l)
     
     def sendCommand(self):
-        self.sendLLAP(self.devIDInput.get(), self.input.get())
+        self.sendLLAP(self.devID.get(), self.payload.get())
         #self.devIDInput.delete(0, END)
         #self.input.delete(0, END)
     
@@ -162,7 +211,9 @@ class GuiPart:
                 self.text.insert(END, "Recieve LLAP from {} with Paylaod: {}\n".format(msg['devID'],msg['payload']))
                 if msg['devID'] == "XX":
                     if msg['payload'].startswith("A"):
-                        self.anaLabel[msg['payload'][2:3]].set(msg['payload'][3:])
+                        self.anaLabel[
+                                      msg['payload'][2:3]
+                                      ].set(msg['payload'][3:])
 
                 self.text.see(END)
                 self.text.config(state=DISABLED)
@@ -198,10 +249,12 @@ class ThreadedClient:
             self.s.open()
         except serial.SerialException, e:
             sys.stderr.write("could not open port %r: %s\n" % (port, e))
-            self.endApplication()
+            self.running = 0
+            self.kill(0)
         
         # Set up the GUI part
-        self.gui = GuiPart(master, self.queue, self.endApplication, self.sendLLAP)
+        self.gui = GuiPart(master, self.queue, self.endApplication,
+                           self.sendLLAP)
 
         # Set up the thread to do asynchronous I/O
         # More can be made if necessary
@@ -220,11 +273,8 @@ class ThreadedClient:
         self.gui.processIncoming()
         if not self.running:
             # This is the brutal stop of the system. You may want to do
-            # some cleanup before actually shutting it down.
-            self.thread1.join()
-            self.s.close()
-            self.master.destroy()
-            sys.exit(1)
+            #  some cleanup before actually shutting it down.
+            self.kill(1)
         self.master.after(100, self.periodicCall)
 
     def sendLLAP(self, devID, data):
@@ -247,7 +297,15 @@ class ThreadedClient:
                     if self.s.read() == 'a':
                         llapMsg = 'a'
                         llapMsg += self.s.read(11)
-                        self.queue.put({'devID': llapMsg[1:3], 'payload': llapMsg[3:].rstrip("-")})
+                        self.queue.put({'devID': llapMsg[1:3],
+                                       'payload': llapMsg[3:].rstrip("-")})
+    
+    def kill(self, t):
+        if t:
+            self.thread1.join()
+        self.s.close()
+        self.master.destroy()
+        sys.exit(1)
 
     def endApplication(self):
         self.running = 0
