@@ -24,13 +24,24 @@ class GuiPart:
         self.queue = queue
         self.sendLLAP = sendLLAP
         # Set up the GUI
-        frame = Tkinter.Frame(master)
+        frame = Tkinter.Frame(master, relief=Tkinter.RAISED, borderwidth=1)
         frame.pack()
         
-        self.text = Tkinter.Text(state=Tkinter.DISABLED)
+        self.text = Tkinter.Text(state=Tkinter.DISABLED, relief=Tkinter.RAISED, borderwidth=1)
         self.text.pack()
         
-        self.input = Tkinter.Entry()
+        labela = Tkinter.Label(text='a')
+        labela.pack(side=Tkinter.LEFT)
+        
+        self.devID = Tkinter.StringVar()
+        self.okayCommand = (frame.register(self.devIDLenght), '%d')
+        self.devIDInput = Tkinter.Entry(width=2, validate='key',
+                                        textvariable=self.devID,
+                                        invalidcommand='bell',
+                                        validatecommand=self.okayCommand)
+        self.devIDInput.pack(side=Tkinter.LEFT)
+        
+        self.input = Tkinter.Entry(width=9)
         self.input.pack(side=Tkinter.LEFT)
         
         send = Tkinter.Button(text='Send', command=self.sendCommand)
@@ -40,10 +51,21 @@ class GuiPart:
         console.pack(side=Tkinter.RIGHT)
         # Add more GUI stuff here
     
+    def devIDLenght(self, why):
+        if why == 0:
+            print("len check")
+            return True
+        '''
+        value = self.devIDInput.get()
+        if len(value) <= 2:
+            return True
+        return False # new value too long
+    '''
     def sendCommand(self):
-        self.sendLLAP(self.input.get())
-        self.input.delete(0, Tkinter.END)   
-        
+        self.sendLLAP(self.devIDInput.get(), self.input.get())
+        self.devIDInput.delete(0, Tkinter.END)
+        self.input.delete(0, Tkinter.END)
+    
     
     def processIncoming(self):
         """
@@ -110,8 +132,12 @@ class ThreadedClient:
             sys.exit(1)
         self.master.after(100, self.periodicCall)
 
-    def sendLLAP(self, msg):
-        self.s.write(msg)
+    def sendLLAP(self, devID, data):
+        llapMsg = "a{}{}".format(devID, data)
+        while len(llapMsg) < 12:
+            llapMsg += '-'
+        if self.s.isOpen() == True:
+            self.s.write(llapMsg)
     
     def workerThread1(self):
         """
@@ -131,8 +157,8 @@ class ThreadedClient:
     def endApplication(self):
         self.running = 0
 
-rand = random.Random()
-root = Tkinter.Tk()
 
+root = Tkinter.Tk()
+root.geometry("+1000+250")
 client = ThreadedClient(root)
 root.mainloop()
