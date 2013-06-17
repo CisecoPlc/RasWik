@@ -30,35 +30,38 @@ class GuiPart:
         self.sendLLAP = sendLLAP
         # Set up the GUI
         
-        frame = Frame(master, relief=RAISED, borderwidth=1)
-        frame.pack()
-        
-        butframe = Frame(frame, relief=RAISED, borderwidth=1)
-        butframe.pack(side=LEFT)
+        gframe = Frame(master, relief=RAISED, borderwidth=1)
+        gframe.pack()
 
-        for n in range(10):
-            bframe = Frame(butframe)
-            bframe.pack()
-            Button(bframe, text='Read', command=lambda n=n: self.read(n)).pack(side=LEFT)
-            Button(bframe, text='Off', command=lambda n=n: self.off(n)).pack(side=LEFT)
-            Button(bframe, text='On', command=lambda n=n: self.on(n)).pack(side=LEFT)
+        canvas = Canvas(gframe, bg="white", width=556, height=742, bd=0,
+                        relief=FLAT, highlightthickness=0)
+        canvas.grid(row=0, column=3, columnspan=1, rowspan=28,
+                    sticky=W+E+N+S, padx=5, pady=5)
         
-        
-        canvas = Canvas(frame, bg="white", width=556, height=742, bd=0, relief=FLAT)
-        canvas.pack(side=LEFT)
-
         self.photoimage = PhotoImage(file="XinoRF.gif")
         canvas.create_image(278, 371, image=self.photoimage)
-
-        butframe = Frame(frame, relief=RAISED, borderwidth=1)
-        butframe.pack(side=LEFT)
         
+        self.anaLabel = {'0': StringVar(), '1': StringVar(), '2': StringVar(), '3': StringVar(), '4': StringVar(), '5': StringVar()}
+        
+        for n in range(6):
+            Button(gframe, text='Read', command=lambda n=n: self.anaRead(n)).grid(row=22+n, column=0)
+            Label(gframe, textvariable=self.anaLabel[]).grid(row=22+n, column=1)
+
+        print self.anaLabel
+#        for n in range(28):
+#            Canvas(gframe, bg="black", bd=0, relief=FLAT, height=26, highlightthickness=1, highlightcolor='white').grid(row=n, column=7)
+        
+        for n in range(10):
+            Button(gframe, text='Read', command=lambda n=n: self.read(n)).grid(row=n, column=0)
+            Button(gframe, text='Off', command=lambda n=n: self.off(n)).grid(row=n, column=1)
+            Button(gframe, text='On', command=lambda n=n: self.on(n)).grid(row=n, column=2)
+        
+        
+
         for n in range(10,20):
-            bframe = Frame(butframe)
-            bframe.pack()
-            Button(bframe, text='Read', command=lambda n=n: self.read(n)).pack(side=LEFT)
-            Button(bframe, text='Off', command=lambda n=n: self.off(n)).pack(side=LEFT)
-            Button(bframe, text='On', command=lambda n=n: self.on(n)).pack(side=LEFT)
+            Button(gframe, text='Read', command=lambda n=n: self.read(n)).grid(row=n, column=6)
+            Button(gframe, text='Off', command=lambda n=n: self.off(n)).grid(row=n, column=5)
+            Button(gframe, text='On', command=lambda n=n: self.on(n)).grid(row=n, column=4)
         
         
         frame = Frame(master, relief=RAISED, borderwidth=1)
@@ -107,7 +110,10 @@ class GuiPart:
         bah.pack(side=LEFT)
         # Add more GUI stuff here
         
-        
+    def anaRead(self, num):
+        print("anaRead: {}".format(num))
+        self.sendLLAP("XX", "A{0:02d}READ".format(num))
+    
     def read(self, num):
         print("read: {}".format(num))
     
@@ -149,6 +155,12 @@ class GuiPart:
                 # As a test, we simply print it
                 self.text.config(state=NORMAL)
                 self.text.insert(END, "Recieve LLAP from {} with Paylaod: {}\n".format(msg['devID'],msg['payload']))
+                if msg['devID'] == "XX":
+                    if msg['payload'].startswith("A"):
+                        print(self.anaLabel[msg['payload'][1:2]])
+                        print(msg['payload'][3:])
+                        self.anaLabel[msg['payload'][1:2]].set(msg['payload'][3:])
+
                 self.text.see(END)
                 self.text.config(state=DISABLED)
             except Queue.Empty:
@@ -169,6 +181,7 @@ class ThreadedClient:
         self.master = master
         self.master.protocol("WM_DELETE_WINDOW", self.endApplication)
         self.master.title("Sandy")
+        self.master.resizable(0,0)
 
 
         # Create the queue
@@ -178,8 +191,12 @@ class ThreadedClient:
         self.s.baudrate = 9600
         self.s.timeout = 0            # non-blocking read's
         self.s.port = port
-        self.s.open()
-
+        try:
+            self.s.open()
+        except serial.SerialException, e:
+            sys.stderr.write("could not open port %r: %s\n" % (port, e))
+            self.endApplication()
+        
         # Set up the GUI part
         self.gui = GuiPart(master, self.queue, self.endApplication, self.sendLLAP)
 
