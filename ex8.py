@@ -67,7 +67,7 @@ class GuiPart:
                          '5': StringVar()}
         
         for n in range(6):
-            Button(gframe, text='Read',
+            Button(gframe, text='READ',
                    command=lambda n=n: self.anaRead(n)
                    ).grid(row=21+n, column=2)
             Label(gframe, width=5,
@@ -80,39 +80,78 @@ class GuiPart:
                            '7': StringVar(),
                            '10': StringVar(),
                            '12': StringVar()}
-        Button(gframe, text='Read', command=lambda: self.read(2)
+        Button(gframe, text='READ', command=lambda: self.read(2)
                ).grid(row=24, column=4)
         Label(gframe, width=5, textvariable=self.inputLabel['2']
               ).grid(row=24, column=5)
-        Button(gframe, text='Read', command=lambda: self.read(3)
+        Button(gframe, text='READ', command=lambda: self.read(3)
                ).grid(row=23, column=4)
         Label(gframe, width=5, textvariable=self.inputLabel['3']
               ).grid(row=23, column=5)
-        Button(gframe, text='Read', command=lambda: self.read(7)
+        Button(gframe, text='READ', command=lambda: self.read(7)
                ).grid(row=19, column=4)
         Label(gframe, width=5, textvariable=self.inputLabel['7']
               ).grid(row=19, column=5)
-        Button(gframe, text='Read', command=lambda: self.read(10)
+        Button(gframe, text='READ', command=lambda: self.read(10)
                ).grid(row=15, column=4)
         Label(gframe, width=5, textvariable=self.inputLabel['10']
               ).grid(row=15, column=5)
-        Button(gframe, text='Read', command=lambda: self.read(12)
+        Button(gframe, text='READ', command=lambda: self.read(12)
                ).grid(row=13, column=4)
         Label(gframe, width=5, textvariable=self.inputLabel['12']
               ).grid(row=13, column=5)
 
 
+        # output buttons
+        self.vpwm = (master.register(self.validPWM), '%P', '%W')
+        self.outputEntry = {'6': StringVar(),
+                            '9': StringVar(),
+                            '11': StringVar(),
+                            '13': StringVar()}
+        Button(gframe, text='OFF', command=lambda: slef.off(6)
+               ).grid(row=22, column=5)
+        Button(gframe, text='ON', command=lambda: slef.on(6)
+               ).grid(row=22, column=6)
+        Button(gframe, text='PWM', command=lambda: slef.pwm(6)
+               ).grid(row=22, column=7)
+        Entry(gframe, textvariable=self.outputEntry['6'], validation=self.vpwm
+              ).grid(row=22, column=8)
+        Button(gframe, text='OFF', command=lambda: slef.off(9)
+               ).grid(row=16, column=5)
+        Button(gframe, text='ON', command=lambda: slef.on(9)
+               ).grid(row=16, column=6)
+        Button(gframe, text='PWM', command=lambda: slef.pwm(9)
+               ).grid(row=16, column=7)
+        Entry(gframe, textvariable=self.outputEntry['9'], validation=self.vpwm
+              ).grid(row=16, column=8)
+        Button(gframe, text='OFF', command=lambda: slef.off(11)
+               ).grid(row=14, column=5)
+        Button(gframe, text='ON', command=lambda: slef.on(11)
+               ).grid(row=14, column=6)
+        Button(gframe, text='PWM', command=lambda: slef.pwm(11)
+               ).grid(row=14, column=7)
+        Entry(gframe, textvariable=self.outputEntry['11'], validation=self.vpwm
+              ).grid(row=14, column=8)
+        Button(gframe, text='OFF', command=lambda: slef.off(13)
+               ).grid(row=12, column=5)
+        Button(gframe, text='ON', command=lambda: slef.on(13)
+               ).grid(row=12, column=6)
+        Button(gframe, text='PWM', command=lambda: slef.pwm(13)
+               ).grid(row=12, column=7)
+        Entry(gframe, textvariable=self.outputEntry['13'], validation=self.vpwm
+              ).grid(row=12, column=8)
+
 
 
 #        for n in range(10):
-#            Button(gframe, text='Read', command=lambda n=n: self.read(n)).grid(row=n, column=0)
+#            Button(gframe, text='READ', command=lambda n=n: self.read(n)).grid(row=n, column=0)
 #            Button(gframe, text='Off', command=lambda n=n: self.off(n)).grid(row=n, column=1)
 #            Button(gframe, text='On', command=lambda n=n: self.on(n)).grid(row=n, column=2)
         
         
 
 #        for n in range(10,20):
-#            Button(gframe, text='Read', command=lambda n=n: self.read(n)).grid(row=n, column=6)
+#            Button(gframe, text='READ', command=lambda n=n: self.read(n)).grid(row=n, column=6)
 #            Button(gframe, text='Off', command=lambda n=n: self.off(n)).grid(row=n, column=5)
 #            Button(gframe, text='On', command=lambda n=n: self.on(n)).grid(row=n, column=4)
      
@@ -133,12 +172,12 @@ class GuiPart:
 
 
 
-        self.vcmd = (master.register(self.validLenght), '%P', '%W')
+        self.vlen = (master.register(self.validLenght), '%P', '%W')
         
         self.devIDInput = Entry(frame, width=2, validate='key',
                                         textvariable=self.devID,
                                         invalidcommand='bell',
-                                        validatecommand=self.vcmd,
+                                        validatecommand=self.vlen,
                                         name='devIDInput')
 
         self.devIDInput.pack(side=LEFT)
@@ -146,7 +185,7 @@ class GuiPart:
         self.input = Entry(frame, width=9, validate='key',
                                    textvariable=self.payload,
                                    invalidcommand='bell',
-                                   validatecommand=self.vcmd,
+                                   validatecommand=self.vlen,
                                    name='payloadInput')
         self.input.pack(side=LEFT)
         
@@ -170,12 +209,16 @@ class GuiPart:
     
     def read(self, num):
         print("read: {}".format(num))
+        self.sendLLAP("XX", "D{0:02d}READ".format(num))
     
     def on(self, num):
         print("on: {}".format(num))
     
     def off(self, num):
         print("off: {}".format(num))
+    
+    def pwm(self, num):
+        print("pwm: {}".format(num))
     
     # valid percent substitutions (from the Tk entry man page)
     # %d = Type of action (1=insert, 0=delete, -1 for others)
@@ -191,6 +234,9 @@ class GuiPart:
         l = self.maxLenght[W]
         # only allow if the string length of based on entry name
         return (len(P) <= l)
+    
+    def validPWM(self, P, W):
+        return True
     
     def sendCommand(self):
         self.sendLLAP(self.devID.get(), self.payload.get())
