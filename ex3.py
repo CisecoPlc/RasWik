@@ -52,6 +52,16 @@ class GuiPart:
         console.pack(side=Tkinter.RIGHT)
         # Add more GUI stuff here
     
+    # valid percent substitutions (from the Tk entry man page)
+    # %d = Type of action (1=insert, 0=delete, -1 for others)
+    # %i = index of char string to be inserted/deleted, or -1
+    # %P = value of the entry if the edit is allowed
+    # %s = value of entry prior to editing
+    # %S = the text string being inserted or deleted, if any
+    # %v = the type of validation that is currently set
+    # %V = the type of validation that triggered the callback
+    #      (key, focusin, focusout, forced)
+    # %W = the tk name of the widget
     def devIDLenght(self, d, i, P, s, S, v, V, W):
         print "OnValidate:"
         print "d='%s'" % d
@@ -63,7 +73,7 @@ class GuiPart:
         print "V='%s'" % V
         print "W='%s'" % W
         # only allow if the string is lowercase
-        return (S.lower() == S)
+        return (len(P) <= 2)
     
     def sendCommand(self):
         self.sendLLAP(self.devIDInput.get(), self.input.get())
