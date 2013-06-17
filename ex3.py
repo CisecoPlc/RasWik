@@ -34,7 +34,8 @@ class GuiPart:
         labela.pack(side=Tkinter.LEFT)
         
         self.devID = Tkinter.StringVar()
-        self.okayCommand = (frame.register(self.devIDLenght), '%d')
+        self.okayCommand = (master.register(self.devIDLenght),
+                            '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
         self.devIDInput = Tkinter.Entry(width=2, validate='key',
                                         textvariable=self.devID,
                                         invalidcommand='bell',
@@ -51,16 +52,19 @@ class GuiPart:
         console.pack(side=Tkinter.RIGHT)
         # Add more GUI stuff here
     
-    def devIDLenght(self, why):
-        if why == 0:
-            print("len check")
-            return True
-        '''
-        value = self.devIDInput.get()
-        if len(value) <= 2:
-            return True
-        return False # new value too long
-    '''
+    def devIDLenght(self, d, i, P, s, S, v, V, W):
+        print "OnValidate:"
+        print "d='%s'" % d
+        print "i='%s'" % i
+        print "P='%s'" % P
+        print "s='%s'" % s
+        print "S='%s'" % S
+        print "v='%s'" % v
+        print "V='%s'" % V
+        print "W='%s'" % W
+        # only allow if the string is lowercase
+        return (S.lower() == S)
+    
     def sendCommand(self):
         self.sendLLAP(self.devIDInput.get(), self.input.get())
         self.devIDInput.delete(0, Tkinter.END)
