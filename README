@@ -1,0 +1,20 @@
+Learning tkinter by working up some examples all in the aid of build the Sandy GUI
+
+ex1.py:
+from the web hello world with the text wdiget
+
+ex2.py:
+adding stuff to the end of a text box and scrolling
+
+ex3.py:
+adding serial to recipe-8265-1.py
+inluding entry widget for sending txt
+
+recipe-82651-.py:
+web example for multi threading gui and io
+
+Sandy.py:
+working file
+
+LLAPSerial.py:
+llapserial module with threading
