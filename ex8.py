@@ -32,37 +32,42 @@ class GuiPart:
         
         gframe = Frame(master, relief=RAISED, borderwidth=1)
         gframe.pack()
-
-        canvas = Canvas(gframe, bg="white", width=556, height=742, bd=0,
+        
+        # pack the grid to get the damn size right
+        for n in range(29):
+            Canvas(gframe, bg=("black" if n%2 else "gray"), bd=0, relief=FLAT, width=50, height=28, highlightthickness=0, highlightcolor='white').grid(row=n, column=2)
+        #            Canvas(gframe, bg=("black" if n%2 else "white"), bd=0, relief=FLAT, width=50, height=28, highlightthickness=0, highlightcolor='white').grid(row=n, column=7)
+        
+        canvas = Canvas(gframe, bg="white", width=574, height=784, bd=0,
                         relief=FLAT, highlightthickness=0)
-        canvas.grid(row=0, column=3, columnspan=1, rowspan=28,
+        canvas.grid(row=0, column=3, columnspan=1, rowspan=29,
                     sticky=W+E+N+S, padx=5, pady=5)
         
         self.photoimage = PhotoImage(file="XinoRF.gif")
-        canvas.create_image(278, 371, image=self.photoimage)
+        canvas.create_image(286, 407, image=self.photoimage)
         
         self.anaLabel = {'0': StringVar(), '1': StringVar(), '2': StringVar(), '3': StringVar(), '4': StringVar(), '5': StringVar()}
         
         for n in range(6):
-            Button(gframe, text='Read', command=lambda n=n: self.anaRead(n)).grid(row=22+n, column=0)
-            Label(gframe, textvariable=self.anaLabel[]).grid(row=22+n, column=1)
+            Button(gframe, text='Read', command=lambda n=n: self.anaRead(n)).grid(row=21+n, column=0)
+            Label(gframe, textvariable=self.anaLabel['{}'.format(n)]).grid(row=21+n, column=1)
 
-        print self.anaLabel
-#        for n in range(28):
-#            Canvas(gframe, bg="black", bd=0, relief=FLAT, height=26, highlightthickness=1, highlightcolor='white').grid(row=n, column=7)
-        
-        for n in range(10):
-            Button(gframe, text='Read', command=lambda n=n: self.read(n)).grid(row=n, column=0)
-            Button(gframe, text='Off', command=lambda n=n: self.off(n)).grid(row=n, column=1)
-            Button(gframe, text='On', command=lambda n=n: self.on(n)).grid(row=n, column=2)
+        for n in range(29):
+            Canvas(gframe, bg=("black" if n%2 else "gray"), bd=0, relief=FLAT, width=50, height=28, highlightthickness=0, highlightcolor='white').grid(row=n, column=2)
+#            Canvas(gframe, bg=("black" if n%2 else "white"), bd=0, relief=FLAT, width=50, height=28, highlightthickness=0, highlightcolor='white').grid(row=n, column=7)
+
+#        for n in range(10):
+#            Button(gframe, text='Read', command=lambda n=n: self.read(n)).grid(row=n, column=0)
+#            Button(gframe, text='Off', command=lambda n=n: self.off(n)).grid(row=n, column=1)
+#            Button(gframe, text='On', command=lambda n=n: self.on(n)).grid(row=n, column=2)
         
         
 
-        for n in range(10,20):
-            Button(gframe, text='Read', command=lambda n=n: self.read(n)).grid(row=n, column=6)
-            Button(gframe, text='Off', command=lambda n=n: self.off(n)).grid(row=n, column=5)
-            Button(gframe, text='On', command=lambda n=n: self.on(n)).grid(row=n, column=4)
-        
+#        for n in range(10,20):
+#            Button(gframe, text='Read', command=lambda n=n: self.read(n)).grid(row=n, column=6)
+#            Button(gframe, text='Off', command=lambda n=n: self.off(n)).grid(row=n, column=5)
+#            Button(gframe, text='On', command=lambda n=n: self.on(n)).grid(row=n, column=4)
+     
         
         frame = Frame(master, relief=RAISED, borderwidth=1)
         frame.pack()
@@ -157,9 +162,7 @@ class GuiPart:
                 self.text.insert(END, "Recieve LLAP from {} with Paylaod: {}\n".format(msg['devID'],msg['payload']))
                 if msg['devID'] == "XX":
                     if msg['payload'].startswith("A"):
-                        print(self.anaLabel[msg['payload'][1:2]])
-                        print(msg['payload'][3:])
-                        self.anaLabel[msg['payload'][1:2]].set(msg['payload'][3:])
+                        self.anaLabel[msg['payload'][2:3]].set(msg['payload'][3:])
 
                 self.text.see(END)
                 self.text.config(state=DISABLED)
