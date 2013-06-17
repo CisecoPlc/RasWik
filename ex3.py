@@ -54,10 +54,10 @@ class GuiPart:
                 msg = self.queue.get(0)
                 # Check contents of message and do what it says
                 # As a test, we simply print it
-                self.text.config(state=NORMAL)
-                self.text.insert(END, msg)
-                self.text.see(END)
-                self.text.config(state=DISABLED)
+                self.text.config(state=Tkinter.NORMAL)
+                self.text.insert(Tkinter.END, msg)
+                self.text.see(Tkinter.END)
+                self.text.config(state=Tkinter.DISABLED)
             except Queue.Empty:
                 pass
 
