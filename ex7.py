@@ -28,10 +28,17 @@ class GuiPart:
         self.queue = queue
         self.sendLLAP = sendLLAP
         # Set up the GUI
+        
+        
+        butframe = Frame(master, relief=RAISED, borderwidth=1)
+        butframe.pack()
+        
+        Button(butframe, text='Read', command=self.read)
+        
         frame = Frame(master, relief=RAISED, borderwidth=1)
         frame.pack()
         
-        self.text = Text(frame, state=DISABLED, relief=RAISED, borderwidth=1, width=12, name='frame1')
+        self.text = Text(frame, state=DISABLED, relief=RAISED, borderwidth=1, height=12, name='frame1')
         self.text.pack(fill=BOTH, expand=1)
         
         labela = Label(frame, text='a')
@@ -74,6 +81,16 @@ class GuiPart:
         bah.pack(side=LEFT)
         # Add more GUI stuff here
         
+        
+    def read(self):
+        print("read")
+    
+    def on(self):
+        print("on")
+    
+    def off(self):
+        print("off")
+    
     # valid percent substitutions (from the Tk entry man page)
     # %d = Type of action (1=insert, 0=delete, -1 for others)
     # %i = index of char string to be inserted/deleted, or -1
