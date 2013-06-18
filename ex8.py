@@ -30,26 +30,23 @@ class GuiPart:
         self.sendLLAP = sendLLAP
         # Set up the GUI
         
-        gframe = Frame(master, relief=RAISED, borderwidth=1)
+        gframe = Frame(master, relief=RAISED, borderwidth=2)
         gframe.pack()
         
         # pack the grid to get the damn size right
         for n in range(29):
-            Canvas(gframe, bg=("black" if n%2 else "gray"), bd=0, relief=FLAT,
-                   width=50, height=28, highlightthickness=0,
-                   highlightcolor='white'
-                   ).grid(row=n, column=0)
-            
-            Canvas(gframe, bg=("black" if n%2 else "gray"), bd=0, relief=FLAT,
-                   width=50, height=28, highlightthickness=0,
-                   highlightcolor='white'
-                   ).grid(row=n, column=1)
-            
-            Canvas(gframe, bg=("black" if n%2 else "gray"), bd=0, relief=FLAT,
-                   width=50, height=28, highlightthickness=0,
-                   highlightcolor='white'
-                   ).grid(row=n, column=2)
-        
+            #Canvas(gframe, bg=("black" if n%2 else "gray"), bd=0, relief=FLAT,
+            #       width=50, height=28, highlightthickness=0,
+            #       highlightcolor='white'
+            #       ).grid(row=n, column=0)
+                   
+           Canvas(gframe, bg="white", bd=0, relief=FLAT,
+                  width=50, height=28, highlightthickness=0,
+                  highlightcolor='white'
+                  ).grid(row=n, column=1)
+    
+
+        # image in the middles
         canvas = Canvas(gframe, bg="white", width=574, height=784, bd=0,
                         relief=FLAT, highlightthickness=0)
         canvas.grid(row=0, column=3, columnspan=1, rowspan=29,
@@ -57,6 +54,12 @@ class GuiPart:
         
         self.photoimage = PhotoImage(file="XinoRF.gif")
         canvas.create_image(286, 407, image=self.photoimage)
+        
+        # some lables
+        Label(gframe, text='Radio Enable Pin').grid(row=17, column=4, columnspan=3, sticky=W)
+        Label(gframe, text='Serial TX').grid(row=25, column=4, columnspan=3, sticky=W)
+        Label(gframe, text='Serial RX').grid(row=26, column=4, columnspan=3, sticky=W)
+        
         
         # analog buttons
         self.anaLabel = {'0': StringVar(),
@@ -67,11 +70,9 @@ class GuiPart:
                          '5': StringVar()}
         
         for n in range(6):
-            Button(gframe, text='READ',
-                   command=lambda n=n: self.anaRead(n)
+            Button(gframe, text='READ', command=lambda n=n: self.anaRead(n)
                    ).grid(row=21+n, column=2)
-            Label(gframe, width=5,
-                  textvariable=self.anaLabel['{}'.format(n)]
+            Label(gframe, width=5, textvariable=self.anaLabel['{}'.format(n)], relief=RAISED
                   ).grid(row=21+n, column=1)
 
         # input buttons
@@ -81,24 +82,24 @@ class GuiPart:
                            '10': StringVar(),
                            '12': StringVar()}
         Button(gframe, text='READ', command=lambda: self.read(2)
-               ).grid(row=24, column=4)
-        Label(gframe, width=5, textvariable=self.inputLabel['2']
+               ).grid(row=24, column=4, sticky=W+E)
+        Label(gframe, width=5, textvariable=self.inputLabel['2'], relief=RAISED
               ).grid(row=24, column=5)
         Button(gframe, text='READ', command=lambda: self.read(3)
-               ).grid(row=23, column=4)
-        Label(gframe, width=5, textvariable=self.inputLabel['3']
+               ).grid(row=23, column=4, sticky=W+E)
+        Label(gframe, width=5, textvariable=self.inputLabel['3'], relief=RAISED
               ).grid(row=23, column=5)
         Button(gframe, text='READ', command=lambda: self.read(7)
-               ).grid(row=19, column=4)
-        Label(gframe, width=5, textvariable=self.inputLabel['7']
+               ).grid(row=19, column=4, sticky=W+E)
+        Label(gframe, width=5, textvariable=self.inputLabel['7'], relief=RAISED
               ).grid(row=19, column=5)
         Button(gframe, text='READ', command=lambda: self.read(10)
-               ).grid(row=15, column=4)
-        Label(gframe, width=5, textvariable=self.inputLabel['10']
+               ).grid(row=15, column=4, sticky=W+E)
+        Label(gframe, width=5, textvariable=self.inputLabel['10'], relief=RAISED
               ).grid(row=15, column=5)
         Button(gframe, text='READ', command=lambda: self.read(12)
-               ).grid(row=13, column=4)
-        Label(gframe, width=5, textvariable=self.inputLabel['12']
+               ).grid(row=13, column=4, sticky=W+E)
+        Label(gframe, width=5, textvariable=self.inputLabel['12'], relief=RAISED
               ).grid(row=13, column=5)
 
 
@@ -109,72 +110,66 @@ class GuiPart:
                             '11': StringVar(),
                             '13': StringVar()}
         Button(gframe, text='OFF', command=lambda: self.off(6)
-               ).grid(row=22, column=5)
+               ).grid(row=20, column=4, sticky=W+E)
         Button(gframe, text='ON', command=lambda: self.on(6)
-               ).grid(row=22, column=6)
+               ).grid(row=20, column=5, sticky=W+E)
         Button(gframe, text='PWM', command=lambda: self.pwm(6)
-               ).grid(row=22, column=7)
-        Entry(gframe, textvariable=self.outputEntry['6'], validate='key',
-              invalidcommand='bell',
-              validatecommand=self.vpwm
-              ).grid(row=22, column=8)
+               ).grid(row=20, column=6, sticky=W+E)
+        Entry(gframe, width=5, textvariable=self.outputEntry['6'], validate='key',
+              invalidcommand='bell', validatecommand=self.vpwm, justify=CENTER
+              ).grid(row=20, column=7)
         Button(gframe, text='OFF', command=lambda: self.off(9)
-               ).grid(row=16, column=5)
+               ).grid(row=16, column=4, sticky=W+E)
         Button(gframe, text='ON', command=lambda: self.on(9)
-               ).grid(row=16, column=6)
+               ).grid(row=16, column=5, sticky=W+E)
         Button(gframe, text='PWM', command=lambda: self.pwm(9)
-               ).grid(row=16, column=7)
-        Entry(gframe, textvariable=self.outputEntry['9'], validate='key',
-              invalidcommand='bell',
-              validatecommand=self.vpwm
-              ).grid(row=16, column=8)
+               ).grid(row=16, column=6, sticky=W+E)
+        Entry(gframe, width=5, textvariable=self.outputEntry['9'], validate='key',
+              invalidcommand='bell', validatecommand=self.vpwm, justify=CENTER
+              ).grid(row=16, column=7)
         Button(gframe, text='OFF', command=lambda: self.off(11)
-               ).grid(row=14, column=5)
+               ).grid(row=14, column=4, sticky=W+E)
         Button(gframe, text='ON', command=lambda: self.on(11)
-               ).grid(row=14, column=6)
+               ).grid(row=14, column=5, sticky=W+E)
         Button(gframe, text='PWM', command=lambda: self.pwm(11)
-               ).grid(row=14, column=7)
-        Entry(gframe, textvariable=self.outputEntry['11'], validate='key',
-              invalidcommand='bell',
-              validatecommand=self.vpwm
-              ).grid(row=14, column=8)
+               ).grid(row=14, column=6, sticky=W+E)
+        Entry(gframe, width=5, textvariable=self.outputEntry['11'], validate='key',
+              invalidcommand='bell', validatecommand=self.vpwm, justify=CENTER
+              ).grid(row=14, column=7)
         Button(gframe, text='OFF', command=lambda: self.off(13)
-               ).grid(row=12, column=5)
+               ).grid(row=12, column=4, sticky=W+E)
         Button(gframe, text='ON', command=lambda: self.on(13)
-               ).grid(row=12, column=6)
+               ).grid(row=12, column=5, sticky=W+E)
         Button(gframe, text='PWM', command=lambda: self.pwm(13)
-               ).grid(row=12, column=7)
-        Entry(gframe, textvariable=self.outputEntry['13'], validate='key',
-              invalidcommand='bell',
-              validatecommand=self.vpwm
-              ).grid(row=12, column=8)
+               ).grid(row=12, column=6, sticky=W+E)
+        Entry(gframe, width=5, textvariable=self.outputEntry['13'], validate='key',
+              invalidcommand='bell', validatecommand=self.vpwm, justify=CENTER
+              ).grid(row=12, column=7)
 
         # servo button
         self.vservo = (master.register(self.validServo), '%P', '%W')
         self.servoEntry = StringVar()
-        Button(gframe, text='SERVO', command=lambda: self.servo
-               ).grid(row=23, column=5)
-        Entry(gframe, textvariable=self.servoEntry, validate='key',
-              invalidcommand='bell',
-              validatecommand=self.vservo
-              ).grid(row=23, column=6)
+        Button(gframe, text='SERVO', command=self.servo
+               ).grid(row=21, column=4, sticky=W+E)
+        Entry(gframe, width=4, textvariable=self.servoEntry, validate='key',
+              invalidcommand='bell', validatecommand=self.vservo, justify=CENTER
+              ).grid(row=21, column=5)
 
         # count button
         self.vcount = (master.register(self.validCount), '%P', '%W')
         self.countEntry = StringVar()
-        Button(gframe, text='READ', command=lambda: self.count('READ')
-               ).grid(row=24, column=5)
+        Button(gframe, text='COUNT', command=lambda: self.count('READ')
+               ).grid(row=22, column=4, sticky=W+E)
         Button(gframe, text='SET', command=lambda: self.count('SET')
-               ).grid(row=24, column=6)
-        Entry(gframe, textvariable=self.countEntry, validate='key',
-              invalidcommand='bell',
-              validatecommand=self.vcount
-              ).grid(row=24, column=7)
+               ).grid(row=22, column=5, sticky=W+E)
+        Entry(gframe, width=5, textvariable=self.countEntry, validate='key',
+              invalidcommand='bell', validatecommand=self.vcount, justify=CENTER
+              ).grid(row=22, column=6)
 
 
         # bottom frame
         frame = Frame(master, relief=RAISED, borderwidth=1)
-        frame.pack()
+        frame.pack(expand=1, fill=BOTH)
         # serial console
         self.text = Text(frame, state=DISABLED, relief=RAISED, borderwidth=1,
                          height=6, name='frame1')
@@ -188,21 +183,17 @@ class GuiPart:
 
 
 
-        self.vlen = (master.register(self.validLenght), '%P', '%W')
+        self.vlen = (master.register(self.validLenght), '%P', '%W', '%S')
         
-        self.devIDInput = Entry(frame, width=2, validate='key',
-                                        textvariable=self.devID,
-                                        invalidcommand='bell',
-                                        validatecommand=self.vlen,
-                                        name='devIDInput')
+        self.devIDInput = Entry(frame, width=2, validate='key', justify=CENTER,
+                                textvariable=self.devID, invalidcommand='bell',
+                                validatecommand=self.vlen, name='devIDInput')
 
         self.devIDInput.pack(side=LEFT)
         
         self.input = Entry(frame, width=9, validate='key',
-                                   textvariable=self.payload,
-                                   invalidcommand='bell',
-                                   validatecommand=self.vlen,
-                                   name='payloadInput')
+                           textvariable=self.payload, invalidcommand='bell',
+                           validatecommand=self.vlen, name='payloadInput')
         self.input.pack(side=LEFT)
         
         self.maxLenght = {str(self.devIDInput): 2, str(self.input): 9}
@@ -252,7 +243,7 @@ class GuiPart:
     # %V = the type of validation that triggered the callback
     #      (key, focusin, focusout, forced)
     # %W = the tk name of the widget
-    def validLenght(self, P, W):
+    def validLenght(self, P, W, S):
         l = self.maxLenght[W]
         # only allow if the string length of based on entry name
         return (len(P) <= l)
@@ -282,7 +273,8 @@ class GuiPart:
                 # Check contents of message and do what it says
                 # As a test, we simply print it
                 self.text.config(state=NORMAL)
-                self.text.insert(END, "Recieve LLAP from {} with Paylaod: {}\n".format(msg['devID'],msg['payload']))
+                self.text.insert(END, "Recieve LLAP from {} with Paylaod: {}\n".
+                                 format(msg['devID'],msg['payload']))
                 if msg['devID'] == "XX":
                     if msg['payload'].startswith("A"):
                         self.anaLabel[
@@ -386,6 +378,6 @@ class ThreadedClient:
 
 
 root = Tk()
-root.geometry("+750+150")
+root.geometry("+650+150")
 client = ThreadedClient(root, port)
 root.mainloop()
