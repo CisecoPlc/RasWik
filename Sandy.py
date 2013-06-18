@@ -27,10 +27,10 @@ port = '/dev/tty.usbmodem000001'
 class GuiPart:
     def __init__(self, master, queue, endCommand, sendLLAP):
         self.queue = queue
-        self.sendLLAP = sendLLAP
+        self.sendLLAPcommand = sendLLAP
         # Set up the GUI
         
-        gframe = Frame(master, relief=RAISED, borderwidth=2)
+        gframe = Frame(master, relief=RAISED, borderwidth=4)
         gframe.pack()
         
         # pack the grid to get the damn size right
@@ -159,32 +159,37 @@ class GuiPart:
         servo.set(90)
  
         # count button
-        self.vcount = (master.register(self.validCount), '%P', '%W')
+        self.vcount = (master.register(self.validCount), '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
 
         Button(gframe, text='COUNT', command=lambda: self.count('READ')
                ).grid(row=22, column=4, sticky=W+E)
         Button(gframe, text='SET', command=lambda: self.count('SET')
                ).grid(row=22, column=5, sticky=W+E)
-        Entry(gframe, width=5, textvariable=self.digital['04'], validate='key',
+        self.countEntry = Entry(gframe, width=5, textvariable=self.digital['04'], validate='key',
               invalidcommand='bell', validatecommand=self.vcount, justify=CENTER
-              ).grid(row=22, column=6)
+              )
+        self.countEntry.grid(row=22, column=6)
 
 
         # bottom frame
-        frame = Frame(master, relief=RAISED, borderwidth=1)
+        frame = Frame(master, relief=RAISED, borderwidth=2)
         frame.pack(expand=1, fill=BOTH)
+        
         # serial console
-        self.text = Text(frame, state=DISABLED, relief=RAISED, borderwidth=1,
-                         height=6, name='frame1')
-        self.text.pack(fill=BOTH, expand=1)
+        self.text = Text(frame, state=DISABLED, relief=RAISED, borderwidth=2, height=6, width=60)
+        self.text.pack(side=LEFT, expand=1, fill=BOTH)
+        self.serialText = Text(frame, state=DISABLED, relief=RAISED, borderwidth=2, height=6, width=60)
+        self.serialText.pack(side=LEFT, expand=1, fill=BOTH)
+        
+        # llap command box
+        frame = Frame(master, relief=RAISED, borderwidth=2)
+        frame.pack(expand=1, fill=BOTH)
         
         labela = Label(frame, text='a')
         labela.pack(side=LEFT)
         
         self.devID = StringVar()
         self.payload = StringVar()
-
-
 
         self.vlen = (master.register(self.validLenght), '%P', '%W', '%S')
         
@@ -203,16 +208,16 @@ class GuiPart:
         self.devID.set("XX")
         self.payload.set("HELLO")
 
+        # send and quite buttons
         Button(frame, text='Send', command=self.sendCommand).pack(side=LEFT)
-        Button(frame, text='Done', command=endCommand).pack(side=RIGHT)
+        Button(frame, text='Quit', command=endCommand).pack(side=RIGHT)
 
-        
+        # status bar button
         frame2 = Frame(master, relief=RAISED, borderwidth=1)
         frame2.pack(fill=BOTH, expand=1)
         bah = Button(frame2, text='Bah')
         bah.pack(side=LEFT)
-        # Add more GUI stuff here
-        
+            
     def anaRead(self, num):
         print("anaRead: {}".format(num))
         self.sendLLAP("XX", "A{0:02d}READ".format(num))
@@ -231,8 +236,11 @@ class GuiPart:
     
     def pwm(self, num):
         print("pwm: {}".format(num))
-        #        if self.digital[num].get() ==
-        self.sendLLAP("XX", "D{}PWM{}".format(num, self.digital[num].get()))
+        if self.digital[num].get().isdigit():
+            self.sendLLAP("XX", "D{}PWM{}".format(num, self.digital[num].get()))
+        else:
+            self.appendText("D{} PWM: {} is not a number\n".format(num, self.digital[num].get()))
+            
     def servo(self, value):
         print("servo")
         self.sendLLAP("XX", "SERVO{}".format(value))
@@ -262,15 +270,41 @@ class GuiPart:
     def validPWM(self, P, W):
         return True
     
-    def validCount(self, P, W):
-        return True
+    def validCount(self, d, i, P, s, S, v, V, W):
+        if d == 0:
+            return True
+        elif S.isdigit() and (len(P) <=4) :
+            return True
+        else:
+            return False
     
+    # send commands
     def sendCommand(self):
         self.sendLLAP(self.devID.get(), self.payload.get())
         #self.devIDInput.delete(0, END)
         #self.input.delete(0, END)
     
-    
+    def sendLLAP(self, devID, payload):
+        self.text.config(state=NORMAL)
+        self.text.insert(END, "Sending LLAP TO {} with Paylaod: {}\n".
+                         format(devID, payload))
+        self.sendLLAPcommand(devID, payload)
+        self.text.see(END)
+        self.text.config(state=DISABLED)
+
+    # display update stuff
+    def appendText(self,msg):
+        self.text.config(state=NORMAL)
+        self.text.insert(END, msg)
+        self.text.see(END)
+        self.text.config(state=DISABLED)
+
+    def appendSerial(self, msg):
+        self.serialText.config(state=NORMAL)
+        self.serialText.insert(END, msg)
+        self.serialText.see(END)
+        self.serialText.config(state=DISABLED)
+
     def processIncoming(self):
         """
         Handle all the messages currently in the queue (if any).
@@ -292,6 +326,7 @@ class GuiPart:
                     elif msg['payload'].startswith("COUNT"):
                         # we have a count
                         self.digital['04'].set(msg['payload'][5:])
+                        self.countEntry.config(validate='key')
                     
                     elif msg['payload'][3:].startswith("PWM"):
                         # we have pwm
@@ -373,6 +408,7 @@ class ThreadedClient:
             llapMsg += '-'
         if self.s.isOpen() == True:
             self.s.write(llapMsg)
+            self.gui.appendSerial(llapMsg)
     
     def workerThread1(self):
         """
@@ -384,9 +420,12 @@ class ThreadedClient:
         while self.running:
             if self.s.isOpen():
                 if self.s.inWaiting() >= 12:
-                    if self.s.read() == 'a':
+                    char = self.s.read()
+                    self.gui.appendSerial(char)
+                    if char == 'a':
                         llapMsg = 'a'
                         llapMsg += self.s.read(11)
+                        self.gui.appendSerial(llapMsg[1:])
                         self.queue.put({'devID': llapMsg[1:3],
                                        'payload': llapMsg[3:].rstrip("-")})
     
