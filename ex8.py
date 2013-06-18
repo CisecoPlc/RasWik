@@ -75,36 +75,36 @@ class GuiPart:
             Label(gframe, width=5, textvariable=self.anaLabel['{}'.format(n)], relief=RAISED
                   ).grid(row=21+n, column=1)
 
-        self.digital = {'2': StringVar(),
-                       '3': StringVar(),
-                       '4': StringVar(),
-                       '5': StringVar(),
-                       '6': StringVar(),
-                       '7': StringVar(),
-                       '9': StringVar(),
+        self.digital = {'02': StringVar(),
+                       '03': StringVar(),
+                       '04': StringVar(),
+                       '05': StringVar(),
+                       '06': StringVar(),
+                       '07': StringVar(),
+                       '09': StringVar(),
                        '10': StringVar(),
                        '11': StringVar(),
                        '12': StringVar(),
                        '13': StringVar()}
 
         # input buttons
-        Button(gframe, text='READ', command=lambda: self.read(2)
+        Button(gframe, text='READ', command=lambda: self.read('02')
                ).grid(row=24, column=4, sticky=W+E)
-        Label(gframe, width=5, textvariable=self.digital['2'], relief=RAISED
+        Label(gframe, width=5, textvariable=self.digital['02'], relief=RAISED
               ).grid(row=24, column=5)
-        Button(gframe, text='READ', command=lambda: self.read(3)
+        Button(gframe, text='READ', command=lambda: self.read('03')
                ).grid(row=23, column=4, sticky=W+E)
-        Label(gframe, width=5, textvariable=self.digital['3'], relief=RAISED
+        Label(gframe, width=5, textvariable=self.digital['03'], relief=RAISED
               ).grid(row=23, column=5)
-        Button(gframe, text='READ', command=lambda: self.read(7)
+        Button(gframe, text='READ', command=lambda: self.read('07')
                ).grid(row=19, column=4, sticky=W+E)
-        Label(gframe, width=5, textvariable=self.digital['7'], relief=RAISED
+        Label(gframe, width=5, textvariable=self.digital['07'], relief=RAISED
               ).grid(row=19, column=5)
-        Button(gframe, text='READ', command=lambda: self.read(10)
+        Button(gframe, text='READ', command=lambda: self.read('10')
                ).grid(row=15, column=4, sticky=W+E)
         Label(gframe, width=5, textvariable=self.digital['10'], relief=RAISED
               ).grid(row=15, column=5)
-        Button(gframe, text='READ', command=lambda: self.read(12)
+        Button(gframe, text='READ', command=lambda: self.read('12')
                ).grid(row=13, column=4, sticky=W+E)
         Label(gframe, width=5, textvariable=self.digital['12'], relief=RAISED
               ).grid(row=13, column=5)
@@ -113,52 +113,51 @@ class GuiPart:
         # output buttons
         self.vpwm = (master.register(self.validPWM), '%P', '%W')
 
-        Button(gframe, text='LOW', command=lambda: self.off(6)
+        Button(gframe, text='LOW', command=lambda: self.off('06')
                ).grid(row=20, column=5, sticky=W+E)
-        Button(gframe, text='HIGH', command=lambda: self.on(6)
+        Button(gframe, text='HIGH', command=lambda: self.on('06')
                ).grid(row=20, column=4, sticky=W+E)
-        Button(gframe, text='PWM', command=lambda: self.pwm(6)
+        Button(gframe, text='PWM', command=lambda: self.pwm('06')
                ).grid(row=20, column=6, sticky=W+E)
-        Entry(gframe, width=5, textvariable=self.digital['6'], validate='key',
+        Entry(gframe, width=5, textvariable=self.digital['06'], validate='key',
               invalidcommand='bell', validatecommand=self.vpwm, justify=CENTER
               ).grid(row=20, column=7)
-        Button(gframe, text='LOW', command=lambda: self.off(9)
+        Button(gframe, text='LOW', command=lambda: self.off('09')
                ).grid(row=16, column=5, sticky=W+E)
-        Button(gframe, text='HIGH', command=lambda: self.on(9)
+        Button(gframe, text='HIGH', command=lambda: self.on('09')
                ).grid(row=16, column=4, sticky=W+E)
-        Button(gframe, text='PWM', command=lambda: self.pwm(9)
+        Button(gframe, text='PWM', command=lambda: self.pwm('09')
                ).grid(row=16, column=6, sticky=W+E)
-        Entry(gframe, width=5, textvariable=self.digital['9'], validate='key',
+        Entry(gframe, width=5, textvariable=self.digital['09'], validate='key',
               invalidcommand='bell', validatecommand=self.vpwm, justify=CENTER
               ).grid(row=16, column=7)
-        Button(gframe, text='LOW', command=lambda: self.off(11)
+        Button(gframe, text='LOW', command=lambda: self.off('11')
                ).grid(row=14, column=5, sticky=W+E)
-        Button(gframe, text='HIGH', command=lambda: self.on(11)
+        Button(gframe, text='HIGH', command=lambda: self.on('11')
                ).grid(row=14, column=4, sticky=W+E)
-        Button(gframe, text='PWM', command=lambda: self.pwm(11)
+        Button(gframe, text='PWM', command=lambda: self.pwm('11')
                ).grid(row=14, column=6, sticky=W+E)
         Entry(gframe, width=5, textvariable=self.digital['11'], validate='key',
               invalidcommand='bell', validatecommand=self.vpwm, justify=CENTER
               ).grid(row=14, column=7)
-        Button(gframe, text='LOW', command=lambda: self.off(13)
+        Button(gframe, text='LOW', command=lambda: self.off('13')
                ).grid(row=12, column=5, sticky=W+E)
-        Button(gframe, text='HIGH', command=lambda: self.on(13)
+        Button(gframe, text='HIGH', command=lambda: self.on('13')
                ).grid(row=12, column=4, sticky=W+E)
-        Button(gframe, text='PWM', command=lambda: self.pwm(13)
+        Button(gframe, text='PWM', command=lambda: self.pwm('13')
                ).grid(row=12, column=6, sticky=W+E)
         Entry(gframe, width=5, textvariable=self.digital['13'], validate='key',
               invalidcommand='bell', validatecommand=self.vpwm, justify=CENTER
               ).grid(row=12, column=7)
 
         # servo button
-        self.vservo = (master.register(self.validServo), '%P', '%W')
-
-        Button(gframe, text='SERVO', command=self.servo
-               ).grid(row=21, column=4, sticky=W+E)
-        Entry(gframe, width=4, textvariable=self.digital['5'], validate='key',
-              invalidcommand='bell', validatecommand=self.vservo, justify=CENTER
-              ).grid(row=21, column=5)
-
+        Label(gframe, text='SERVO').grid(row=21, column=4, sticky=W)
+        servo = Scale(gframe, orient=HORIZONTAL, from_=0, to=180, digits=3,
+              command=lambda value: self.servo(value)
+              )
+        servo.grid(row=21, column=5, columnspan=3, sticky=W+E)
+        servo.set(90)
+ 
         # count button
         self.vcount = (master.register(self.validCount), '%P', '%W')
 
@@ -166,7 +165,7 @@ class GuiPart:
                ).grid(row=22, column=4, sticky=W+E)
         Button(gframe, text='SET', command=lambda: self.count('SET')
                ).grid(row=22, column=5, sticky=W+E)
-        Entry(gframe, width=5, textvariable=self.digital['4'], validate='key',
+        Entry(gframe, width=5, textvariable=self.digital['04'], validate='key',
               invalidcommand='bell', validatecommand=self.vcount, justify=CENTER
               ).grid(row=22, column=6)
 
@@ -220,24 +219,30 @@ class GuiPart:
     
     def read(self, num):
         print("read: {}".format(num))
-        self.sendLLAP("XX", "D{0:02d}READ".format(num))
+        self.sendLLAP("XX", "D{}READ".format(num))
     
     def on(self, num):
-        print("on: {}".format(num))
-        self.sendLLAP("XX", "D{0:02d}HIGH".format(num))
+        print("high: {}".format(num))
+        self.sendLLAP("XX", "D{}HIGH".format(num))
     
     def off(self, num):
-        print("off: {}".format(num))
-        self.sendLLAP("XX", "D{0:02d}LOW".format(num))
+        print("low: {}".format(num))
+        self.sendLLAP("XX", "D{}LOW".format(num))
     
     def pwm(self, num):
         print("pwm: {}".format(num))
-    
-    def servo(self):
+        #        if self.digital[num].get() ==
+        self.sendLLAP("XX", "D{}PWM{}".format(num, self.digital[num].get()))
+    def servo(self, value):
         print("servo")
-    
+        self.sendLLAP("XX", "SERVO{}".format(value))
+
     def count(self, mode):
         print("count: {}".format(mode))
+        if mode == 'READ':
+            self.sendLLAP("XX", "COUNT")
+        else:
+            self.sendLLAP("XX", "COUNT{}".format(self.digital['04'].get()))
     
     # valid percent substitutions (from the Tk entry man page)
     # %d = Type of action (1=insert, 0=delete, -1 for others)
@@ -255,9 +260,6 @@ class GuiPart:
         return (len(P) <= l)
     
     def validPWM(self, P, W):
-        return True
-    
-    def validServo(self, P, W):
         return True
     
     def validCount(self, P, W):
@@ -286,6 +288,22 @@ class GuiPart:
                         self.anaLabel[
                                       msg['payload'][2:3]
                                       ].set(msg['payload'][3:])
+                    
+                    elif msg['payload'].startswith("COUNT"):
+                        # we have a count
+                        self.digital['04'].set(msg['payload'][5:])
+                    
+                    elif msg['payload'][3:].startswith("PWM"):
+                        # we have pwm
+                        self.digital[
+                                     msg['payload'][1:3]
+                                     ].set(msg['payload'][6:])
+                    
+                    elif msg['payload'].startswith("D"):
+                        self.digital[
+                                     msg['payload'][1:3]
+                                     ].set(msg['payload'][3:])
+                              
 
                 self.text.see(END)
                 self.text.config(state=DISABLED)
