@@ -108,37 +108,43 @@ class GuiPart:
                             '9': StringVar(),
                             '11': StringVar(),
                             '13': StringVar()}
-        Button(gframe, text='OFF', command=lambda: slef.off(6)
+        Button(gframe, text='OFF', command=lambda: self.off(6)
                ).grid(row=22, column=5)
-        Button(gframe, text='ON', command=lambda: slef.on(6)
+        Button(gframe, text='ON', command=lambda: self.on(6)
                ).grid(row=22, column=6)
-        Button(gframe, text='PWM', command=lambda: slef.pwm(6)
+        Button(gframe, text='PWM', command=lambda: self.pwm(6)
                ).grid(row=22, column=7)
-        Entry(gframe, textvariable=self.outputEntry['6'], validation=self.vpwm
+        Entry(gframe, textvariable=self.outputEntry['6'], validate='key',
+              invalidcommand='bell',
+              validatecommand=self.vpwm
               ).grid(row=22, column=8)
-        Button(gframe, text='OFF', command=lambda: slef.off(9)
+        Button(gframe, text='OFF', command=lambda: self.off(9)
                ).grid(row=16, column=5)
-        Button(gframe, text='ON', command=lambda: slef.on(9)
+        Button(gframe, text='ON', command=lambda: self.on(9)
                ).grid(row=16, column=6)
-        Button(gframe, text='PWM', command=lambda: slef.pwm(9)
+        Button(gframe, text='PWM', command=lambda: self.pwm(9)
                ).grid(row=16, column=7)
-        Entry(gframe, textvariable=self.outputEntry['9'], validation=self.vpwm
+        Entry(gframe, textvariable=self.outputEntry['9'], validate='key',
+              invalidcommand='bell',
+              validatecommand=self.vpwm
               ).grid(row=16, column=8)
-        Button(gframe, text='OFF', command=lambda: slef.off(11)
+        Button(gframe, text='OFF', command=lambda: self.off(11)
                ).grid(row=14, column=5)
-        Button(gframe, text='ON', command=lambda: slef.on(11)
+        Button(gframe, text='ON', command=lambda: self.on(11)
                ).grid(row=14, column=6)
-        Button(gframe, text='PWM', command=lambda: slef.pwm(11)
+        Button(gframe, text='PWM', command=lambda: self.pwm(11)
                ).grid(row=14, column=7)
-        Entry(gframe, textvariable=self.outputEntry['11'], validation=self.vpwm
+        Entry(gframe, textvariable=self.outputEntry['11'], validate='key',
+              invalidcommand='bell',
+              validatecommand=self.vpwm
               ).grid(row=14, column=8)
-        Button(gframe, text='OFF', command=lambda: slef.off(13)
+        Button(gframe, text='OFF', command=lambda: self.off(13)
                ).grid(row=12, column=5)
-        Button(gframe, text='ON', command=lambda: slef.on(13)
+        Button(gframe, text='ON', command=lambda: self.on(13)
                ).grid(row=12, column=6)
-        Button(gframe, text='PWM', command=lambda: slef.pwm(13)
+        Button(gframe, text='PWM', command=lambda: self.pwm(13)
                ).grid(row=12, column=7)
-        Entry(gframe, textvariable=self.outputEntry['13'], validation='key',
+        Entry(gframe, textvariable=self.outputEntry['13'], validate='key',
               invalidcommand='bell',
               validatecommand=self.vpwm
               ).grid(row=12, column=8)
@@ -148,7 +154,7 @@ class GuiPart:
         self.servoEntry = StringVar()
         Button(gframe, text='SERVO', command=lambda: self.servo
                ).grid(row=23, column=5)
-        Entry(gframe, textvariable=self.servoEntry, validation='key',
+        Entry(gframe, textvariable=self.servoEntry, validate='key',
               invalidcommand='bell',
               validatecommand=self.vservo
               ).grid(row=23, column=6)
@@ -160,7 +166,7 @@ class GuiPart:
                ).grid(row=24, column=5)
         Button(gframe, text='SET', command=lambda: self.count('SET')
                ).grid(row=24, column=6)
-        Entry(gframe, textvariable=self.countEntry, validation='key',
+        Entry(gframe, textvariable=self.countEntry, validate='key',
               invalidcommand='bell',
               validatecommand=self.vcount
               ).grid(row=24, column=7)
