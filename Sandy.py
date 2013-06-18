@@ -26,11 +26,12 @@ port = '/dev/tty.usbmodem000001'
 
 class GuiPart:
     def __init__(self, master, queue, endCommand, sendLLAP):
+        self.master = master
         self.queue = queue
         self.sendLLAPcommand = sendLLAP
         # Set up the GUI
         
-        gframe = Frame(master, relief=RAISED, borderwidth=4)
+        gframe = Frame(master, relief=RAISED, borderwidth=4, name='grid')
         gframe.pack()
         
         # pack the grid to get the damn size right
@@ -111,7 +112,7 @@ class GuiPart:
 
 
         # output buttons
-        self.vpwm = (master.register(self.validPWM), '%P', '%W')
+        self.vpwm = (master.register(self.validPWM), '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
 
         Button(gframe, text='LOW', command=lambda: self.off('06')
                ).grid(row=20, column=5, sticky=W+E)
@@ -120,8 +121,10 @@ class GuiPart:
         Button(gframe, text='PWM', command=lambda: self.pwm('06')
                ).grid(row=20, column=6, sticky=W+E)
         Entry(gframe, width=5, textvariable=self.digital['06'], validate='key',
-              invalidcommand='bell', validatecommand=self.vpwm, justify=CENTER
+              invalidcommand='bell', validatecommand=self.vpwm, justify=CENTER,
+              name='digital06'
               ).grid(row=20, column=7)
+
         Button(gframe, text='LOW', command=lambda: self.off('09')
                ).grid(row=16, column=5, sticky=W+E)
         Button(gframe, text='HIGH', command=lambda: self.on('09')
@@ -129,7 +132,8 @@ class GuiPart:
         Button(gframe, text='PWM', command=lambda: self.pwm('09')
                ).grid(row=16, column=6, sticky=W+E)
         Entry(gframe, width=5, textvariable=self.digital['09'], validate='key',
-              invalidcommand='bell', validatecommand=self.vpwm, justify=CENTER
+              invalidcommand='bell', validatecommand=self.vpwm, justify=CENTER,
+              name='digital09'
               ).grid(row=16, column=7)
         Button(gframe, text='LOW', command=lambda: self.off('11')
                ).grid(row=14, column=5, sticky=W+E)
@@ -138,7 +142,8 @@ class GuiPart:
         Button(gframe, text='PWM', command=lambda: self.pwm('11')
                ).grid(row=14, column=6, sticky=W+E)
         Entry(gframe, width=5, textvariable=self.digital['11'], validate='key',
-              invalidcommand='bell', validatecommand=self.vpwm, justify=CENTER
+              invalidcommand='bell', validatecommand=self.vpwm, justify=CENTER,
+              name='digital11'
               ).grid(row=14, column=7)
         Button(gframe, text='LOW', command=lambda: self.off('13')
                ).grid(row=12, column=5, sticky=W+E)
@@ -147,8 +152,10 @@ class GuiPart:
         Button(gframe, text='PWM', command=lambda: self.pwm('13')
                ).grid(row=12, column=6, sticky=W+E)
         Entry(gframe, width=5, textvariable=self.digital['13'], validate='key',
-              invalidcommand='bell', validatecommand=self.vpwm, justify=CENTER
+              invalidcommand='bell', validatecommand=self.vpwm, justify=CENTER,
+              name='digital13'
               ).grid(row=12, column=7)
+
 
         # servo button
         Label(gframe, text='SERVO').grid(row=21, column=4, sticky=W)
@@ -159,7 +166,7 @@ class GuiPart:
         servo.set(90)
  
         # count button
-        self.vcount = (master.register(self.validCount), '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
+        self.vcount = (master.register(self.validCount), '%d', '%P', '%S')
 
         Button(gframe, text='COUNT', command=lambda: self.count('READ')
                ).grid(row=22, column=4, sticky=W+E)
@@ -237,9 +244,12 @@ class GuiPart:
     def pwm(self, num):
         print("pwm: {}".format(num))
         if self.digital[num].get().isdigit():
-            self.sendLLAP("XX", "D{}PWM{}".format(num, self.digital[num].get()))
+            if int(self.digital[num].get()) < 255:
+                self.sendLLAP("XX", "D{}PWM{}".format(num, self.digital[num].get()))
+            else:
+                self.appendText("D{} PWM: {} is too large. Range 0-255\n".format(num, self.digital[num].get()))
         else:
-            self.appendText("D{} PWM: {} is not a number\n".format(num, self.digital[num].get()))
+            self.appendText("D{} PWM: {} is not a number. Range 0-255\n".format(num, self.digital[num].get()))
             
     def servo(self, value):
         print("servo")
@@ -267,10 +277,23 @@ class GuiPart:
         # only allow if the string length of based on entry name
         return (len(P) <= l)
     
-    def validPWM(self, P, W):
-        return True
-    
-    def validCount(self, d, i, P, s, S, v, V, W):
+    def validPWM(self, d, i, P, s, S, v, V, W):
+        print "d='%s'" % d
+        print "i='%s'" % i
+        print "P='%s'" % P
+        print "s='%s'" % s
+        print "S='%s'" % S
+        print "v='%s'" % v
+        print "V='%s'" % V
+        print "W='%s'" % W
+        if d == 0:
+            return True
+        elif S.isdigit() and (len(P) <=3) :
+            return True
+        else:
+            return False
+
+    def validCount(self, d, P, S):
         if d == 0:
             return True
         elif S.isdigit() and (len(P) <=4) :
@@ -338,7 +361,8 @@ class GuiPart:
                         self.digital[
                                      msg['payload'][1:3]
                                      ].set(msg['payload'][3:])
-                              
+                        self.master.nametowidget(".grid.digital{}".format(msg['payload'][1:3])).config(validate='key')
+                            
 
                 self.text.see(END)
                 self.text.config(state=DISABLED)
