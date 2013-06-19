@@ -100,7 +100,7 @@ class GuiPart:
             Label(gframe, width=5, textvariable=self.anaLabel['{}'.format(n)],
                   relief=RAISED
                   ).grid(row=self.gridAnalogRowOffset+n, column=0)
-            Label(gframe, width=4, bg='purple', text='A{0:02d}'.format(n)
+            Label(gframe, width=4, bg='pink', text='A{0:02d}'.format(n)
                   ).grid(row=self.gridAnalogRowOffset+n, column=2)
 
         # digital variables
