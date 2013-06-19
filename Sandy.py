@@ -278,15 +278,7 @@ class GuiPart:
         return (len(P) <= l)
     
     def validPWM(self, d, i, P, s, S, v, V, W):
-        print "d='%s'" % d
-        print "i='%s'" % i
-        print "P='%s'" % P
-        print "s='%s'" % s
-        print "S='%s'" % S
-        print "v='%s'" % v
-        print "V='%s'" % V
-        print "W='%s'" % W
-        if d == 0:
+        if d == '0':
             return True
         elif S.isdigit() and (len(P) <=3) :
             return True
@@ -294,7 +286,7 @@ class GuiPart:
             return False
 
     def validCount(self, d, P, S):
-        if d == 0:
+        if d == '0':
             return True
         elif S.isdigit() and (len(P) <=4) :
             return True
@@ -361,7 +353,12 @@ class GuiPart:
                         self.digital[
                                      msg['payload'][1:3]
                                      ].set(msg['payload'][3:])
-                        self.master.nametowidget(".grid.digital{}".format(msg['payload'][1:3])).config(validate='key')
+                        if (msg['payload'][1:3] == '06' or
+                            msg['payload'][1:3] == '09' or
+                            msg['payload'][1:3] == '11' or
+                            msg['payload'][1:3] == '13'):
+                            self.master.nametowidget(".grid.digital{}".format(
+                                  msg['payload'][1:3])).config(validate='key')
                             
 
                 self.text.see(END)
