@@ -57,9 +57,9 @@ class GuiPart:
         canvas.create_image(286, 407, image=self.photoimage)
         
         # some lables
-        Label(gframe, text='Radio Enable Pin').grid(row=17, column=4, columnspan=3, sticky=W)
-        Label(gframe, text='Serial TX').grid(row=25, column=4, columnspan=3, sticky=W)
-        Label(gframe, text='Serial RX').grid(row=26, column=4, columnspan=3, sticky=W)
+        Label(gframe, text='Radio Enable Pin').grid(row=17, column=5, columnspan=3, sticky=W)
+        Label(gframe, text='Serial TX').grid(row=25, column=5, columnspan=3, sticky=W)
+        Label(gframe, text='Serial RX').grid(row=26, column=5, columnspan=3, sticky=W)
         
         
         # analog buttons
@@ -72,9 +72,10 @@ class GuiPart:
         
         for n in range(6):
             Button(gframe, text='READ', command=lambda n=n: self.anaRead(n)
-                   ).grid(row=21+n, column=2)
+                   ).grid(row=21+n, column=1)
             Label(gframe, width=5, textvariable=self.anaLabel['{}'.format(n)], relief=RAISED
-                  ).grid(row=21+n, column=1)
+                  ).grid(row=21+n, column=0)
+            Label(gframe, width=4, text='A{0:02d}'.format(n)).grid(row=21+n, column=2)
 
         self.digital = {'02': StringVar(),
                        '03': StringVar(),
@@ -87,95 +88,107 @@ class GuiPart:
                        '11': StringVar(),
                        '12': StringVar(),
                        '13': StringVar()}
+        
+        # digital labels
+        for n in range(14):
+            if n > 7:
+                r = 25 - n
+            else:
+                r = 26 - n
+            Label(gframe, text="D{0:02d}".format(n)).grid(row=r, column=4)
 
         # input buttons
         Button(gframe, text='READ', command=lambda: self.read('02')
-               ).grid(row=24, column=4, sticky=W+E)
+               ).grid(row=24, column=5, sticky=W+E)
         Label(gframe, width=5, textvariable=self.digital['02'], relief=RAISED
-              ).grid(row=24, column=5)
+              ).grid(row=24, column=6)
         Button(gframe, text='READ', command=lambda: self.read('03')
-               ).grid(row=23, column=4, sticky=W+E)
+               ).grid(row=23, column=5, sticky=W+E)
         Label(gframe, width=5, textvariable=self.digital['03'], relief=RAISED
-              ).grid(row=23, column=5)
+              ).grid(row=23, column=6)
         Button(gframe, text='READ', command=lambda: self.read('07')
-               ).grid(row=19, column=4, sticky=W+E)
+               ).grid(row=19, column=5, sticky=W+E)
         Label(gframe, width=5, textvariable=self.digital['07'], relief=RAISED
-              ).grid(row=19, column=5)
+              ).grid(row=19, column=6)
         Button(gframe, text='READ', command=lambda: self.read('10')
-               ).grid(row=15, column=4, sticky=W+E)
+               ).grid(row=15, column=5, sticky=W+E)
         Label(gframe, width=5, textvariable=self.digital['10'], relief=RAISED
-              ).grid(row=15, column=5)
+              ).grid(row=15, column=6)
         Button(gframe, text='READ', command=lambda: self.read('12')
-               ).grid(row=13, column=4, sticky=W+E)
+               ).grid(row=13, column=5, sticky=W+E)
         Label(gframe, width=5, textvariable=self.digital['12'], relief=RAISED
-              ).grid(row=13, column=5)
+              ).grid(row=13, column=6)
 
 
         # output buttons
         self.vpwm = (master.register(self.validPWM), '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
 
         Button(gframe, text='LOW', command=lambda: self.off('06')
-               ).grid(row=20, column=5, sticky=W+E)
-        Button(gframe, text='HIGH', command=lambda: self.on('06')
-               ).grid(row=20, column=4, sticky=W+E)
-        Button(gframe, text='PWM', command=lambda: self.pwm('06')
                ).grid(row=20, column=6, sticky=W+E)
+        Button(gframe, text='HIGH', command=lambda: self.on('06')
+               ).grid(row=20, column=5, sticky=W+E)
+        Button(gframe, text='PWM', command=lambda: self.pwm('06')
+               ).grid(row=20, column=7, sticky=W+E)
         Entry(gframe, width=5, textvariable=self.digital['06'], validate='key',
               invalidcommand='bell', validatecommand=self.vpwm, justify=CENTER,
               name='digital06'
-              ).grid(row=20, column=7)
+              ).grid(row=20, column=8)
 
         Button(gframe, text='LOW', command=lambda: self.off('09')
-               ).grid(row=16, column=5, sticky=W+E)
-        Button(gframe, text='HIGH', command=lambda: self.on('09')
-               ).grid(row=16, column=4, sticky=W+E)
-        Button(gframe, text='PWM', command=lambda: self.pwm('09')
                ).grid(row=16, column=6, sticky=W+E)
+        Button(gframe, text='HIGH', command=lambda: self.on('09')
+               ).grid(row=16, column=5, sticky=W+E)
+        Button(gframe, text='PWM', command=lambda: self.pwm('09')
+               ).grid(row=16, column=7, sticky=W+E)
         Entry(gframe, width=5, textvariable=self.digital['09'], validate='key',
               invalidcommand='bell', validatecommand=self.vpwm, justify=CENTER,
               name='digital09'
-              ).grid(row=16, column=7)
+              ).grid(row=16, column=8)
         Button(gframe, text='LOW', command=lambda: self.off('11')
-               ).grid(row=14, column=5, sticky=W+E)
-        Button(gframe, text='HIGH', command=lambda: self.on('11')
-               ).grid(row=14, column=4, sticky=W+E)
-        Button(gframe, text='PWM', command=lambda: self.pwm('11')
                ).grid(row=14, column=6, sticky=W+E)
+        Button(gframe, text='HIGH', command=lambda: self.on('11')
+               ).grid(row=14, column=5, sticky=W+E)
+        Button(gframe, text='PWM', command=lambda: self.pwm('11')
+               ).grid(row=14, column=7, sticky=W+E)
         Entry(gframe, width=5, textvariable=self.digital['11'], validate='key',
               invalidcommand='bell', validatecommand=self.vpwm, justify=CENTER,
               name='digital11'
-              ).grid(row=14, column=7)
+              ).grid(row=14, column=8)
         Button(gframe, text='LOW', command=lambda: self.off('13')
-               ).grid(row=12, column=5, sticky=W+E)
-        Button(gframe, text='HIGH', command=lambda: self.on('13')
-               ).grid(row=12, column=4, sticky=W+E)
-        Button(gframe, text='PWM', command=lambda: self.pwm('13')
                ).grid(row=12, column=6, sticky=W+E)
+        Button(gframe, text='HIGH', command=lambda: self.on('13')
+               ).grid(row=12, column=5, sticky=W+E)
+        Button(gframe, text='PWM', command=lambda: self.pwm('13')
+               ).grid(row=12, column=7, sticky=W+E)
         Entry(gframe, width=5, textvariable=self.digital['13'], validate='key',
               invalidcommand='bell', validatecommand=self.vpwm, justify=CENTER,
               name='digital13'
-              ).grid(row=12, column=7)
+              ).grid(row=12, column=8)
 
 
         # servo button
-        Label(gframe, text='SERVO').grid(row=21, column=4, sticky=W)
+        self.servoVal = IntVar()
+        Label(gframe, text='SERVO').grid(row=21, column=5, sticky=W)
         servo = Scale(gframe, orient=HORIZONTAL, from_=0, to=180, digits=3,
-              command=lambda value: self.servo(value)
-              )
-        servo.grid(row=21, column=5, columnspan=3, sticky=W+E)
+                      command=lambda value: self.servo(value), showvalue=0,
+                      variable=self.servoVal
+                      )
+        servo.grid(row=21, column=6, columnspan=2, sticky=W+E)
         servo.set(90)
+        Label(gframe, width=5, textvariable=self.servoVal,
+              relief=RAISED).grid(row=21, column=8)
  
         # count button
         self.vcount = (master.register(self.validCount), '%d', '%P', '%S')
 
         Button(gframe, text='COUNT', command=lambda: self.count('READ')
-               ).grid(row=22, column=4, sticky=W+E)
-        Button(gframe, text='SET', command=lambda: self.count('SET')
                ).grid(row=22, column=5, sticky=W+E)
+        Button(gframe, text='SET', command=lambda: self.count('SET')
+               ).grid(row=22, column=6, sticky=W+E)
         self.countEntry = Entry(gframe, width=5, textvariable=self.digital['04'], validate='key',
               invalidcommand='bell', validatecommand=self.vcount, justify=CENTER
               )
-        self.countEntry.grid(row=22, column=6)
+        self.countEntry.grid(row=22, column=7)
 
 
         # bottom frame
@@ -247,9 +260,9 @@ class GuiPart:
             if int(self.digital[num].get()) < 255:
                 self.sendLLAP("XX", "D{}PWM{}".format(num, self.digital[num].get()))
             else:
-                self.appendText("D{} PWM: {} is too large. Range 0-255\n".format(num, self.digital[num].get()))
+                self.appendText("D{} PWM: '{}' is too large. Range 0-255\n".format(num, self.digital[num].get()))
         else:
-            self.appendText("D{} PWM: {} is not a number. Range 0-255\n".format(num, self.digital[num].get()))
+            self.appendText("D{} PWM: '{}' is not a number. Range 0-255\n".format(num, self.digital[num].get()))
             
     def servo(self, value):
         print("servo")
