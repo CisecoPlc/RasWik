@@ -23,6 +23,7 @@ import sys
 
 #port = 'Com16'
 port = '/dev/tty.usbmodem000001'
+#port = '/dev/ttyAMA0'
 
 class GuiPart:
     def __init__(self, master, queue, endCommand, sendLLAP):
@@ -45,7 +46,7 @@ class GuiPart:
         
         self.gridDigitalRowOffset = 1
         self.gridAnalogRowOffset = 10
-        self.serialConsoleWidth = 55
+        self.serialConsoleWidth = 45
         self.canvasWidth = 400
         self.canvasHeight = 459
         
@@ -129,23 +130,28 @@ class GuiPart:
         # input buttons
         Button(gframe, text='READ', command=lambda: self.read('02')
                ).grid(row=self.gridDigitalRowOffset+12, column=5, sticky=W+E)
-        Label(gframe, width=5, textvariable=self.digital['02'], relief=RAISED
+        Label(gframe, width=5, textvariable=self.digital['02'], relief=RAISED,
+              anchor=CENTER,
               ).grid(row=self.gridDigitalRowOffset+12, column=6)
         Button(gframe, text='READ', command=lambda: self.read('03')
                ).grid(row=self.gridDigitalRowOffset+11, column=5, sticky=W+E)
-        Label(gframe, width=5, textvariable=self.digital['03'], relief=RAISED
+        Label(gframe, width=5, textvariable=self.digital['03'], relief=RAISED,
+              anchor=CENTER,
               ).grid(row=self.gridDigitalRowOffset+11, column=6)
         Button(gframe, text='READ', command=lambda: self.read('07')
                ).grid(row=self.gridDigitalRowOffset+7, column=5, sticky=W+E)
-        Label(gframe, width=5, textvariable=self.digital['07'], relief=RAISED
+        Label(gframe, width=5, textvariable=self.digital['07'], relief=RAISED,
+              anchor=CENTER,
               ).grid(row=self.gridDigitalRowOffset+7, column=6)
         Button(gframe, text='READ', command=lambda: self.read('10')
                ).grid(row=self.gridDigitalRowOffset+3, column=5, sticky=W+E)
-        Label(gframe, width=5, textvariable=self.digital['10'], relief=RAISED
+        Label(gframe, width=5, textvariable=self.digital['10'], relief=RAISED,
+              anchor=CENTER,
               ).grid(row=self.gridDigitalRowOffset+3, column=6)
         Button(gframe, text='READ', command=lambda: self.read('12')
                ).grid(row=self.gridDigitalRowOffset+1, column=5, sticky=W+E)
-        Label(gframe, width=5, textvariable=self.digital['12'], relief=RAISED
+        Label(gframe, width=5, textvariable=self.digital['12'], relief=RAISED,
+              anchor=CENTER,
               ).grid(row=self.gridDigitalRowOffset+1, column=6)
 
 
@@ -201,12 +207,11 @@ class GuiPart:
                                          column=5, sticky=W)
         servo = Scale(gframe, orient=HORIZONTAL, from_=0, to=180, digits=3,
                       command=lambda value: self.servo(value), showvalue=0,
-                      variable=self.servoVal
                       )
         servo.grid(row=self.gridDigitalRowOffset+9, column=6, columnspan=2,
                    sticky=W+E)
-        servo.set(90)
-        Label(gframe, width=5, textvariable=self.servoVal,
+        
+        Label(gframe, width=5, textvariable=self.servoVal, anchor=CENTER,
               relief=RAISED).grid(row=self.gridDigitalRowOffset+9, column=8)
  
         # count button
@@ -274,6 +279,9 @@ class GuiPart:
         bah = Button(frame2, text='Bah')
         bah.pack(side=LEFT)
             
+        # set servo after text box esists
+        servo.set(90)
+    
     def anaRead(self, num):
         print("anaRead: {}".format(num))
         self.sendLLAP("XX", "A{0:02d}READ".format(num))
@@ -304,7 +312,9 @@ class GuiPart:
             
     def servo(self, value):
         print("servo")
-        self.sendLLAP("XX", "SERVO{}".format(value))
+        self.servoVal.set(int(float(value)))
+        self.sendLLAP("XX", "SERVO{}".format(int(float(value))))
+        
 
     def count(self, mode):
         print("count: {}".format(mode))
@@ -442,6 +452,13 @@ class ThreadedClient:
         self.s.baudrate = 9600
         self.s.timeout = 0            # non-blocking read's
         self.s.port = port
+
+        
+        # Set up the GUI part
+        self.gui = GuiPart(master, self.queue, self.endApplication,
+                           self.sendLLAP)
+
+        # best to open this after the gui has been drawn
         try:
             self.s.open()
         except serial.SerialException, e:
@@ -449,10 +466,6 @@ class ThreadedClient:
             self.running = 0
             self.kill(0)
         
-        # Set up the GUI part
-        self.gui = GuiPart(master, self.queue, self.endApplication,
-                           self.sendLLAP)
-
         # Set up the thread to do asynchronous I/O
         # More can be made if necessary
         self.running = 1
