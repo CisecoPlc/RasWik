@@ -31,37 +31,58 @@ class GuiPart:
         self.sendLLAPcommand = sendLLAP
         # Set up the GUI
         
-        gframe = Frame(master, relief=RAISED, borderwidth=4, name='grid')
+        # tab button frame
+        self.tBarFrame = Frame(master, relief=RAISED, name='tabBar')
+        self.tBarFrame.pack(fill=X)
+        
+        # tab buttons
+        # place holder
+        Button(self.tBarFrame, text="Basic's").pack(side=LEFT)
+        
+        # grid frame
+        gframe = Frame(master, relief=RAISED, borderwidth=2, name='grid')
         gframe.pack()
         
+        self.gridDigitalRowOffset = 1
+        self.gridAnalogRowOffset = 10
+        self.serialConsoleWidth = 55
+        self.canvasWidth = 400
+        self.canvasHeight = 459
+        
         # pack the grid to get the damn size right
-        for n in range(29):
-            #Canvas(gframe, bg=("black" if n%2 else "gray"), bd=0, relief=FLAT,
-            #       width=50, height=28, highlightthickness=0,
-            #       highlightcolor='white'
-            #       ).grid(row=n, column=0)
-                   
+        for n in range(17):
+            """
+            Canvas(gframe, bg=("black" if n%2 else "gray"), bd=0, relief=FLAT,
+                   width=50, height=28, highlightthickness=0,
+                   highlightcolor='white'
+                   ).grid(row=n, column=0)
+            """       
             Canvas(gframe, bd=0, relief=FLAT,
                    width=50, height=28, highlightthickness=0,
                    ).grid(row=n, column=1)
     
 
         # image in the middles
-        canvas = Canvas(gframe, width=574, height=784, bd=0,
+        canvas = Canvas(gframe, width=self.canvasWidth,
+                        height=self.canvasHeight, bd=0,
                         relief=FLAT, highlightthickness=0)
-        canvas.grid(row=0, column=3, columnspan=1, rowspan=29,
+        canvas.grid(row=0, column=3, columnspan=1, rowspan=18,
                     sticky=W+E+N+S, padx=5, pady=5)
         
-        self.photoimage = PhotoImage(file="XinoRF.gif")
-        canvas.create_image(286, 407, image=self.photoimage)
+        self.photoimage = PhotoImage(file="XinoRF 2.gif")
+        canvas.create_image(self.canvasWidth/2, self.canvasHeight/2,
+                            image=self.photoimage)
         
         # some lables
-        Label(gframe, text='Radio Enable Pin').grid(row=17, column=5,
-                                                    columnspan=3, sticky=W)
-        Label(gframe, text='Serial TX').grid(row=25, column=5, columnspan=3,
-                                             sticky=W)
-        Label(gframe, text='Serial RX').grid(row=26, column=5, columnspan=3,
-                                             sticky=W)
+        Label(gframe, text='Radio Enable Pin'
+              ).grid(row=self.gridDigitalRowOffset+5, column=5, columnspan=3,
+                     sticky=W)
+        Label(gframe, text='Serial TX'
+              ).grid(row=self.gridDigitalRowOffset+13, column=5, columnspan=3,
+                     sticky=W)
+        Label(gframe, text='Serial RX'
+              ).grid(row=self.gridDigitalRowOffset+14, column=5, columnspan=3,
+                     sticky=W)
         
         
         # analog buttons
@@ -74,13 +95,14 @@ class GuiPart:
         
         for n in range(6):
             Button(gframe, text='READ', command=lambda n=n: self.anaRead(n)
-                   ).grid(row=21+n, column=1)
+                   ).grid(row=self.gridAnalogRowOffset+n, column=1)
             Label(gframe, width=5, textvariable=self.anaLabel['{}'.format(n)],
                   relief=RAISED
-                  ).grid(row=21+n, column=0)
-            Label(gframe, width=4, bg='purple',
-                  text='A{0:02d}'.format(n)).grid(row=21+n, column=2)
+                  ).grid(row=self.gridAnalogRowOffset+n, column=0)
+            Label(gframe, width=4, bg='purple', text='A{0:02d}'.format(n)
+                  ).grid(row=self.gridAnalogRowOffset+n, column=2)
 
+        # digital variables
         self.digital = {'02': StringVar(),
                        '03': StringVar(),
                        '04': StringVar(),
@@ -96,106 +118,110 @@ class GuiPart:
         # digital labels
         for n in range(14):
             if n > 7:
-                r = 25 - n
+                r = self.gridDigitalRowOffset+13 - n
                 color = 'green'
             else:
-                r = 26 - n
+                r = self.gridDigitalRowOffset+14 - n
                 color = 'orange'
             Label(gframe, bg=color, text="D{0:02d}".format(n)).grid(row=r,
                                                                     column=4)
 
         # input buttons
         Button(gframe, text='READ', command=lambda: self.read('02')
-               ).grid(row=24, column=5, sticky=W+E)
+               ).grid(row=self.gridDigitalRowOffset+12, column=5, sticky=W+E)
         Label(gframe, width=5, textvariable=self.digital['02'], relief=RAISED
-              ).grid(row=24, column=6)
+              ).grid(row=self.gridDigitalRowOffset+12, column=6)
         Button(gframe, text='READ', command=lambda: self.read('03')
-               ).grid(row=23, column=5, sticky=W+E)
+               ).grid(row=self.gridDigitalRowOffset+11, column=5, sticky=W+E)
         Label(gframe, width=5, textvariable=self.digital['03'], relief=RAISED
-              ).grid(row=23, column=6)
+              ).grid(row=self.gridDigitalRowOffset+11, column=6)
         Button(gframe, text='READ', command=lambda: self.read('07')
-               ).grid(row=19, column=5, sticky=W+E)
+               ).grid(row=self.gridDigitalRowOffset+7, column=5, sticky=W+E)
         Label(gframe, width=5, textvariable=self.digital['07'], relief=RAISED
-              ).grid(row=19, column=6)
+              ).grid(row=self.gridDigitalRowOffset+7, column=6)
         Button(gframe, text='READ', command=lambda: self.read('10')
-               ).grid(row=15, column=5, sticky=W+E)
+               ).grid(row=self.gridDigitalRowOffset+3, column=5, sticky=W+E)
         Label(gframe, width=5, textvariable=self.digital['10'], relief=RAISED
-              ).grid(row=15, column=6)
+              ).grid(row=self.gridDigitalRowOffset+3, column=6)
         Button(gframe, text='READ', command=lambda: self.read('12')
-               ).grid(row=13, column=5, sticky=W+E)
+               ).grid(row=self.gridDigitalRowOffset+1, column=5, sticky=W+E)
         Label(gframe, width=5, textvariable=self.digital['12'], relief=RAISED
-              ).grid(row=13, column=6)
+              ).grid(row=self.gridDigitalRowOffset+1, column=6)
 
 
         # output buttons
         self.vpwm = (master.register(self.validPWM), '%d', '%P', '%S')
 
         Button(gframe, text='LOW', command=lambda: self.off('06')
-               ).grid(row=20, column=6, sticky=W+E)
+               ).grid(row=self.gridDigitalRowOffset+8, column=6, sticky=W+E)
         Button(gframe, text='HIGH', command=lambda: self.on('06')
-               ).grid(row=20, column=5, sticky=W+E)
+               ).grid(row=self.gridDigitalRowOffset+8, column=5, sticky=W+E)
         Button(gframe, text='PWM', command=lambda: self.pwm('06')
-               ).grid(row=20, column=7, sticky=W+E)
+               ).grid(row=self.gridDigitalRowOffset+8, column=7, sticky=W+E)
         Entry(gframe, width=5, textvariable=self.digital['06'], validate='key',
               invalidcommand='bell', validatecommand=self.vpwm, justify=CENTER,
               name='digital06'
-              ).grid(row=20, column=8)
+              ).grid(row=self.gridDigitalRowOffset+8, column=8)
 
         Button(gframe, text='LOW', command=lambda: self.off('09')
-               ).grid(row=16, column=6, sticky=W+E)
+               ).grid(row=self.gridDigitalRowOffset+4, column=6, sticky=W+E)
         Button(gframe, text='HIGH', command=lambda: self.on('09')
-               ).grid(row=16, column=5, sticky=W+E)
+               ).grid(row=self.gridDigitalRowOffset+4, column=5, sticky=W+E)
         Button(gframe, text='PWM', command=lambda: self.pwm('09')
-               ).grid(row=16, column=7, sticky=W+E)
+               ).grid(row=self.gridDigitalRowOffset+4, column=7, sticky=W+E)
         Entry(gframe, width=5, textvariable=self.digital['09'], validate='key',
               invalidcommand='bell', validatecommand=self.vpwm, justify=CENTER,
               name='digital09'
-              ).grid(row=16, column=8)
+              ).grid(row=self.gridDigitalRowOffset+4, column=8)
         Button(gframe, text='LOW', command=lambda: self.off('11')
-               ).grid(row=14, column=6, sticky=W+E)
+               ).grid(row=self.gridDigitalRowOffset+2, column=6, sticky=W+E)
         Button(gframe, text='HIGH', command=lambda: self.on('11')
-               ).grid(row=14, column=5, sticky=W+E)
+               ).grid(row=self.gridDigitalRowOffset+2, column=5, sticky=W+E)
         Button(gframe, text='PWM', command=lambda: self.pwm('11')
-               ).grid(row=14, column=7, sticky=W+E)
+               ).grid(row=self.gridDigitalRowOffset+2, column=7, sticky=W+E)
         Entry(gframe, width=5, textvariable=self.digital['11'], validate='key',
               invalidcommand='bell', validatecommand=self.vpwm, justify=CENTER,
               name='digital11'
-              ).grid(row=14, column=8)
+              ).grid(row=self.gridDigitalRowOffset+2, column=8)
         Button(gframe, text='LOW', command=lambda: self.off('13')
-               ).grid(row=12, column=6, sticky=W+E)
+               ).grid(row=self.gridDigitalRowOffset+0, column=6, sticky=W+E)
         Button(gframe, text='HIGH', command=lambda: self.on('13')
-               ).grid(row=12, column=5, sticky=W+E)
+               ).grid(row=self.gridDigitalRowOffset+0, column=5, sticky=W+E)
         Button(gframe, text='PWM', command=lambda: self.pwm('13')
-               ).grid(row=12, column=7, sticky=W+E)
+               ).grid(row=self.gridDigitalRowOffset+0, column=7, sticky=W+E)
         Entry(gframe, width=5, textvariable=self.digital['13'], validate='key',
               invalidcommand='bell', validatecommand=self.vpwm, justify=CENTER,
               name='digital13'
-              ).grid(row=12, column=8)
+              ).grid(row=self.gridDigitalRowOffset+0, column=8)
 
 
         # servo button
         self.servoVal = IntVar()
-        Label(gframe, text='SERVO').grid(row=21, column=5, sticky=W)
+        Label(gframe, text='SERVO').grid(row=self.gridDigitalRowOffset+9,
+                                         column=5, sticky=W)
         servo = Scale(gframe, orient=HORIZONTAL, from_=0, to=180, digits=3,
                       command=lambda value: self.servo(value), showvalue=0,
                       variable=self.servoVal
                       )
-        servo.grid(row=21, column=6, columnspan=2, sticky=W+E)
+        servo.grid(row=self.gridDigitalRowOffset+9, column=6, columnspan=2,
+                   sticky=W+E)
         servo.set(90)
         Label(gframe, width=5, textvariable=self.servoVal,
-              relief=RAISED).grid(row=21, column=8)
+              relief=RAISED).grid(row=self.gridDigitalRowOffset+9, column=8)
  
         # count button
         self.vcount = (master.register(self.validCount), '%d', '%P', '%S')
 
         Button(gframe, text='COUNT', command=lambda: self.count('READ')
-               ).grid(row=22, column=5, sticky=W+E)
+               ).grid(row=self.gridDigitalRowOffset+10, column=5, sticky=W+E)
         Button(gframe, text='SET', command=lambda: self.count('SET')
-               ).grid(row=22, column=6, sticky=W+E)
-        self.countEntry = Entry(gframe, width=5, textvariable=self.digital['04'], validate='key',
-              invalidcommand='bell', validatecommand=self.vcount, justify=CENTER
-              )
-        self.countEntry.grid(row=22, column=7)
+               ).grid(row=self.gridDigitalRowOffset+10, column=6, sticky=W+E)
+        self.countEntry = Entry(gframe, width=5,
+                                textvariable=self.digital['04'], validate='key',
+                                invalidcommand='bell',
+                                validatecommand=self.vcount, justify=CENTER
+                                )
+        self.countEntry.grid(row=self.gridDigitalRowOffset+10, column=7)
 
 
         # bottom frame
@@ -203,9 +229,12 @@ class GuiPart:
         frame.pack(expand=1, fill=BOTH)
         
         # serial console
-        self.text = Text(frame, state=DISABLED, relief=RAISED, borderwidth=2, height=6, width=60)
+        self.text = Text(frame, state=DISABLED, relief=RAISED, borderwidth=2,
+                         height=6, width=self.serialConsoleWidth)
         self.text.pack(side=LEFT, expand=1, fill=BOTH)
-        self.serialText = Text(frame, state=DISABLED, relief=RAISED, borderwidth=2, height=6, width=60)
+        self.serialText = Text(frame, state=DISABLED, relief=RAISED,
+                               borderwidth=2, height=6,
+                               width=self.serialConsoleWidth)
         self.serialText.pack(side=LEFT, expand=1, fill=BOTH)
         
         # llap command box
@@ -267,9 +296,11 @@ class GuiPart:
             if int(self.digital[num].get()) < 255:
                 self.sendLLAP("XX", "D{}PWM{}".format(num, self.digital[num].get()))
             else:
-                self.appendText("D{} PWM: '{}' is too large. Range 0-255\n".format(num, self.digital[num].get()))
+                self.appendText("D{} PWM: '{}' is too large. Range 0-255\n".
+                                format(num, self.digital[num].get()))
         else:
-            self.appendText("D{} PWM: '{}' is not a number. Range 0-255\n".format(num, self.digital[num].get()))
+            self.appendText("D{} PWM: '{}' is not a number. Range 0-255\n".
+                            format(num, self.digital[num].get()))
             
     def servo(self, value):
         print("servo")
