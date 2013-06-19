@@ -13,7 +13,6 @@ but they add a lot of complexity to the application.
 Created by Jacob Hallen, AB Strakt, Sweden. 2001-10-17
 """
 from Tkinter import *
-from ttk import *
 import time
 import threading
 import random
@@ -59,9 +58,9 @@ class GuiPart:
                    highlightcolor='white'
                    ).grid(row=n, column=0)
             """       
-            Canvas(gframe, bd=0, relief=FLAT, bg='grey',
+            Canvas(gframe, bd=0, relief=FLAT,
                    width=50, height=28, highlightthickness=0,
-                   ).grid(row=n, column=2)
+                   ).grid(row=n, column=1)
     
 
         # image in the middles
@@ -101,7 +100,7 @@ class GuiPart:
             Label(gframe, width=5, textvariable=self.anaLabel['{}'.format(n)],
                   relief=RAISED
                   ).grid(row=self.gridAnalogRowOffset+n, column=0)
-            Label(gframe, width=4, text='A{0:02d}'.format(n), anchor=CENTER
+            Label(gframe, width=4, bg='purple', text='A{0:02d}'.format(n)
                   ).grid(row=self.gridAnalogRowOffset+n, column=2)
 
         # digital variables
@@ -125,7 +124,7 @@ class GuiPart:
             else:
                 r = self.gridDigitalRowOffset+14 - n
                 color = 'orange'
-            Label(gframe, text="D{0:02d}".format(n), anchor=CENTER).grid(row=r,
+            Label(gframe, bg=color, text="D{0:02d}".format(n)).grid(row=r,
                                                                     column=4)
 
         # input buttons
@@ -206,8 +205,8 @@ class GuiPart:
         self.servoVal = IntVar()
         Label(gframe, text='SERVO').grid(row=self.gridDigitalRowOffset+9,
                                          column=5, sticky=W)
-        servo = Scale(gframe, orient=HORIZONTAL, from_=0, to=180,
-                      command=lambda value: self.servo(value)
+        servo = Scale(gframe, orient=HORIZONTAL, from_=0, to=180, digits=3,
+                      command=lambda value: self.servo(value), showvalue=0,
                       )
         servo.grid(row=self.gridDigitalRowOffset+9, column=6, columnspan=2,
                    sticky=W+E)
@@ -466,7 +465,7 @@ class ThreadedClient:
             sys.stderr.write("could not open port %r: %s\n" % (port, e))
             self.running = 0
             self.kill(0)
-    
+        
         # Set up the thread to do asynchronous I/O
         # More can be made if necessary
         self.running = 1
