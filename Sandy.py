@@ -41,10 +41,9 @@ class GuiPart:
             #       highlightcolor='white'
             #       ).grid(row=n, column=0)
                    
-           Canvas(gframe, bd=0, relief=FLAT,
-                  width=50, height=28, highlightthickness=0,
-                  highlightcolor='white'
-                  ).grid(row=n, column=1)
+            Canvas(gframe, bd=0, relief=FLAT,
+                   width=50, height=28, highlightthickness=0,
+                   ).grid(row=n, column=1)
     
 
         # image in the middles
@@ -57,9 +56,12 @@ class GuiPart:
         canvas.create_image(286, 407, image=self.photoimage)
         
         # some lables
-        Label(gframe, text='Radio Enable Pin').grid(row=17, column=5, columnspan=3, sticky=W)
-        Label(gframe, text='Serial TX').grid(row=25, column=5, columnspan=3, sticky=W)
-        Label(gframe, text='Serial RX').grid(row=26, column=5, columnspan=3, sticky=W)
+        Label(gframe, text='Radio Enable Pin').grid(row=17, column=5,
+                                                    columnspan=3, sticky=W)
+        Label(gframe, text='Serial TX').grid(row=25, column=5, columnspan=3,
+                                             sticky=W)
+        Label(gframe, text='Serial RX').grid(row=26, column=5, columnspan=3,
+                                             sticky=W)
         
         
         # analog buttons
@@ -73,9 +75,11 @@ class GuiPart:
         for n in range(6):
             Button(gframe, text='READ', command=lambda n=n: self.anaRead(n)
                    ).grid(row=21+n, column=1)
-            Label(gframe, width=5, textvariable=self.anaLabel['{}'.format(n)], relief=RAISED
+            Label(gframe, width=5, textvariable=self.anaLabel['{}'.format(n)],
+                  relief=RAISED
                   ).grid(row=21+n, column=0)
-            Label(gframe, width=4, text='A{0:02d}'.format(n)).grid(row=21+n, column=2)
+            Label(gframe, width=4, bg='purple',
+                  text='A{0:02d}'.format(n)).grid(row=21+n, column=2)
 
         self.digital = {'02': StringVar(),
                        '03': StringVar(),
@@ -93,9 +97,12 @@ class GuiPart:
         for n in range(14):
             if n > 7:
                 r = 25 - n
+                color = 'green'
             else:
                 r = 26 - n
-            Label(gframe, text="D{0:02d}".format(n)).grid(row=r, column=4)
+                color = 'orange'
+            Label(gframe, bg=color, text="D{0:02d}".format(n)).grid(row=r,
+                                                                    column=4)
 
         # input buttons
         Button(gframe, text='READ', command=lambda: self.read('02')
@@ -121,7 +128,7 @@ class GuiPart:
 
 
         # output buttons
-        self.vpwm = (master.register(self.validPWM), '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
+        self.vpwm = (master.register(self.validPWM), '%d', '%P', '%S')
 
         Button(gframe, text='LOW', command=lambda: self.off('06')
                ).grid(row=20, column=6, sticky=W+E)
@@ -290,7 +297,7 @@ class GuiPart:
         # only allow if the string length of based on entry name
         return (len(P) <= l)
     
-    def validPWM(self, d, i, P, s, S, v, V, W):
+    def validPWM(self, d, P, S):
         if d == '0':
             return True
         elif S.isdigit() and (len(P) <=3) :
