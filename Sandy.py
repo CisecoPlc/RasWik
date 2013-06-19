@@ -41,14 +41,14 @@ class GuiPart:
             #       highlightcolor='white'
             #       ).grid(row=n, column=0)
                    
-           Canvas(gframe, bg="white", bd=0, relief=FLAT,
+           Canvas(gframe, bd=0, relief=FLAT,
                   width=50, height=28, highlightthickness=0,
                   highlightcolor='white'
                   ).grid(row=n, column=1)
     
 
         # image in the middles
-        canvas = Canvas(gframe, bg="white", width=574, height=784, bd=0,
+        canvas = Canvas(gframe, width=574, height=784, bd=0,
                         relief=FLAT, highlightthickness=0)
         canvas.grid(row=0, column=3, columnspan=1, rowspan=29,
                     sticky=W+E+N+S, padx=5, pady=5)
