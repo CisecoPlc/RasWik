@@ -25,12 +25,15 @@ import sys
 port = '/dev/tty.usbmodem000001'
 #port = '/dev/ttyAMA0'
 
+version = "SandyWare v0.9x " 
+
 class GuiPart:
-    def __init__(self, master, queue, endCommand, sendLLAP):
+    def __init__(self, master, queue, endCommand, sendLLAP, connect):
         self.master = master
         self.queue = queue
         self.sendLLAPcommand = sendLLAP
         self.endCommand = endCommand
+        self.connectCommand = connect
         
         # variables used later
         self.gridComRowOffset = 1
@@ -44,8 +47,9 @@ class GuiPart:
         self.payload = StringVar()
         self.payload.set("HELLO")
         self.comport = StringVar()
-        self.conectText = StringVar()
-        self.conectText.set("Connect")
+        self.comport.set(port)
+        self.connectText = StringVar()
+        self.connectText.set("Connect")
         self.devID = StringVar()
         self.devID.set("XX")
         
@@ -59,6 +63,8 @@ class GuiPart:
         self.initSerialConsoles()
     
     def initTabBar(self):
+        # TODO
+        
         # tab button frame
         self.tBarFrame = Frame(self.master, relief=RAISED, name='tabBar')
         self.tBarFrame.pack(fill=X)
@@ -66,6 +72,7 @@ class GuiPart:
         # tab buttons
         # place holder
         Button(self.tBarFrame, text="Basic's").pack(side=LEFT)
+        Label(self.tBarFrame, text=version).pack(side=RIGHT)
     
     def initGrid(self):
         # grid frame
@@ -85,16 +92,22 @@ class GuiPart:
                    ).grid(row=n, column=1)
     
         # com selection bits
-        Label(gframe, text='Com Port').grid(row=self.gridComRowOffset+0, column=0, columnspan=3)
-        Entry(gframe, textvariable=self.comport).grid(row=self.gridComRowOffset+1, column=0, columnspan=3)
-        Button(gframe, textvariable=self.conectText).grid(row=self.gridComRowOffset+2, column=0, columnspan=3)
+        Label(gframe, text='Com Port').grid(row=self.gridComRowOffset+0,
+                                            column=0, columnspan=3)
+        Entry(gframe, textvariable=self.comport, width=17
+              ).grid(row=self.gridComRowOffset+1, column=0, columnspan=3)
+        Button(gframe, textvariable=self.connectText,
+               command=self.connectCommand, width=10
+               ).grid(row=self.gridComRowOffset+2, column=0, columnspan=3)
 
-        Label(gframe, text='Device ID').grid(row=self.gridComRowOffset+4, column=0, columnspan=3)
+        Label(gframe, text='Device ID').grid(row=self.gridComRowOffset+4,
+                                             column=0, columnspan=3)
         self.devIDInput = Entry(gframe, width=3, validate='key', justify=CENTER,
                                 textvariable=self.devID, invalidcommand='bell',
                                 validatecommand=self.vdev, name='devIDInput')
                                 
-        self.devIDInput.grid(row=self.gridComRowOffset+5, column=0, columnspan=3)
+        self.devIDInput.grid(row=self.gridComRowOffset+5, column=0,
+                             columnspan=3)
 
         # image in the middles
         canvas = Canvas(gframe, width=self.canvasWidth,
@@ -261,7 +274,8 @@ class GuiPart:
 
     def initBottom(self):
         # llap command box
-        lframe = Frame(self.master, relief=RAISED, borderwidth=2, name='llapFrame')
+        lframe = Frame(self.master, relief=RAISED, borderwidth=2,
+                       name='llapFrame')
         lframe.pack(expand=1, fill=BOTH)
         
         Label(lframe, text='Send a LLAP command: a').pack(side=LEFT)
@@ -280,7 +294,8 @@ class GuiPart:
 
     def initSerialConsoles(self):
         # serial console
-        sframe = Frame(self.master, relief=RAISED, borderwidth=2, name='serialFrame')
+        sframe = Frame(self.master, relief=RAISED, borderwidth=2,
+                       name='serialFrame')
         sframe.pack(expand=1, fill=BOTH)
 
         self.text = Text(sframe, state=DISABLED, relief=RAISED, borderwidth=2,
@@ -292,7 +307,8 @@ class GuiPart:
         self.serialText.pack(side=LEFT, expand=1, fill=BOTH)
 
         # status bar button
-#        bframe = Frame(master, relief=RAISED, borderwidth=1, name='statusBarFrame')
+#        bframe = Frame(master, relief=RAISED, borderwidth=1,
+#                       name='statusBarFrame')
 #        bframe.pack(fill=BOTH, expand=1)
 #        bah = Button(bframe, text='Bah')
 #        bah.pack(side=LEFT)
@@ -317,7 +333,8 @@ class GuiPart:
         print("pwm: {}".format(num))
         if self.digital[num].get().isdigit():
             if int(self.digital[num].get()) < 255:
-                self.sendLLAP(self.devID.get(), "D{}PWM{}".format(num, self.digital[num].get()))
+                self.sendLLAP(self.devID.get(),
+                              "D{}PWM{}".format(num, self.digital[num].get()))
             else:
                 self.appendText("D{} PWM: '{}' is too large. Range 0-255\n".
                                 format(num, self.digital[num].get()))
@@ -336,7 +353,8 @@ class GuiPart:
         if mode == 'READ':
             self.sendLLAP(self.devID.get(), "COUNT")
         else:
-            self.sendLLAP(self.devID.get(), "COUNT{}".format(self.digital['04'].get()))
+            self.sendLLAP(self.devID.get(),
+                          "COUNT{}".format(self.digital['04'].get()))
 
     # validation rules
 
@@ -354,8 +372,10 @@ class GuiPart:
     def initValidationRules(self):
         self.vpwm = (self.master.register(self.validPWM), '%d', '%P', '%S')
         self.vcount = (self.master.register(self.validCount), '%d', '%P', '%S')
-        self.vlen = (self.master.register(self.validPayloadLenght), '%P', '%W', '%S')
-        self.vdev = (self.master.register(self.validDevID), '%d', '%P', '%W', '%S')
+        self.vlen = (self.master.register(self.validPayloadLenght),
+                     '%P', '%W', '%S')
+        self.vdev = (self.master.register(self.validDevID), '%d',
+                     '%P', '%W', '%S')
 
     def validPayloadLenght(self, P, W, S):
         l = self.maxLenght[W]
@@ -394,6 +414,7 @@ class GuiPart:
         self.sendLLAPcommand(devID, payload)
         self.text.see(END)
         self.text.config(state=DISABLED)
+
 
     # display update stuff
     def appendText(self,msg):
@@ -460,7 +481,7 @@ class ThreadedClient:
     endApplication could reside in the GUI part, but putting them here
     means that you have all the thread controls in a single place.
     """
-    def __init__(self, master, port):
+    def __init__(self, master):
         """
         Start the GUI and the asynchronous threads. We are in the main
         (original) thread of the application, which will later be used by
@@ -470,29 +491,22 @@ class ThreadedClient:
         self.master.protocol("WM_DELETE_WINDOW", self.endApplication)
         self.master.title("Sandy")
         self.master.resizable(0,0)
-
+        
+        self.disconnectFlag = threading.Event()
+        self.t_stop = threading.Event()
 
         # Create the queue
         self.queue = Queue.Queue()
-        
+
         self.s = serial.Serial()
         self.s.baudrate = 9600
         self.s.timeout = 0            # non-blocking read's
-        self.s.port = port
 
-        
         # Set up the GUI part
         self.gui = GuiPart(master, self.queue, self.endApplication,
-                           self.sendLLAP)
+                           self.sendLLAP, self.connect)
 
-        # best to open this after the gui has been drawn
-        try:
-            self.s.open()
-        except serial.SerialException, e:
-            sys.stderr.write("could not open port %r: %s\n" % (port, e))
-            self.running = 0
-            self.kill(0)
-        
+
         # Set up the thread to do asynchronous I/O
         # More can be made if necessary
         self.running = 1
@@ -502,7 +516,19 @@ class ThreadedClient:
         # Start the periodic call in the GUI to check if the queue contains
         # anything
         self.periodicCall()
-
+    
+    def connect(self):
+        if self.gui.connectText.get().startswith('Connect'):
+            self.s.port = self.gui.comport.get()
+            try:
+                self.s.open()
+                self.gui.connectText.set('Disconnect')
+            except serial.SerialException, e:
+                self.gui.appendText("Could not open port %r: %s\n" % (port, e))
+        else:
+            self.disconnectFlag.set()
+            self.gui.connectText.set('Connect')
+            
     def periodicCall(self):
         """
         Check every 100 ms if there is something new in the queue.
@@ -540,6 +566,11 @@ class ThreadedClient:
                         self.gui.appendSerial(llapMsg[1:])
                         self.queue.put({'devID': llapMsg[1:3],
                                        'payload': llapMsg[3:].rstrip("-")})
+            if self.disconnectFlag.isSet():
+                self.s.close()
+                self.disconnectFlag.clear()
+
+            self.t_stop.wait(0.01)
     
     def kill(self, t):
         if t:
@@ -554,5 +585,5 @@ class ThreadedClient:
 
 root = Tk()
 root.geometry("+650+150")
-client = ThreadedClient(root, port)
+client = ThreadedClient(root)
 root.mainloop()
