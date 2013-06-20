@@ -4,7 +4,7 @@ you are running Tkinter as the graphical user interface. Tkinter is safe
 to use as long as all the graphics commands are handled in a single thread.
 Since it is more efficient to make I/O channels to block and wait for something
 to happen rather than poll at regular intervals, we want I/O to be handled
-in separate threads. These can communicate in a threasafe way with the main,
+in separate threads. These can communicate in a thread safe way with the main,
 GUI-oriented process through one or several queues. In this solution the GUI
 still has to make a poll at a reasonable interval, to check if there is
 something in the queue that needs processing. Other solutions are possible,
@@ -44,6 +44,7 @@ class GuiPart:
         gframe = Frame(master, relief=RAISED, borderwidth=2, name='grid')
         gframe.pack()
         
+        self.gridComRowOffset = 1
         self.gridDigitalRowOffset = 1
         self.gridAnalogRowOffset = 10
         self.serialConsoleWidth = 45
@@ -74,7 +75,7 @@ class GuiPart:
         canvas.create_image(self.canvasWidth/2, self.canvasHeight/2,
                             image=self.photoimage)
         
-        # some lables
+        # some labels
         Label(gframe, text='Radio Enable Pin'
               ).grid(row=self.gridDigitalRowOffset+5, column=5, columnspan=3,
                      sticky=W)
@@ -246,8 +247,7 @@ class GuiPart:
         frame = Frame(master, relief=RAISED, borderwidth=2)
         frame.pack(expand=1, fill=BOTH)
         
-        labela = Label(frame, text='a')
-        labela.pack(side=LEFT)
+        Label(frame, text='a').pack(side=LEFT)
         
         self.devID = StringVar()
         self.payload = StringVar()
@@ -362,7 +362,7 @@ class GuiPart:
     
     def sendLLAP(self, devID, payload):
         self.text.config(state=NORMAL)
-        self.text.insert(END, "Sending LLAP TO {} with Paylaod: {}\n".
+        self.text.insert(END, "Sending LLAP TO {} with Data: {}\n".
                          format(devID, payload))
         self.sendLLAPcommand(devID, payload)
         self.text.see(END)
@@ -391,7 +391,7 @@ class GuiPart:
                 # Check contents of message and do what it says
                 # As a test, we simply print it
                 self.text.config(state=NORMAL)
-                self.text.insert(END, "Recieve LLAP from {} with Paylaod: {}\n".
+                self.text.insert(END, "Received LLAP from {} with Data: {}\n".
                                  format(msg['devID'],msg['payload']))
                 if msg['devID'] == "XX":
                     if msg['payload'].startswith("A"):
