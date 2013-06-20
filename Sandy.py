@@ -30,27 +30,48 @@ class GuiPart:
         self.master = master
         self.queue = queue
         self.sendLLAPcommand = sendLLAP
-        # Set up the GUI
+        self.endCommand = endCommand
         
-        # tab button frame
-        self.tBarFrame = Frame(master, relief=RAISED, name='tabBar')
-        self.tBarFrame.pack(fill=X)
-        
-        # tab buttons
-        # place holder
-        Button(self.tBarFrame, text="Basic's").pack(side=LEFT)
-        
-        # grid frame
-        gframe = Frame(master, relief=RAISED, borderwidth=2, name='grid')
-        gframe.pack()
-        
+        # variables used later
         self.gridComRowOffset = 1
         self.gridDigitalRowOffset = 1
         self.gridAnalogRowOffset = 10
         self.serialConsoleWidth = 45
         self.canvasWidth = 400
         self.canvasHeight = 459
+        self.maxLenght = {'.grid.devIDInput': 2, '.llapFrame.dataInput': 9}
+        self.servoVal = IntVar()
+        self.payload = StringVar()
+        self.payload.set("HELLO")
+        self.comport = StringVar()
+        self.conectText = StringVar()
+        self.conectText.set("Connect")
+        self.devID = StringVar()
+        self.devID.set("XX")
         
+        # validation setup
+        self.initValidationRules()
+        
+        # Set up the GUI
+        self.initTabBar()
+        self.initGrid()
+        self.initBottom()
+        self.initSerialConsoles()
+    
+    def initTabBar(self):
+        # tab button frame
+        self.tBarFrame = Frame(self.master, relief=RAISED, name='tabBar')
+        self.tBarFrame.pack(fill=X)
+        
+        # tab buttons
+        # place holder
+        Button(self.tBarFrame, text="Basic's").pack(side=LEFT)
+    
+    def initGrid(self):
+        # grid frame
+        gframe = Frame(self.master, relief=RAISED, borderwidth=2, name='grid')
+        gframe.pack()
+
         # pack the grid to get the damn size right
         for n in range(17):
             """
@@ -63,6 +84,17 @@ class GuiPart:
                    width=50, height=28, highlightthickness=0,
                    ).grid(row=n, column=1)
     
+        # com selection bits
+        Label(gframe, text='Com Port').grid(row=self.gridComRowOffset+0, column=0, columnspan=3)
+        Entry(gframe, textvariable=self.comport).grid(row=self.gridComRowOffset+1, column=0, columnspan=3)
+        Button(gframe, textvariable=self.conectText).grid(row=self.gridComRowOffset+2, column=0, columnspan=3)
+
+        Label(gframe, text='Device ID').grid(row=self.gridComRowOffset+4, column=0, columnspan=3)
+        self.devIDInput = Entry(gframe, width=3, validate='key', justify=CENTER,
+                                textvariable=self.devID, invalidcommand='bell',
+                                validatecommand=self.vdev, name='devIDInput')
+                                
+        self.devIDInput.grid(row=self.gridComRowOffset+5, column=0, columnspan=3)
 
         # image in the middles
         canvas = Canvas(gframe, width=self.canvasWidth,
@@ -157,8 +189,6 @@ class GuiPart:
 
 
         # output buttons
-        self.vpwm = (master.register(self.validPWM), '%d', '%P', '%S')
-
         Button(gframe, text='LOW', command=lambda: self.off('06')
                ).grid(row=self.gridDigitalRowOffset+8, column=6, sticky=W+E)
         Button(gframe, text='HIGH', command=lambda: self.on('06')
@@ -203,7 +233,6 @@ class GuiPart:
 
 
         # servo button
-        self.servoVal = IntVar()
         Label(gframe, text='SERVO').grid(row=self.gridDigitalRowOffset+9,
                                          column=5, sticky=W)
         servo = Scale(gframe, orient=HORIZONTAL, from_=0, to=180, digits=3,
@@ -214,10 +243,11 @@ class GuiPart:
         
         Label(gframe, width=5, textvariable=self.servoVal, anchor=CENTER,
               relief=RAISED).grid(row=self.gridDigitalRowOffset+9, column=8)
- 
+              
+        # set servo intial val
+        servo.set(90)
+        
         # count button
-        self.vcount = (master.register(self.validCount), '%d', '%P', '%S')
-
         Button(gframe, text='COUNT', command=lambda: self.count('READ')
                ).grid(row=self.gridDigitalRowOffset+10, column=5, sticky=W+E)
         Button(gframe, text='SET', command=lambda: self.count('SET')
@@ -229,80 +259,65 @@ class GuiPart:
                                 )
         self.countEntry.grid(row=self.gridDigitalRowOffset+10, column=7)
 
-
-        # bottom frame
-        frame = Frame(master, relief=RAISED, borderwidth=2)
-        frame.pack(expand=1, fill=BOTH)
+    def initBottom(self):
+        # llap command box
+        lframe = Frame(self.master, relief=RAISED, borderwidth=2, name='llapFrame')
+        lframe.pack(expand=1, fill=BOTH)
         
+        Label(lframe, text='Send a LLAP command: a').pack(side=LEFT)
+        Label(lframe, textvariable=self.devID, relief=RAISED,
+              width=2).pack(side=LEFT)
+        
+        
+        self.input = Entry(lframe, width=9, validate='key',
+                           textvariable=self.payload, invalidcommand='bell',
+                           validatecommand=self.vlen, name='dataInput')
+        self.input.pack(side=LEFT)
+
+        # send and quite buttons
+        Button(lframe, text='Send', command=self.sendCommand).pack(side=LEFT)
+        Button(lframe, text='Quit', command=self.endCommand).pack(side=RIGHT)
+
+    def initSerialConsoles(self):
         # serial console
-        self.text = Text(frame, state=DISABLED, relief=RAISED, borderwidth=2,
+        sframe = Frame(self.master, relief=RAISED, borderwidth=2, name='serialFrame')
+        sframe.pack(expand=1, fill=BOTH)
+
+        self.text = Text(sframe, state=DISABLED, relief=RAISED, borderwidth=2,
                          height=6, width=self.serialConsoleWidth)
         self.text.pack(side=LEFT, expand=1, fill=BOTH)
-        self.serialText = Text(frame, state=DISABLED, relief=RAISED,
+        self.serialText = Text(sframe, state=DISABLED, relief=RAISED,
                                borderwidth=2, height=6,
                                width=self.serialConsoleWidth)
         self.serialText.pack(side=LEFT, expand=1, fill=BOTH)
-        
-        # llap command box
-        frame = Frame(master, relief=RAISED, borderwidth=2)
-        frame.pack(expand=1, fill=BOTH)
-        
-        Label(frame, text='a').pack(side=LEFT)
-        
-        self.devID = StringVar()
-        self.payload = StringVar()
-
-        self.vlen = (master.register(self.validLenght), '%P', '%W', '%S')
-        
-        self.devIDInput = Entry(frame, width=2, validate='key', justify=CENTER,
-                                textvariable=self.devID, invalidcommand='bell',
-                                validatecommand=self.vlen, name='devIDInput')
-
-        self.devIDInput.pack(side=LEFT)
-        
-        self.input = Entry(frame, width=9, validate='key',
-                           textvariable=self.payload, invalidcommand='bell',
-                           validatecommand=self.vlen, name='payloadInput')
-        self.input.pack(side=LEFT)
-        
-        self.maxLenght = {str(self.devIDInput): 2, str(self.input): 9}
-        self.devID.set("XX")
-        self.payload.set("HELLO")
-
-        # send and quite buttons
-        Button(frame, text='Send', command=self.sendCommand).pack(side=LEFT)
-        Button(frame, text='Quit', command=endCommand).pack(side=RIGHT)
 
         # status bar button
-        frame2 = Frame(master, relief=RAISED, borderwidth=1)
-        frame2.pack(fill=BOTH, expand=1)
-        bah = Button(frame2, text='Bah')
-        bah.pack(side=LEFT)
-            
-        # set servo after text box esists
-        servo.set(90)
-    
+#        bframe = Frame(master, relief=RAISED, borderwidth=1, name='statusBarFrame')
+#        bframe.pack(fill=BOTH, expand=1)
+#        bah = Button(bframe, text='Bah')
+#        bah.pack(side=LEFT)
+
     def anaRead(self, num):
         print("anaRead: {}".format(num))
-        self.sendLLAP("XX", "A{0:02d}READ".format(num))
+        self.sendLLAP(self.devID.get(), "A{0:02d}READ".format(num))
     
     def read(self, num):
         print("read: {}".format(num))
-        self.sendLLAP("XX", "D{}READ".format(num))
+        self.sendLLAP(self.devID.get(), "D{}READ".format(num))
     
     def on(self, num):
         print("high: {}".format(num))
-        self.sendLLAP("XX", "D{}HIGH".format(num))
+        self.sendLLAP(self.devID.get(), "D{}HIGH".format(num))
     
     def off(self, num):
         print("low: {}".format(num))
-        self.sendLLAP("XX", "D{}LOW".format(num))
+        self.sendLLAP(self.devID.get(), "D{}LOW".format(num))
     
     def pwm(self, num):
         print("pwm: {}".format(num))
         if self.digital[num].get().isdigit():
             if int(self.digital[num].get()) < 255:
-                self.sendLLAP("XX", "D{}PWM{}".format(num, self.digital[num].get()))
+                self.sendLLAP(self.devID.get(), "D{}PWM{}".format(num, self.digital[num].get()))
             else:
                 self.appendText("D{} PWM: '{}' is too large. Range 0-255\n".
                                 format(num, self.digital[num].get()))
@@ -313,16 +328,18 @@ class GuiPart:
     def servo(self, value):
         print("servo")
         self.servoVal.set(int(float(value)))
-        self.sendLLAP("XX", "SERVO{}".format(int(float(value))))
+        self.sendLLAP(self.devID.get(), "SERVO{}".format(int(float(value))))
         
 
     def count(self, mode):
         print("count: {}".format(mode))
         if mode == 'READ':
-            self.sendLLAP("XX", "COUNT")
+            self.sendLLAP(self.devID.get(), "COUNT")
         else:
-            self.sendLLAP("XX", "COUNT{}".format(self.digital['04'].get()))
-    
+            self.sendLLAP(self.devID.get(), "COUNT{}".format(self.digital['04'].get()))
+
+    # validation rules
+
     # valid percent substitutions (from the Tk entry man page)
     # %d = Type of action (1=insert, 0=delete, -1 for others)
     # %i = index of char string to be inserted/deleted, or -1
@@ -333,10 +350,20 @@ class GuiPart:
     # %V = the type of validation that triggered the callback
     #      (key, focusin, focusout, forced)
     # %W = the tk name of the widget
-    def validLenght(self, P, W, S):
+
+    def initValidationRules(self):
+        self.vpwm = (self.master.register(self.validPWM), '%d', '%P', '%S')
+        self.vcount = (self.master.register(self.validCount), '%d', '%P', '%S')
+        self.vlen = (self.master.register(self.validPayloadLenght), '%P', '%W', '%S')
+        self.vdev = (self.master.register(self.validDevID), '%d', '%P', '%W', '%S')
+
+    def validPayloadLenght(self, P, W, S):
         l = self.maxLenght[W]
         # only allow if the string length of based on entry name
         return (len(P) <= l)
+    
+    def validDevID(self, d, P, W, S):
+        return True
     
     def validPWM(self, d, P, S):
         if d == '0':
@@ -362,7 +389,7 @@ class GuiPart:
     
     def sendLLAP(self, devID, payload):
         self.text.config(state=NORMAL)
-        self.text.insert(END, "Sending LLAP TO {} with Data: {}\n".
+        self.text.insert(END, "Sending LLAP to {} with Data: {}\n".
                          format(devID, payload))
         self.sendLLAPcommand(devID, payload)
         self.text.see(END)
@@ -393,7 +420,7 @@ class GuiPart:
                 self.text.config(state=NORMAL)
                 self.text.insert(END, "Received LLAP from {} with Data: {}\n".
                                  format(msg['devID'],msg['payload']))
-                if msg['devID'] == "XX":
+                if msg['devID'] == self.devID.get():
                     if msg['payload'].startswith("A"):
                         self.anaLabel[
                                       msg['payload'][2:3]
