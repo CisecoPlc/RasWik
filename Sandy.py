@@ -19,6 +19,7 @@ import random
 import Queue
 import serial
 import sys
+import ttk
 #import ImageTk
 
 #port = 'Com16'
@@ -51,6 +52,8 @@ class GuiPart:
         self.connectText.set("Connect")
         self.devID = StringVar()
         self.devID.set("XX")
+        self.gif = "XinoRF 3 copy.gif"
+        self.historyList = []
         
         # validation setup
         self.initValidationRules()
@@ -116,7 +119,7 @@ class GuiPart:
         canvas.grid(row=0, column=3, columnspan=1, rowspan=18,
                     sticky=W+E+N+S, padx=5, pady=5)
         
-        self.photoimage = PhotoImage(file="XinoRF 2.gif")
+        self.photoimage = PhotoImage(file=self.gif)
         canvas.create_image(self.canvasWidth/2, self.canvasHeight/2,
                             image=self.photoimage)
         
@@ -146,7 +149,7 @@ class GuiPart:
             Label(gframe, width=5, textvariable=self.anaLabel['{}'.format(n)],
                   relief=RAISED
                   ).grid(row=self.gridAnalogRowOffset+n, column=0)
-            Label(gframe, width=4, bg='pink', text='A{0:02d}'.format(n)
+            Label(gframe, width=4, bg='red', fg='white', text='A{0:02d}'.format(n)
                   ).grid(row=self.gridAnalogRowOffset+n, column=2)
 
         # digital variables
@@ -166,11 +169,13 @@ class GuiPart:
         for n in range(14):
             if n > 7:
                 r = self.gridDigitalRowOffset+13 - n
-                color = 'green'
+                color = 'green4'
+                fgcolor = 'white'
             else:
                 r = self.gridDigitalRowOffset+14 - n
-                color = 'orange'
-            Label(gframe, bg=color, text="D{0:02d}".format(n)).grid(row=r,
+                color = 'blue'
+                fgcolor = 'white'
+            Label(gframe, bg=color, fg=fgcolor, text="D{0:02d}".format(n)).grid(row=r,
                                                                     column=4)
 
         # input buttons
@@ -291,6 +296,14 @@ class GuiPart:
 
         # send and quite buttons
         Button(lframe, text='Send', command=self.sendCommand).pack(side=LEFT)
+        
+        # history
+        Label(lframe, text='History', width=10, anchor=E).pack(side=LEFT)
+        self.historyBox = ttk.Combobox(lframe, width=12, state='readonly')
+        self.historyBox.pack(side=LEFT)
+        self.historyBox['values'] = self.historyList
+        Button(lframe, text='Send Previous', command=self.sendOldCommand).pack(side=LEFT)
+
         Button(lframe, text='Quit', command=self.endCommand).pack(side=RIGHT)
 
     def initSerialConsoles(self):
@@ -441,9 +454,19 @@ class GuiPart:
     # send commands
     def sendCommand(self):
         self.sendLLAP(self.devID.get(), self.payload.get())
-        #self.devIDInput.delete(0, END)
-        #self.payloadInput.delete(0, END)
-    
+        llap = "a{}{}".format(self.devID.get(), self.payload.get())
+        while len(llap) < 12:
+            llap += '-'
+        
+        if len(self.historyList) == 0 or self.historyList[0] != llap:
+            self.historyList.insert(0, llap)
+            self.historyBox['values'] = self.historyList
+            self.historyBox.current(0)
+                           
+    def sendOldCommand(self):
+        if self.historyBox.get().startswith("a"):
+            self.sendLLAP(self.historyBox.get()[1:3], self.historyBox.get()[3:].strip('-'))
+        
     def sendLLAP(self, devID, payload):
         self.text.config(state=NORMAL)
         self.text.insert(END, "Sending LLAP to {} with Data: {}\n".
