@@ -42,7 +42,6 @@ class GuiPart:
         self.serialConsoleWidth = 45
         self.canvasWidth = 400
         self.canvasHeight = 459
-        self.maxLenght = {'.grid.devIDInput': 2, '.llapFrame.dataInput': 9}
         self.servoVal = IntVar()
         self.payload = StringVar()
         self.payload.set("HELLO")
@@ -108,6 +107,7 @@ class GuiPart:
                                 
         self.devIDInput.grid(row=self.gridComRowOffset+5, column=0,
                              columnspan=3)
+        Label(gframe, text="A-Z, -, #, @, ?, \, *").grid(row=self.gridComRowOffset+6, column=0, columnspan=3)
 
         # image in the middles
         canvas = Canvas(gframe, width=self.canvasWidth,
@@ -178,27 +178,27 @@ class GuiPart:
                ).grid(row=self.gridDigitalRowOffset+12, column=5, sticky=W+E)
         Label(gframe, width=5, textvariable=self.digital['02'], relief=RAISED,
               anchor=CENTER,
-              ).grid(row=self.gridDigitalRowOffset+12, column=6)
+              ).grid(row=self.gridDigitalRowOffset+12, column=8)
         Button(gframe, text='READ', command=lambda: self.read('03')
                ).grid(row=self.gridDigitalRowOffset+11, column=5, sticky=W+E)
         Label(gframe, width=5, textvariable=self.digital['03'], relief=RAISED,
               anchor=CENTER,
-              ).grid(row=self.gridDigitalRowOffset+11, column=6)
+              ).grid(row=self.gridDigitalRowOffset+11, column=8)
         Button(gframe, text='READ', command=lambda: self.read('07')
                ).grid(row=self.gridDigitalRowOffset+7, column=5, sticky=W+E)
         Label(gframe, width=5, textvariable=self.digital['07'], relief=RAISED,
               anchor=CENTER,
-              ).grid(row=self.gridDigitalRowOffset+7, column=6)
+              ).grid(row=self.gridDigitalRowOffset+7, column=8)
         Button(gframe, text='READ', command=lambda: self.read('10')
                ).grid(row=self.gridDigitalRowOffset+3, column=5, sticky=W+E)
         Label(gframe, width=5, textvariable=self.digital['10'], relief=RAISED,
               anchor=CENTER,
-              ).grid(row=self.gridDigitalRowOffset+3, column=6)
+              ).grid(row=self.gridDigitalRowOffset+3, column=8)
         Button(gframe, text='READ', command=lambda: self.read('12')
                ).grid(row=self.gridDigitalRowOffset+1, column=5, sticky=W+E)
         Label(gframe, width=5, textvariable=self.digital['12'], relief=RAISED,
               anchor=CENTER,
-              ).grid(row=self.gridDigitalRowOffset+1, column=6)
+              ).grid(row=self.gridDigitalRowOffset+1, column=8)
 
 
         # output buttons
@@ -261,16 +261,17 @@ class GuiPart:
         servo.set(90)
         
         # count button
-        Button(gframe, text='COUNT', command=lambda: self.count('READ')
-               ).grid(row=self.gridDigitalRowOffset+10, column=5, sticky=W+E)
-        Button(gframe, text='SET', command=lambda: self.count('SET')
+        Label(gframe, text='COUNT').grid(row=self.gridDigitalRowOffset+10, column=5, sticky=W)
+        Button(gframe, text='READ', command=lambda: self.count('READ')
                ).grid(row=self.gridDigitalRowOffset+10, column=6, sticky=W+E)
+        Button(gframe, text='SET', command=lambda: self.count('SET')
+               ).grid(row=self.gridDigitalRowOffset+10, column=7, sticky=W+E)
         self.countEntry = Entry(gframe, width=5,
                                 textvariable=self.digital['04'], validate='key',
                                 invalidcommand='bell',
                                 validatecommand=self.vcount, justify=CENTER
                                 )
-        self.countEntry.grid(row=self.gridDigitalRowOffset+10, column=7)
+        self.countEntry.grid(row=self.gridDigitalRowOffset+10, column=8)
 
     def initBottom(self):
         # llap command box
@@ -283,10 +284,10 @@ class GuiPart:
               width=2).pack(side=LEFT)
         
         
-        self.input = Entry(lframe, width=9, validate='key',
+        self.payloadInput = Entry(lframe, width=9, validate='key',
                            textvariable=self.payload, invalidcommand='bell',
-                           validatecommand=self.vlen, name='dataInput')
-        self.input.pack(side=LEFT)
+                           validatecommand=self.vpay, name='dataInput')
+        self.payloadInput.pack(side=LEFT)
 
         # send and quite buttons
         Button(lframe, text='Send', command=self.sendCommand).pack(side=LEFT)
@@ -357,9 +358,13 @@ class GuiPart:
         print("count: {}".format(mode))
         if mode == 'READ':
             self.sendLLAP(self.devID.get(), "COUNT")
-        else:
-            self.sendLLAP(self.devID.get(),
-                          "COUNT{}".format(self.digital['04'].get()))
+        elif mode == 'SET':
+            #check we have a number
+            if self.digital['04'].get().isdigit():
+                self.sendLLAP(self.devID.get(),
+                              "COUNT{}".format(self.digital['04'].get()))
+            else:
+                self.appendText("Setting COUNT requires a number\n")
 
     # validation rules
 
@@ -377,18 +382,37 @@ class GuiPart:
     def initValidationRules(self):
         self.vpwm = (self.master.register(self.validPWM), '%d', '%P', '%S')
         self.vcount = (self.master.register(self.validCount), '%d', '%P', '%S')
-        self.vlen = (self.master.register(self.validPayloadLenght),
+        self.vpay = (self.master.register(self.validPayloadLenght),
                      '%P', '%W', '%S')
         self.vdev = (self.master.register(self.validDevID), '%d',
-                     '%P', '%W', '%S')
+                     '%P', '%W', '%P', '%S')
 
     def validPayloadLenght(self, P, W, S):
-        l = self.maxLenght[W]
-        # only allow if the string length of based on entry name
-        return (len(P) <= l)
+        if len(P) <= 9:
+            if S.islower():
+                self.payload.set(P.upper())
+                self.payloadInput.after_idle(self.vpaySet)
+            else:
+                return True
+        else:
+            return False
+                
+    def validDevID(self, d, P, W, s, S):
+        valid = False 
+        validChar = ['-', '#', '@', '?', '\\', '*']
+        for c in validChar:
+            if S.startswith(c):
+                valid = True
     
-    def validDevID(self, d, P, W, S):
-        return True
+        if d == '0' or d == '-1':
+            return True
+        elif S.islower() and (len(P) <= 2):
+            self.devID.set(P.upper())
+            self.devIDInput.after_idle(self.vdevSet)
+        elif (S.isupper() or valid) and (len(P) <= 2):
+            return True
+        else:
+            return False
     
     def validPWM(self, d, P, S):
         if d == '0':
@@ -405,12 +429,20 @@ class GuiPart:
             return True
         else:
             return False
-    
+
+    def vdevSet(self):
+        self.devIDInput.icursor(self.devIDInput.index(INSERT)+1)
+        self.devIDInput.config(validate='key')
+
+    def vpaySet(self):
+        self.payloadInput.icursor(self.payloadInput.index(INSERT)+1)
+        self.payloadInput.config(validate='key')
+
     # send commands
     def sendCommand(self):
         self.sendLLAP(self.devID.get(), self.payload.get())
         #self.devIDInput.delete(0, END)
-        #self.input.delete(0, END)
+        #self.payloadInput.delete(0, END)
     
     def sendLLAP(self, devID, payload):
         self.text.config(state=NORMAL)
