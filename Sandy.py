@@ -68,14 +68,16 @@ class GuiPart:
         # TODO
         
         # tab button frame
-        self.tBarFrame = Frame(self.master, relief=RAISED, name='tabBar', pady=4)
+        self.tBarFrame = Frame(self.master, relief=RAISED, name='tabBar',
+                               pady=4)
         self.tBarFrame.pack(fill=X)
         
         # tab buttons
         # place holder
         Button(self.tBarFrame, text="Introduction").pack(side=LEFT)
         Button(self.tBarFrame, text="Basic's").pack(side=LEFT)
-        Button(self.tBarFrame, text='Quit', command=self.endCommand).pack(side=RIGHT)
+        Button(self.tBarFrame, text='Quit', command=self.endCommand
+               ).pack(side=RIGHT)
         Label(self.tBarFrame, text=version).pack(side=RIGHT)
 
     
@@ -113,7 +115,8 @@ class GuiPart:
                                 
         self.devIDInput.grid(row=self.gridComRowOffset+5, column=0,
                              columnspan=3)
-        Label(gframe, text="A-Z, -, #, @, ?, \, *").grid(row=self.gridComRowOffset+6, column=0, columnspan=3)
+        Label(gframe, text="A-Z, -, #, @, ?, \, *"
+              ).grid(row=self.gridComRowOffset+6, column=0, columnspan=3)
 
         # image in the middles
         canvas = Canvas(gframe, width=self.canvasWidth,
@@ -152,7 +155,8 @@ class GuiPart:
             Label(gframe, width=5, textvariable=self.anaLabel['{}'.format(n)],
                   relief=RAISED
                   ).grid(row=self.gridAnalogRowOffset+n, column=0)
-            Label(gframe, width=4, bg='red', fg='white', text='A{0:02d}'.format(n)
+            Label(gframe, width=4, bg='red', fg='white',
+                  text='A{0:02d}'.format(n)
                   ).grid(row=self.gridAnalogRowOffset+n, column=2)
 
         # digital variables
@@ -178,8 +182,8 @@ class GuiPart:
                 r = self.gridDigitalRowOffset+14 - n
                 color = 'blue'
                 fgcolor = 'white'
-            Label(gframe, bg=color, fg=fgcolor, text="D{0:02d}".format(n)).grid(row=r,
-                                                                    column=4)
+            Label(gframe, bg=color, fg=fgcolor,
+                  text="D{0:02d}".format(n)).grid(row=r, column=4)
 
         # input buttons
         Button(gframe, text='READ', command=lambda: self.read('02')
@@ -269,7 +273,8 @@ class GuiPart:
         servo.set(90)
         
         # count button
-        Label(gframe, text='COUNT').grid(row=self.gridDigitalRowOffset+10, column=5, sticky=W)
+        Label(gframe, text='COUNT').grid(row=self.gridDigitalRowOffset+10,
+                                         column=5, sticky=W)
         Button(gframe, text='READ', command=lambda: self.count('READ')
                ).grid(row=self.gridDigitalRowOffset+10, column=6, sticky=W+E)
         Button(gframe, text='SET', command=lambda: self.count('SET')
@@ -301,7 +306,8 @@ class GuiPart:
         Button(lframe, text='Send', command=self.sendCommand).pack(side=LEFT)
         
         # history
-        Button(lframe, text='Send Previous', command=self.sendOldCommand).pack(side=RIGHT)
+        Button(lframe, text='Send Previous',
+               command=self.sendOldCommand).pack(side=RIGHT)
         self.historyBox = ttk.Combobox(lframe, width=12, state='readonly')
         self.historyBox.pack(side=RIGHT)
         self.historyBox['values'] = self.historyList
@@ -468,7 +474,8 @@ class GuiPart:
                            
     def sendOldCommand(self):
         if self.historyBox.get().startswith("a"):
-            self.sendLLAP(self.historyBox.get()[1:3], self.historyBox.get()[3:].strip('-'))
+            self.sendLLAP(self.historyBox.get()[1:3],
+                          self.historyBox.get()[3:].strip('-'))
         
     def sendLLAP(self, devID, payload):
         self.text.config(state=NORMAL)
