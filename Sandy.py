@@ -61,20 +61,23 @@ class GuiPart:
         # Set up the GUI
         self.initTabBar()
         self.initGrid()
-        self.initBottom()
+        self.initLLAPBar()
         self.initSerialConsoles()
     
     def initTabBar(self):
         # TODO
         
         # tab button frame
-        self.tBarFrame = Frame(self.master, relief=RAISED, name='tabBar')
+        self.tBarFrame = Frame(self.master, relief=RAISED, name='tabBar', pady=4)
         self.tBarFrame.pack(fill=X)
         
         # tab buttons
         # place holder
+        Button(self.tBarFrame, text="Introduction").pack(side=LEFT)
         Button(self.tBarFrame, text="Basic's").pack(side=LEFT)
+        Button(self.tBarFrame, text='Quit', command=self.endCommand).pack(side=RIGHT)
         Label(self.tBarFrame, text=version).pack(side=RIGHT)
+
     
     def initGrid(self):
         # grid frame
@@ -262,7 +265,7 @@ class GuiPart:
         Label(gframe, width=5, textvariable=self.servoVal, anchor=CENTER,
               relief=RAISED).grid(row=self.gridDigitalRowOffset+9, column=8)
               
-        # set servo intial val
+        # set servo initial val
         servo.set(90)
         
         # count button
@@ -278,16 +281,16 @@ class GuiPart:
                                 )
         self.countEntry.grid(row=self.gridDigitalRowOffset+10, column=8)
 
-    def initBottom(self):
+    def initLLAPBar(self):
         # llap command box
         lframe = Frame(self.master, relief=RAISED, borderwidth=2,
-                       name='llapFrame')
+                       name='llapFrame', pady=4)
         lframe.pack(expand=1, fill=BOTH)
         
-        Label(lframe, text='Send a LLAP command: a').pack(side=LEFT)
+        Label(lframe, text='Send a LLAP command to address ').pack(side=LEFT)
         Label(lframe, textvariable=self.devID, relief=RAISED,
               width=2).pack(side=LEFT)
-        
+        Label(lframe, text=' with DATA').pack(side=LEFT)
         
         self.payloadInput = Entry(lframe, width=9, validate='key',
                            textvariable=self.payload, invalidcommand='bell',
@@ -298,13 +301,13 @@ class GuiPart:
         Button(lframe, text='Send', command=self.sendCommand).pack(side=LEFT)
         
         # history
-        Label(lframe, text='History', width=10, anchor=E).pack(side=LEFT)
+        Button(lframe, text='Send Previous', command=self.sendOldCommand).pack(side=RIGHT)
         self.historyBox = ttk.Combobox(lframe, width=12, state='readonly')
-        self.historyBox.pack(side=LEFT)
+        self.historyBox.pack(side=RIGHT)
         self.historyBox['values'] = self.historyList
-        Button(lframe, text='Send Previous', command=self.sendOldCommand).pack(side=LEFT)
+        Label(lframe, text='History', anchor=E).pack(side=RIGHT)
 
-        Button(lframe, text='Quit', command=self.endCommand).pack(side=RIGHT)
+  
 
     def initSerialConsoles(self):
         # serial console
@@ -469,7 +472,7 @@ class GuiPart:
         
     def sendLLAP(self, devID, payload):
         self.text.config(state=NORMAL)
-        self.text.insert(END, "Sending LLAP to {} with Data: {}\n".
+        self.text.insert(END, "Sending LLAP to {} with DATA: {}\n".
                          format(devID, payload), 'send')
         self.sendLLAPcommand(devID, payload)
         self.text.see(END)
@@ -499,7 +502,7 @@ class GuiPart:
                 # Check contents of message and do what it says
                 # As a test, we simply print it
                 self.text.config(state=NORMAL)
-                self.text.insert(END, "Received LLAP from {} with Data: {}\n".
+                self.text.insert(END, "Received LLAP from {} with DATA: {}\n".
                                  format(msg['devID'],msg['payload']), 'receive')
                 if msg['devID'] == self.devID.get():
                     if msg['payload'].startswith("A"):
