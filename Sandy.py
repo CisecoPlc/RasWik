@@ -306,6 +306,11 @@ class GuiPart:
                                width=self.serialConsoleWidth)
         self.serialText.pack(side=LEFT, expand=1, fill=BOTH)
 
+        self.text.tag_config('send', foreground='red')
+        self.text.tag_config('receive', foreground='blue')
+        self.serialText.tag_config('send', foreground='red')
+        self.serialText.tag_config('receive', foreground='blue')
+    
         # status bar button
 #        bframe = Frame(master, relief=RAISED, borderwidth=1,
 #                       name='statusBarFrame')
@@ -410,7 +415,7 @@ class GuiPart:
     def sendLLAP(self, devID, payload):
         self.text.config(state=NORMAL)
         self.text.insert(END, "Sending LLAP to {} with Data: {}\n".
-                         format(devID, payload))
+                         format(devID, payload), 'send')
         self.sendLLAPcommand(devID, payload)
         self.text.see(END)
         self.text.config(state=DISABLED)
@@ -423,9 +428,9 @@ class GuiPart:
         self.text.see(END)
         self.text.config(state=DISABLED)
 
-    def appendSerial(self, msg):
+    def appendSerial(self, msg, tag):
         self.serialText.config(state=NORMAL)
-        self.serialText.insert(END, msg)
+        self.serialText.insert(END, msg, tag)
         self.serialText.see(END)
         self.serialText.config(state=DISABLED)
 
@@ -440,7 +445,7 @@ class GuiPart:
                 # As a test, we simply print it
                 self.text.config(state=NORMAL)
                 self.text.insert(END, "Received LLAP from {} with Data: {}\n".
-                                 format(msg['devID'],msg['payload']))
+                                 format(msg['devID'],msg['payload']), 'receive')
                 if msg['devID'] == self.devID.get():
                     if msg['payload'].startswith("A"):
                         self.anaLabel[
@@ -546,7 +551,7 @@ class ThreadedClient:
             llapMsg += '-'
         if self.s.isOpen() == True:
             self.s.write(llapMsg)
-            self.gui.appendSerial(llapMsg)
+            self.gui.appendSerial(llapMsg, 'send')
     
     def workerThread1(self):
         """
@@ -559,11 +564,11 @@ class ThreadedClient:
             if self.s.isOpen():
                 if self.s.inWaiting():
                     char = self.s.read()
-                    self.gui.appendSerial(char)
+                    self.gui.appendSerial(char, 'receive')
                     if char == 'a':
                         llapMsg = 'a'
                         llapMsg += self.s.read(11)
-                        self.gui.appendSerial(llapMsg[1:])
+                        self.gui.appendSerial(llapMsg[1:], 'receive')
                         self.queue.put({'devID': llapMsg[1:3],
                                        'payload': llapMsg[3:].rstrip("-")})
             if self.disconnectFlag.isSet():
