@@ -500,7 +500,7 @@ class ThreadedClient:
 
         self.s = serial.Serial()
         self.s.baudrate = 9600
-        self.s.timeout = 0            # non-blocking read's
+        self.s.timeout = None            # blocking read's
 
         # Set up the GUI part
         self.gui = GuiPart(master, self.queue, self.endApplication,
@@ -557,7 +557,7 @@ class ThreadedClient:
         """
         while self.running:
             if self.s.isOpen():
-                if self.s.inWaiting() >= 12:
+                if self.s.inWaiting():
                     char = self.s.read()
                     self.gui.appendSerial(char)
                     if char == 'a':
