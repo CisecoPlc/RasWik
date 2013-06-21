@@ -1,17 +1,16 @@
-"""
-This recipe describes how to handle asynchronous I/O in an environment where
-you are running Tkinter as the graphical user interface. Tkinter is safe
-to use as long as all the graphics commands are handled in a single thread.
-Since it is more efficient to make I/O channels to block and wait for something
-to happen rather than poll at regular intervals, we want I/O to be handled
-in separate threads. These can communicate in a thread safe way with the main,
-GUI-oriented process through one or several queues. In this solution the GUI
-still has to make a poll at a reasonable interval, to check if there is
-something in the queue that needs processing. Other solutions are possible,
-but they add a lot of complexity to the application.
+#!/usr/bin/env python
 
-Created by Jacob Hallen, AB Strakt, Sweden. 2001-10-17
 """
+Ciseco
+    
+    Base threading logic from recipe-82965-1.py
+    Created by Jacob Hallen, AB Strakt, Sweden. 2001-10-17
+
+    Base tab logic from recipe-577261-1.py
+    by www.sunjay-varma.com
+
+"""
+
 from Tkinter import *
 import time
 import threading
@@ -27,6 +26,63 @@ port = '/dev/tty.usbmodem000001'
 #port = '/dev/ttyAMA0'
 
 version = "SandyWare v0.9x " 
+
+BASE = RAISED
+SELECTED = FLAT
+
+# a base tab class
+class Tab(Frame):
+    def __init__(self, master, name, fname):
+        Frame.__init__(self, master, name=fname)
+        self.tab_name = name
+
+# the bulk of the logic is in the actual tab bar
+class TabBar(Frame):
+    def __init__(self, master=None, init_name=None, name=None):
+        Frame.__init__(self, master, name=name)
+        self.tabs = {}
+        self.buttons = {}
+        self.current_tab = None
+        self.init_name = init_name
+
+    def show(self):
+        self.pack(side=TOP, expand=YES, fill=X)
+        self.switch_tab(self.init_name or self.tabs.keys()[-1])# switch the tab to the first tab
+    
+    def add(self, tab):
+        tab.pack_forget()									# hide the tab on init
+    
+        self.tabs[tab.tab_name] = tab						# add it to the list of tabs
+        b = Button(self, text=tab.tab_name, relief=BASE,	# basic button stuff
+                   command=(lambda name=tab.tab_name: self.switch_tab(name)))	# set the command to switch tabs
+        b.pack(side=LEFT)											 	# pack the buttont to the left mose of self
+        self.buttons[tab.tab_name] = b											# add it to the list of buttons
+    
+    def delete(self, tabname):
+        
+        if tabname == self.current_tab:
+            self.current_tab = None
+            self.tabs[tabname].pack_forget()
+            del self.tabs[tabname]
+            self.switch_tab(self.tabs.keys()[0])
+        
+        else: del self.tabs[tabname]
+        
+        self.buttons[tabname].pack_forget()
+        del self.buttons[tabname]
+
+
+    def switch_tab(self, name):
+        if self.current_tab:
+            self.buttons[self.current_tab].config(relief=BASE)
+            self.tabs[self.current_tab].pack_forget()			# hide the current tab
+        self.tabs[name].pack(side=BOTTOM)							# add the new tab to the display
+        self.current_tab = name									# set the current tab to itself
+        
+        self.buttons[name].config(relief=SELECTED)					# set it to the selected style
+
+
+
 
 class GuiPart:
     def __init__(self, master, queue, endCommand, sendLLAP, connect):
@@ -54,42 +110,84 @@ class GuiPart:
         self.devID.set("XX")
         self.gif = "XinoRF 3 copy.gif"
         self.historyList = []
+        self.widthMain = 828
+        self.heightMain = 662
+        self.heightTab = 480
+        self.widthOffset = 650
+        self.heightOffset = 150
+        
+        self.anaLabel = {'0': StringVar(),
+                         '1': StringVar(),
+                         '2': StringVar(),
+                         '3': StringVar(),
+                         '4': StringVar(),
+                         '5': StringVar()}
+        
+        self.digital = {'02': StringVar(),
+                        '03': StringVar(),
+                        '04': StringVar(),
+                        '05': StringVar(),
+                        '06': StringVar(),
+                        '07': StringVar(),
+                        '09': StringVar(),
+                        '10': StringVar(),
+                        '11': StringVar(),
+                        '12': StringVar(),
+                        '13': StringVar()}
         
         # validation setup
         self.initValidationRules()
         
         # Set up the GUI
+        self.master.geometry("{}x{}+{}+{}".format(self.widthMain,
+                                                  self.heightMain,
+                                                  self.widthOffset,
+                                                  self.heightOffset) )
+        self.tabFrame = Frame(self.master)
+        self.tabFrame.pack()
         self.initTabBar()
+        self.initIntro()
         self.initGrid()
+        self.initAdvAna()
+
+        self.tBarFrame.show()
+
         self.initLLAPBar()
         self.initSerialConsoles()
     
+    
+    
     def initTabBar(self):
-        # TODO
-        
         # tab button frame
-        self.tBarFrame = Frame(self.master, relief=RAISED, name='tabBar',
-                               pady=4)
-        self.tBarFrame.pack(fill=X)
+        self.tBarFrame = TabBar(self.tabFrame, "Introduction", name='tabBar')
+        self.tBarFrame.config(relief=RAISED, pady=4)
         
         # tab buttons
         # place holder
-        Button(self.tBarFrame, text="Introduction").pack(side=LEFT)
-        Button(self.tBarFrame, text="Basic's").pack(side=LEFT)
+        #Button(self.tBarFrame, text="Introduction").pack(side=LEFT)
+        #Button(self.tBarFrame, text="Basic's").pack(side=LEFT)
         Button(self.tBarFrame, text='Quit', command=self.endCommand
                ).pack(side=RIGHT)
         Label(self.tBarFrame, text=version).pack(side=RIGHT)
 
+    def initIntro(self):
+        iframe = Tab(self.tabFrame, "Introduction", fname='intro')
+        iframe.config(relief=RAISED, borderwidth=2, width=self.widthMain,
+                      height=self.heightTab)
+        self.tBarFrame.add(iframe)
+
     
     def initGrid(self):
         # grid frame
-        gframe = Frame(self.master, relief=RAISED, borderwidth=2, name='grid')
-        gframe.pack()
+        gframe = Tab(self.tabFrame, "Basic's", fname='grid',)
+        gframe.config(relief=RAISED, borderwidth=2, width=self.widthMain,
+                      height=self.heightTab)
+        self.tBarFrame.add(gframe)
 
         # pack the grid to get the damn size right
         for n in range(17):
             """
-            Canvas(gframe, bg=("black" if n%2 else "gray"), bd=0, relief=FLAT,
+            Canvas(aframe, bg=("black" if n%2 else "gray"), bd=0, relief=FLAT,
                    width=50, height=28, highlightthickness=0,
                    highlightcolor='white'
                    ).grid(row=n, column=0)
@@ -142,13 +240,6 @@ class GuiPart:
         
         
         # analog buttons
-        self.anaLabel = {'0': StringVar(),
-                         '1': StringVar(),
-                         '2': StringVar(),
-                         '3': StringVar(),
-                         '4': StringVar(),
-                         '5': StringVar()}
-        
         for n in range(6):
             Button(gframe, text='READ', command=lambda n=n: self.anaRead(n)
                    ).grid(row=self.gridAnalogRowOffset+n, column=1)
@@ -158,19 +249,6 @@ class GuiPart:
             Label(gframe, width=4, bg='red', fg='white',
                   text='A{0:02d}'.format(n)
                   ).grid(row=self.gridAnalogRowOffset+n, column=2)
-
-        # digital variables
-        self.digital = {'02': StringVar(),
-                       '03': StringVar(),
-                       '04': StringVar(),
-                       '05': StringVar(),
-                       '06': StringVar(),
-                       '07': StringVar(),
-                       '09': StringVar(),
-                       '10': StringVar(),
-                       '11': StringVar(),
-                       '12': StringVar(),
-                       '13': StringVar()}
         
         # digital labels
         for n in range(14):
@@ -285,6 +363,30 @@ class GuiPart:
                                 validatecommand=self.vcount, justify=CENTER
                                 )
         self.countEntry.grid(row=self.gridDigitalRowOffset+10, column=8)
+
+    def initAdvAna(self):
+        aframe = Tab(self.tabFrame, "Advanced Analog", fname='advana')
+        aframe.config(relief=RAISED, borderwidth=2, width=self.widthMain,
+                      height=self.heightTab)
+        self.tBarFrame.add(aframe)
+    
+        # pack the grid to get the damn size right
+        for n in range(17):
+            """
+            Canvas(gframe, bg=("black" if n%2 else "gray"), bd=0, relief=FLAT,
+                    width=50, height=28, highlightthickness=0,
+                    highlightcolor='white'
+                    ).grid(row=n, column=0)
+            """
+            Canvas(aframe, bd=0, relief=FLAT,
+                   width=50, height=28, highlightthickness=0
+                   ).grid(row=n, column=1)
+        for n in range(3,9):
+            Canvas(aframe, bd=0, relief=FLAT, width=92, height=28).grid(row=0, column=n)
+
+        Label(aframe, text='Raw ADC', anchor=E).grid(row=self.gridAnalogRowOffset, column=0)
+        Label(aframe, text='Temperature', anchor=E).grid(row=self.gridAnalogRowOffset+1, column=0)
+        Label(aframe, text='LDR', anchor=E).grid(row=self.gridAnalogRowOffset+2, column=0)
 
     def initLLAPBar(self):
         # llap command box
@@ -654,6 +756,5 @@ class ThreadedClient:
 
 
 root = Tk()
-root.geometry("+650+150")
 client = ThreadedClient(root)
 root.mainloop()
