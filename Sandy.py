@@ -28,9 +28,9 @@ port = '/dev/tty.usbmodem000001'
 version = "SandyWare v0.x " 
 
 BASE = RAISED
-SELECTED = FLAT
+SELECTED = SUNKEN
 
-INTRO = """ BIG Iintrodution Text
+INTRO = """ BIG Introdution Text
 Sandy
 LLAP
 Basic's
@@ -54,6 +54,9 @@ LDR = """This is LDR as a Precent
 ADC %
 """
 
+LEDTEXT = """LED trafic light buttons
+"""
+
 # a base tab class
 class Tab(Frame):
     def __init__(self, master, name, fname):
@@ -62,8 +65,8 @@ class Tab(Frame):
 
 # the bulk of the logic is in the actual tab bar
 class TabBar(Frame):
-    def __init__(self, master=None, init_name=None, name=None):
-        Frame.__init__(self, master, name=name)
+    def __init__(self, master=None, init_name=None, fname=None):
+        Frame.__init__(self, master, name=fname)
         self.tabs = {}
         self.buttons = {}
         self.current_tab = None
@@ -169,12 +172,13 @@ class GuiPart:
                                                   self.heightMain,
                                                   self.widthOffset,
                                                   self.heightOffset) )
-        self.tabFrame = Frame(self.master)
+        self.tabFrame = Frame(self.master, name='tabFrame')
         self.tabFrame.pack()
         self.initTabBar()
         self.initIntro()
         self.initGrid()
         self.initAdvAna()
+        self.initLights()
 
         self.tBarFrame.show()
 
@@ -185,7 +189,7 @@ class GuiPart:
     
     def initTabBar(self):
         # tab button frame
-        self.tBarFrame = TabBar(self.tabFrame, "Introduction", name='tabBar')
+        self.tBarFrame = TabBar(self.tabFrame, "Introduction", fname='tabBar')
         self.tBarFrame.config(relief=RAISED, pady=4)
         
         # tab buttons
@@ -210,7 +214,7 @@ class GuiPart:
     
     def initGrid(self):
         # grid frame
-        gframe = Tab(self.tabFrame, "Basic's", fname='grid',)
+        gframe = Tab(self.tabFrame, "Basic's", fname='grid')
         gframe.config(relief=RAISED, borderwidth=2, width=self.widthMain,
                       height=self.heightTab)
         self.tBarFrame.add(gframe)
@@ -417,7 +421,7 @@ class GuiPart:
             Canvas(aframe, bd=0, relief=FLAT, width=(self.widthMain-4)/cols, height=28, highlightthickness=0).grid(row=0, column=n)
 
         Button(aframe, text='Read', command=lambda:self.anaRead(0)
-               ).grid(row=self.gridAnalogRowOffset-3, column=1, rowspan=3, columnspan=4, sticky=W+E+N+S)
+               ).grid(row=self.gridAnalogRowOffset-3, column=1, rowspan=2, columnspan=4, sticky=W+E+N+S)
                
         Label(aframe, text=ADCExplain).grid(row=1, column=1, columnspan=4, rowspan=5, sticky=W+E+N+S)
     
@@ -435,6 +439,25 @@ class GuiPart:
         Label(aframe, textvariable=self.anaLabel['0LDR'], width=10, relief=RAISED).grid(row=self.gridAnalogRowOffset+4, column=2, sticky=W)
         Label(aframe, text=LDR).grid(row=self.gridAnalogRowOffset+4, column=3, columnspan=2, rowspan=2, sticky=W+E)
 
+    def initLights(self):
+        lframe = Tab(self.tabFrame, "Lights", fname='lights')
+        lframe.config(relief=RAISED, borderwidth=2, width=self.widthMain,
+                      height
+                      =self.heightTab)
+        self.tBarFrame.add(lframe)
+    
+        canvas = Canvas(lframe, bd=0, width=self.widthMain-4, height=self.heightTab-4, highlightthickness=0)
+        canvas.grid(row=0, column=0, rowspan=15, columnspan=5)
+    
+        Label(lframe, text=LEDTEXT).grid(row=1, column=0, rowspan=2, columnspan=5, sticky=W+E+N+S)
+        
+        ch=100
+        Canvas(lframe, bg='red', height=ch).grid(row=3, column=2, sticky=W+E)
+        Button(lframe, bg='red', text='RED', width=10, command=lambda: self.setLed(0)).grid(row=3, column=2)
+        Canvas(lframe, bg='yellow', height=ch).grid(row=5, column=2, sticky=W+E)
+        Button(lframe, bg='yellow', text='YELLOW', width=10, command=lambda: self.setLed(1)).grid(row=5, column=2)
+        Canvas(lframe, bg='green', height=ch).grid(row=7, column=2, sticky=W+E)
+        Button(lframe, bg='green', text='GREEN', width=10, command=lambda: self.setLed(2)).grid(row=7, column=2)
 
     def initLLAPBar(self):
         # llap command box
@@ -463,7 +486,6 @@ class GuiPart:
         self.historyBox['values'] = self.historyList
         Label(lframe, text='History', anchor=E).pack(side=RIGHT)
 
-  
 
     def initSerialConsoles(self):
         # serial console
@@ -537,6 +559,25 @@ class GuiPart:
                               "COUNT{}".format(self.digital['04'].get()))
             else:
                 self.appendText("Setting COUNT requires a number\n")
+
+    def setLed(self, c):
+        print("setLED: {}".format(c))
+        if c == 0:
+            # set D09
+            self.sendLLAP(self.devID.get(), "D09HIGH")
+            self.sendLLAP(self.devID.get(), "D11LOW")
+            self.sendLLAP(self.devID.get(), "D13LOW")
+        elif c == 1:
+            # set D11
+            self.sendLLAP(self.devID.get(), "D09LOW")
+            self.sendLLAP(self.devID.get(), "D11HIGH")
+            self.sendLLAP(self.devID.get(), "D13LOW")
+        elif c == 2:
+            # set D13
+            self.sendLLAP(self.devID.get(), "D09LOW")
+            self.sendLLAP(self.devID.get(), "D11LOW")
+            self.sendLLAP(self.devID.get(), "D13HIGH")
+            
 
     # validation rules
 
@@ -686,7 +727,7 @@ class GuiPart:
                             msg['payload'][1:3] == '09' or
                             msg['payload'][1:3] == '11' or
                             msg['payload'][1:3] == '13'):
-                            self.master.nametowidget(".grid.digital{}".format(
+                            self.master.nametowidget(".tabFrame.grid.digital{}".format(
                                   msg['payload'][1:3])).config(validate='key')
                             
 
