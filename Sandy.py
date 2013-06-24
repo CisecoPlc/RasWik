@@ -25,10 +25,34 @@ import ttk
 port = '/dev/tty.usbmodem000001'
 #port = '/dev/ttyAMA0'
 
-version = "SandyWare v0.9x " 
+version = "SandyWare v0.x " 
 
 BASE = RAISED
 SELECTED = FLAT
+
+INTRO = """ BIG Iintrodution Text
+Sandy
+LLAP
+Basic's
+Advance Analog
+"""
+ADCExplain = """This is lots of text about how we can do diffrent ADC readings
+RAW ADC
+TEMP
+LDR
+"""
+
+ADC = """This is RAW ADC reading
+Stright reading
+"""
+
+TMP = """This is Temp calculated as follows
+ADC???TMP
+"""
+
+LDR = """This is LDR as a Precent
+ADC %
+"""
 
 # a base tab class
 class Tab(Frame):
@@ -121,7 +145,9 @@ class GuiPart:
                          '2': StringVar(),
                          '3': StringVar(),
                          '4': StringVar(),
-                         '5': StringVar()}
+                         '5': StringVar(),
+                         '0TMP': StringVar(),
+                         '0LDR': StringVar()}
         
         self.digital = {'02': StringVar(),
                         '03': StringVar(),
@@ -175,6 +201,11 @@ class GuiPart:
         iframe.config(relief=RAISED, borderwidth=2, width=self.widthMain,
                       height=self.heightTab)
         self.tBarFrame.add(iframe)
+    
+        canvas = Canvas(iframe, bd=0, width=self.widthMain-4, height=self.heightTab-4, highlightthickness=0)
+        canvas.grid(row=0, column=0)
+    
+        Label(iframe, text=INTRO).grid(row=0, column=0, sticky=W+E+N+S)
 
     
     def initGrid(self):
@@ -371,7 +402,7 @@ class GuiPart:
         self.tBarFrame.add(aframe)
     
         # pack the grid to get the damn size right
-        for n in range(17):
+        for n in range(1,17):
             """
             Canvas(gframe, bg=("black" if n%2 else "gray"), bd=0, relief=FLAT,
                     width=50, height=28, highlightthickness=0,
@@ -380,13 +411,30 @@ class GuiPart:
             """
             Canvas(aframe, bd=0, relief=FLAT,
                    width=50, height=28, highlightthickness=0
-                   ).grid(row=n, column=1)
-        for n in range(3,9):
-            Canvas(aframe, bd=0, relief=FLAT, width=92, height=28).grid(row=0, column=n)
+                   ).grid(row=n, column=0)
+        cols = 6
+        for n in range(cols):
+            Canvas(aframe, bd=0, relief=FLAT, width=(self.widthMain-4)/cols, height=28, highlightthickness=0).grid(row=0, column=n)
 
-        Label(aframe, text='Raw ADC', anchor=E).grid(row=self.gridAnalogRowOffset, column=0)
-        Label(aframe, text='Temperature', anchor=E).grid(row=self.gridAnalogRowOffset+1, column=0)
-        Label(aframe, text='LDR', anchor=E).grid(row=self.gridAnalogRowOffset+2, column=0)
+        Button(aframe, text='Read', command=lambda:self.anaRead(0)
+               ).grid(row=self.gridAnalogRowOffset-3, column=1, rowspan=3, columnspan=4, sticky=W+E+N+S)
+               
+        Label(aframe, text=ADCExplain).grid(row=1, column=1, columnspan=4, rowspan=5, sticky=W+E+N+S)
+    
+        Label(aframe, text='Raw ADC').grid(row=self.gridAnalogRowOffset, column=1, sticky=E)
+        Label(aframe, textvariable =self.anaLabel['0'], width=10, relief=RAISED).grid(row=self.gridAnalogRowOffset, column=2, sticky=W)
+        Label(aframe, text=ADC).grid(row=self.gridAnalogRowOffset, column=3, columnspan=2, rowspan=2, sticky=W+E)
+
+        
+        Label(aframe, text='Temperature', anchor=E).grid(row=self.gridAnalogRowOffset+2, column=1, sticky=E)
+        Label(aframe, textvariable=self.anaLabel['0TMP'], width=10, relief=RAISED).grid(row=self.gridAnalogRowOffset+2, column=2, sticky=W)
+        Label(aframe, text=TMP).grid(row=self.gridAnalogRowOffset+2, column=3, columnspan=2, rowspan=2, sticky=W+E)
+
+        
+        Label(aframe, text='LDR', anchor=E).grid(row=self.gridAnalogRowOffset+4, column=1, sticky=E)
+        Label(aframe, textvariable=self.anaLabel['0LDR'], width=10, relief=RAISED).grid(row=self.gridAnalogRowOffset+4, column=2, sticky=W)
+        Label(aframe, text=LDR).grid(row=self.gridAnalogRowOffset+4, column=3, columnspan=2, rowspan=2, sticky=W+E)
+
 
     def initLLAPBar(self):
         # llap command box
