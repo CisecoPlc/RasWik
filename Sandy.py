@@ -3,6 +3,11 @@
 """
 Ciseco
     
+    Under Development
+    
+    https://github.com/dpslwk/Sandy
+    dpslwk 24/06/2013
+    
     Base threading logic from recipe-82965-1.py
     Created by Jacob Hallen, AB Strakt, Sweden. 2001-10-17
 
@@ -24,6 +29,7 @@ import ttk
 #port = 'Com16'
 port = '/dev/tty.usbmodem000001'
 #port = '/dev/ttyAMA0'
+baud = 9600
 
 version = "SandyWare v0.x " 
 
@@ -134,8 +140,8 @@ class GuiPart:
         self.connectText = StringVar()
         self.connectText.set("Connect")
         self.devID = StringVar()
-        self.devID.set("XX")
-        self.gif = "XinoRF 3 copy.gif"
+        self.devID.set("--")
+        self.gif = "XinoRF.gif"
         self.historyList = []
         self.widthMain = 828
         self.heightMain = 662
@@ -206,7 +212,8 @@ class GuiPart:
                       height=self.heightTab)
         self.tBarFrame.add(iframe)
     
-        canvas = Canvas(iframe, bd=0, width=self.widthMain-4, height=self.heightTab-4, highlightthickness=0)
+        canvas = Canvas(iframe, bd=0, width=self.widthMain-4,
+                        height=self.heightTab-4, highlightthickness=0)
         canvas.grid(row=0, column=0)
     
         Label(iframe, text=INTRO).grid(row=0, column=0, sticky=W+E+N+S)
@@ -418,26 +425,40 @@ class GuiPart:
                    ).grid(row=n, column=0)
         cols = 6
         for n in range(cols):
-            Canvas(aframe, bd=0, relief=FLAT, width=(self.widthMain-4)/cols, height=28, highlightthickness=0).grid(row=0, column=n)
+            Canvas(aframe, bd=0, relief=FLAT, width=(self.widthMain-4)/cols,
+                   height=28, highlightthickness=0).grid(row=0, column=n)
 
         Button(aframe, text='Read', command=lambda:self.anaRead(0)
-               ).grid(row=self.gridAnalogRowOffset-3, column=1, rowspan=2, columnspan=4, sticky=W+E+N+S)
+               ).grid(row=self.gridAnalogRowOffset-3, column=1, rowspan=2,
+                      columnspan=4, sticky=W+E+N+S)
                
-        Label(aframe, text=ADCExplain).grid(row=1, column=1, columnspan=4, rowspan=5, sticky=W+E+N+S)
+        Label(aframe, text=ADCExplain).grid(row=1, column=1, columnspan=4,
+                                            rowspan=5, sticky=W+E+N+S)
     
-        Label(aframe, text='Raw ADC').grid(row=self.gridAnalogRowOffset, column=1, sticky=E)
-        Label(aframe, textvariable =self.anaLabel['0'], width=10, relief=RAISED).grid(row=self.gridAnalogRowOffset, column=2, sticky=W)
-        Label(aframe, text=ADC).grid(row=self.gridAnalogRowOffset, column=3, columnspan=2, rowspan=2, sticky=W+E)
+        Label(aframe, text='Raw ADC').grid(row=self.gridAnalogRowOffset,
+                                           column=1, sticky=E)
+        Label(aframe, textvariable =self.anaLabel['0'], width=10,
+              relief=RAISED).grid(row=self.gridAnalogRowOffset,
+                                  column=2, sticky=W)
+        Label(aframe, text=ADC).grid(row=self.gridAnalogRowOffset, column=3,
+                                     columnspan=2, rowspan=2, sticky=W+E)
 
         
-        Label(aframe, text='Temperature', anchor=E).grid(row=self.gridAnalogRowOffset+2, column=1, sticky=E)
-        Label(aframe, textvariable=self.anaLabel['0TMP'], width=10, relief=RAISED).grid(row=self.gridAnalogRowOffset+2, column=2, sticky=W)
-        Label(aframe, text=TMP).grid(row=self.gridAnalogRowOffset+2, column=3, columnspan=2, rowspan=2, sticky=W+E)
+        Label(aframe, text='Temperature',
+              anchor=E).grid(row=self.gridAnalogRowOffset+2, column=1, sticky=E)
+        Label(aframe, textvariable=self.anaLabel['0TMP'], width=10,
+              relief=RAISED).grid(row=self.gridAnalogRowOffset+2,
+                                  column=2, sticky=W)
+        Label(aframe, text=TMP).grid(row=self.gridAnalogRowOffset+2, column=3,
+                                     columnspan=2, rowspan=2, sticky=W+E)
 
         
-        Label(aframe, text='LDR', anchor=E).grid(row=self.gridAnalogRowOffset+4, column=1, sticky=E)
-        Label(aframe, textvariable=self.anaLabel['0LDR'], width=10, relief=RAISED).grid(row=self.gridAnalogRowOffset+4, column=2, sticky=W)
-        Label(aframe, text=LDR).grid(row=self.gridAnalogRowOffset+4, column=3, columnspan=2, rowspan=2, sticky=W+E)
+        Label(aframe, text='LDR',
+              anchor=E).grid(row=self.gridAnalogRowOffset+4, column=1, sticky=E)
+        Label(aframe, textvariable=self.anaLabel['0LDR'], width=10,
+              relief=RAISED).grid(row=self.gridAnalogRowOffset+4, column=2, sticky=W)
+        Label(aframe, text=LDR).grid(row=self.gridAnalogRowOffset+4, column=3,
+                                     columnspan=2, rowspan=2, sticky=W+E)
 
     def initLights(self):
         lframe = Tab(self.tabFrame, "Lights", fname='lights')
@@ -446,18 +467,23 @@ class GuiPart:
                       =self.heightTab)
         self.tBarFrame.add(lframe)
     
-        canvas = Canvas(lframe, bd=0, width=self.widthMain-4, height=self.heightTab-4, highlightthickness=0)
+        canvas = Canvas(lframe, bd=0, width=self.widthMain-4,
+                        height=self.heightTab-4, highlightthickness=0)
         canvas.grid(row=0, column=0, rowspan=15, columnspan=5)
     
-        Label(lframe, text=LEDTEXT).grid(row=1, column=0, rowspan=2, columnspan=5, sticky=W+E+N+S)
+        Label(lframe, text=LEDTEXT).grid(row=1, column=0, rowspan=2,
+                                         columnspan=5, sticky=W+E+N+S)
         
         ch=100
         Canvas(lframe, bg='red', height=ch).grid(row=3, column=2, sticky=W+E)
-        Button(lframe, bg='red', text='RED', width=10, command=lambda: self.setLed(0)).grid(row=3, column=2)
+        Button(lframe, bg='red', text='RED', width=10,
+               command=lambda: self.setLed(0)).grid(row=3, column=2)
         Canvas(lframe, bg='yellow', height=ch).grid(row=5, column=2, sticky=W+E)
-        Button(lframe, bg='yellow', text='YELLOW', width=10, command=lambda: self.setLed(1)).grid(row=5, column=2)
+        Button(lframe, bg='yellow', text='YELLOW', width=10,
+               command=lambda: self.setLed(1)).grid(row=5, column=2)
         Canvas(lframe, bg='green', height=ch).grid(row=7, column=2, sticky=W+E)
-        Button(lframe, bg='green', text='GREEN', width=10, command=lambda: self.setLed(2)).grid(row=7, column=2)
+        Button(lframe, bg='green', text='GREEN', width=10,
+               command=lambda: self.setLed(2)).grid(row=7, column=2)
 
     def initLLAPBar(self):
         # llap command box
@@ -760,7 +786,7 @@ class ThreadedClient:
         self.queue = Queue.Queue()
 
         self.s = serial.Serial()
-        self.s.baudrate = 9600
+        self.s.baudrate = baud
         self.s.timeout = None            # blocking read's
 
         # Set up the GUI part
