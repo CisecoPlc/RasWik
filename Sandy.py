@@ -23,12 +23,18 @@ import random
 import Queue
 import serial
 import sys
+import math
 import ttk
 #import ImageTk
 
-#port = 'Com16'
-port = '/dev/tty.usbmodem000001'
-#port = '/dev/ttyAMA0'
+
+if sys.platfrom == 'darwin':
+    port = '/dev/tty.usbmodem000001'
+elif sys.platfrom == 'win32':
+    port = ''
+else:
+    port = '/dev/ttyAMA0'
+
 baud = 9600
 
 version = "SandyWare v0.x " 
@@ -42,23 +48,25 @@ LLAP
 Basic's
 Advance Analog
 """
-ADCExplain = """This is lots of text about how we can do diffrent ADC readings
-RAW ADC
-TEMP
-LDR
-"""
+ADCExplain = """1 This is lots of text about how we can do diffrent analog readings
+2 RAW ADC
+3 TEMP
+4 LDR
+5
+6
+7
+8"""
 
-ADC = """This is RAW ADC reading
-Stright reading
-"""
+ADC = """This is the raw ADC value as read from the analog pin
+RawADC = analogRead(A0);"""
 
-TMP = """This is Temp calculated as follows
-ADC???TMP
-"""
+TMP = """Temperature is calculated using the following formula
+RTemp = (1024.0/RawADC) - 1)*10000
+Kelvin = RTEMP*BVAL / (BVAL+RTEMP*( log(Rtherm/RNOM) ) )
+Temperature = Kelvin - 273.15"""
 
-LDR = """This is LDR as a Precent
-ADC %
-"""
+LDR = """The light reading from the LDR is presented as a percentage
+Percentage = RawADC / 1024 * 100"""
 
 LEDTEXT = """LED trafic light buttons
 """
@@ -185,7 +193,7 @@ class GuiPart:
         self.initGrid()
         self.initAdvAna()
         self.initLights()
-
+        
         self.tBarFrame.show()
 
         self.initLLAPBar()
@@ -423,42 +431,43 @@ class GuiPart:
             Canvas(aframe, bd=0, relief=FLAT,
                    width=50, height=28, highlightthickness=0
                    ).grid(row=n, column=0)
-        cols = 6
+        cols = 10
         for n in range(cols):
             Canvas(aframe, bd=0, relief=FLAT, width=(self.widthMain-4)/cols,
                    height=28, highlightthickness=0).grid(row=0, column=n)
 
         Button(aframe, text='Read', command=lambda:self.anaRead(0)
-               ).grid(row=self.gridAnalogRowOffset-3, column=1, rowspan=2,
-                      columnspan=4, sticky=W+E+N+S)
+               ).grid(row=10-4, column=1, rowspan=2,
+                      columnspan=cols-2, sticky=W+E+N+S)
                
-        Label(aframe, text=ADCExplain).grid(row=1, column=1, columnspan=4,
+        Label(aframe, text=ADCExplain).grid(row=1, column=1, columnspan=cols-2,
                                             rowspan=5, sticky=W+E+N+S)
     
-        Label(aframe, text='Raw ADC').grid(row=self.gridAnalogRowOffset,
+        Label(aframe, text='RawADC').grid(row=9,
                                            column=1, sticky=E)
         Label(aframe, textvariable =self.anaLabel['0'], width=10,
-              relief=RAISED).grid(row=self.gridAnalogRowOffset,
+              relief=RAISED).grid(row=9,
                                   column=2, sticky=W)
-        Label(aframe, text=ADC).grid(row=self.gridAnalogRowOffset, column=3,
-                                     columnspan=2, rowspan=2, sticky=W+E)
+        Label(aframe, text=ADC).grid(row=8, column=3,
+                                     columnspan=cols-4, rowspan=3, sticky=W+E)
 
         
         Label(aframe, text='Temperature',
-              anchor=E).grid(row=self.gridAnalogRowOffset+2, column=1, sticky=E)
+              anchor=E).grid(row=12, column=1, sticky=E)
         Label(aframe, textvariable=self.anaLabel['0TMP'], width=10,
-              relief=RAISED).grid(row=self.gridAnalogRowOffset+2,
+              relief=RAISED).grid(row=12,
                                   column=2, sticky=W)
-        Label(aframe, text=TMP).grid(row=self.gridAnalogRowOffset+2, column=3,
-                                     columnspan=2, rowspan=2, sticky=W+E)
+        Label(aframe, text=TMP).grid(row=11, column=3,
+                                     columnspan=cols-4, rowspan=3, sticky=W+E)
 
         
-        Label(aframe, text='LDR',
-              anchor=E).grid(row=self.gridAnalogRowOffset+4, column=1, sticky=E)
+        Label(aframe, text='Percentage',
+              anchor=E).grid(row=15, column=1, sticky=E)
         Label(aframe, textvariable=self.anaLabel['0LDR'], width=10,
-              relief=RAISED).grid(row=self.gridAnalogRowOffset+4, column=2, sticky=W)
-        Label(aframe, text=LDR).grid(row=self.gridAnalogRowOffset+4, column=3,
-                                     columnspan=2, rowspan=2, sticky=W+E)
+              relief=RAISED).grid(row=15, column=2,
+                                  sticky=W)
+        Label(aframe, text=LDR).grid(row=14, column=3,
+                                     columnspan=cols-4, rowspan=3, sticky=W+E)
 
     def initLights(self):
         lframe = Tab(self.tabFrame, "Lights", fname='lights')
@@ -476,13 +485,13 @@ class GuiPart:
         
         ch=100
         Canvas(lframe, bg='red', height=ch).grid(row=3, column=2, sticky=W+E)
-        Button(lframe, bg='red', text='RED', width=10,
+        Button(lframe, bg='red', text='RED LED on D13', width=20,
                command=lambda: self.setLed(0)).grid(row=3, column=2)
         Canvas(lframe, bg='yellow', height=ch).grid(row=5, column=2, sticky=W+E)
-        Button(lframe, bg='yellow', text='YELLOW', width=10,
+        Button(lframe, bg='yellow', text='YELLOW LED on D11', width=20,
                command=lambda: self.setLed(1)).grid(row=5, column=2)
         Canvas(lframe, bg='green', height=ch).grid(row=7, column=2, sticky=W+E)
-        Button(lframe, bg='green', text='GREEN', width=10,
+        Button(lframe, bg='green', text='GREEN LED on D09', width=20,
                command=lambda: self.setLed(2)).grid(row=7, column=2)
 
     def initLLAPBar(self):
@@ -507,7 +516,8 @@ class GuiPart:
         # history
         Button(lframe, text='Send Previous',
                command=self.sendOldCommand).pack(side=RIGHT)
-        self.historyBox = ttk.Combobox(lframe, width=12, state='readonly')
+        self.historyBox = ttk.Combobox(lframe, width=14, justify=CENTER,
+                                       state='readonly')
         self.historyBox.pack(side=RIGHT)
         self.historyBox['values'] = self.historyList
         Label(lframe, text='History', anchor=E).pack(side=RIGHT)
@@ -590,19 +600,19 @@ class GuiPart:
         print("setLED: {}".format(c))
         if c == 0:
             # set D09
-            self.sendLLAP(self.devID.get(), "D09HIGH")
+            self.sendLLAP(self.devID.get(), "D13HIGH")
             self.sendLLAP(self.devID.get(), "D11LOW")
-            self.sendLLAP(self.devID.get(), "D13LOW")
+            self.sendLLAP(self.devID.get(), "D09LOW")
         elif c == 1:
             # set D11
-            self.sendLLAP(self.devID.get(), "D09LOW")
-            self.sendLLAP(self.devID.get(), "D11HIGH")
             self.sendLLAP(self.devID.get(), "D13LOW")
+            self.sendLLAP(self.devID.get(), "D11HIGH")
+            self.sendLLAP(self.devID.get(), "D09LOW")
         elif c == 2:
             # set D13
-            self.sendLLAP(self.devID.get(), "D09LOW")
+            self.sendLLAP(self.devID.get(), "D13LOW")
             self.sendLLAP(self.devID.get(), "D11LOW")
-            self.sendLLAP(self.devID.get(), "D13HIGH")
+            self.sendLLAP(self.devID.get(), "D09HIGH")
             
 
     # validation rules
@@ -732,7 +742,10 @@ class GuiPart:
                     if msg['payload'].startswith("A"):
                         self.anaLabel[
                                       msg['payload'][2:3]
-                                      ].set(msg['payload'][3:])
+                                      ].set(msg['payload'][4:])
+                        if msg['payload'][2:3] == '0':
+                            self.anaLabel['0TMP'].set(self.tmpCalc(msg['payload'][4:]))
+                            self.anaLabel['0LDR'].set(self.ldrCalc(msg['payload'][4:]))
                     
                     elif msg['payload'].startswith("COUNT"):
                         # we have a count
@@ -761,6 +774,23 @@ class GuiPart:
                 self.text.config(state=DISABLED)
             except Queue.Empty:
                 pass
+
+    def tmpCalc(self, ADCvalue):
+        BVAL = 3977              # default beta value for the thermistor; adjust for your thermistor
+        RTEMP = 25.0 + 273.15    # reference temperature (25C expressed in Kelvin)
+        RNOM = 10000.0           # default reference resistance at reference temperature; adjust to calibrate
+        SRES = 10000.0           # default series resister value; adjust as per your implementation
+        # calculate the temperature from an ADC value
+        if float(ADCvalue) == 0:
+            ADCvalue = 0.001        # catch div by zero
+        Rtherm = (1024.0/float(ADCvalue) - 1)*10000            # value of the resistance of the thermistor
+        T = RTEMP*BVAL/(BVAL+RTEMP*(math.log(Rtherm/RNOM)))  # see http:#en.wikipedia.org/wiki/Thermistor for an explanation of the formula
+        T = T - 273.15                                        # convert from Kelvin to Celsius
+
+        return u"{:0.2f}\u2103".format(T)
+    
+    def ldrCalc(self, val):
+        return "{} %".format(int((float(val)/1024)*100))
 
 class ThreadedClient:
     """
