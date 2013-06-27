@@ -28,9 +28,9 @@ import ttk
 #import ImageTk
 
 
-if sys.platfrom == 'darwin':
+if sys.platform == 'darwin':
     port = '/dev/tty.usbmodem000001'
-elif sys.platfrom == 'win32':
+elif sys.platform == 'win32':
     port = ''
 else:
     port = '/dev/ttyAMA0'
