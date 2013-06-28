@@ -126,13 +126,13 @@ class TabBar(Frame):
 
 
 class GuiPart:
-    def __init__(self, master, queue, endCommand, sendLLAP, connect):
+    def __init__(self, master, queue, endCommand, sendLLAP, connect, debug=True):
         self.master = master
         self.queue = queue
         self.sendLLAPcommand = sendLLAP
         self.endCommand = endCommand
         self.connectCommand = connect
-        
+        self.debug = debug
         # variables used later
         self.gridComRowOffset = 1
         self.gridDigitalRowOffset = 1
@@ -199,8 +199,11 @@ class GuiPart:
         self.initLLAPBar()
         self.initSerialConsoles()
     
-    
-    
+    def debugPrint(self, msg):
+        if self.debug:
+            print(msg)
+
+
     def initTabBar(self):
         # tab button frame
         self.tBarFrame = TabBar(self.tabFrame, "Introduction", fname='tabBar')
@@ -550,23 +553,23 @@ class GuiPart:
 #        bah.pack(side=LEFT)
 
     def anaRead(self, num):
-        print("anaRead: {}".format(num))
+        self.debugPrint("anaRead: {}".format(num))
         self.sendLLAP(self.devID.get(), "A{0:02d}READ".format(num))
     
     def read(self, num):
-        print("read: {}".format(num))
+        self.debugPrint("read: {}".format(num))
         self.sendLLAP(self.devID.get(), "D{}READ".format(num))
     
     def on(self, num):
-        print("high: {}".format(num))
+        self.debugPrint("high: {}".format(num))
         self.sendLLAP(self.devID.get(), "D{}HIGH".format(num))
     
     def off(self, num):
-        print("low: {}".format(num))
+        self.debugPrint("low: {}".format(num))
         self.sendLLAP(self.devID.get(), "D{}LOW".format(num))
     
     def pwm(self, num):
-        print("pwm: {}".format(num))
+        self.debugPrint("pwm: {}".format(num))
         if self.digital[num].get().isdigit():
             if int(self.digital[num].get()) < 255:
                 self.sendLLAP(self.devID.get(),
@@ -579,13 +582,13 @@ class GuiPart:
                             format(num, self.digital[num].get()))
             
     def servo(self, value):
-        print("servo")
+        self.debugPrint("servo")
         self.servoVal.set(int(float(value)))
         self.sendLLAP(self.devID.get(), "SERVO{}".format(int(float(value))))
         
 
     def count(self, mode):
-        print("count: {}".format(mode))
+        self.debugPrint("count: {}".format(mode))
         if mode == 'READ':
             self.sendLLAP(self.devID.get(), "COUNT")
         elif mode == 'SET':
@@ -597,7 +600,7 @@ class GuiPart:
                 self.appendText("Setting COUNT requires a number\n")
 
     def setLed(self, c):
-        print("setLED: {}".format(c))
+        self.debugPrint("setLED: {}".format(c))
         if c == 0:
             # set D09
             self.sendLLAP(self.devID.get(), "D13HIGH")
