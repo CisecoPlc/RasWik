@@ -1,0 +1,14 @@
+import sys, os
+f = open("test.py", "w")
+f.write('print("hello")')
+f.close()
+
+args = sys.argv[:]
+print('Re-spawning %s' % ' '.join(args))
+
+args.insert(0, sys.executable)
+if sys.platform == 'win32':
+    args = ['"%s"' % arg for arg in args]
+
+#os.chdir(_startup_cwd)
+os.execv(sys.executable, args)
