@@ -1,30 +1,83 @@
 #!/usr/bin/env python
-
+import Tkinter as tk
+import sys, os
+import argparse
 import urllib2
+import ConfigParser
 
+class SandyLauncher:
+    def __init__(self):
+        self.debug = True # untill we read config or get command line
+        self.configFileDefault = "sandy_default.cfg"
+        self.configFile = "sandy.cfg"
+        self._running = False
+    
+    def on_excute(self):
+        self.readConfig()
+        self.checkArgs()
 
-versionFile = 'http://files.ciseco.co.uk/Sandy/version.txt'
-updateFile = 'http://files.ciseco.co.uk/Sandy/sandy_'
+        self._running = True
 
-try:
-	request = urllib2.urlopen('http://files.ciseco.co.uk/Sandy/version.txt')
-	response = request.read()
+        try:
+            self.runLauncher()
+        except KeyboardInterrupt:
+            self.debugPrint("Keyboard Quit")
+            self._running = False
+        
+        self.cleanUp()
+    
+    def cleanUp(self):
+        self.debugPrint("Clean up and exit")
+        # disconnect resources
+        # kill childs??
+        self.writeConfig()
+    
+    def debugPrint(self, msg):
+        if self.debug:
+            print(msg)
 
-except urllib2.HTTPError, e:
-	print 'Unable to get latest version info - HTTPError = ' + str(e.reason)
-	sys.exit(2)
+    def checkArgs(self):
+        self.debugPrint("Parse Args")
+        parser = argparse.ArgumentParser(description='Sandy Launcher')
+        parser.add_argument('-u', '--noupdate', help='disable checking for update', action='store_false')
+        parser.add_argument('-d', '--debug', help='Extra Debug Output, overides sandy.cfg setting', action='store_true')
+        
+        args = parser.parse_args()
+        
+        if args.debug:
+            self.debug = True
 
-except urllib2.URLError, e:
-	print 'Unable to get latest version info - URLError = ' + str(e.reason)
-	sys.exit(2)
+        if args.noupdate:
+            self.checkForUpdate()
 
-except httplib.HTTPException, e:
-	print 'Unable to get latest version info - HTTPException'
-	sys.exit(2)
+    def checkForUpdate(self):
+        self.debugPrint("Checking for update")
+    
+    def doUpdate(self):
+        self.debugPrint("Doing update")
 
-except Exception, e:
-	import traceback
-	print 'Unable to get latest version info - Exception = ' + traceback.format_exc()
-	sys.exit(2)
+    def runLauncher(self):
+        self.debugPrint("Running Main Launcher")
 
-print response
+    def readConfig(self):
+        self.debugPrint("Reading Config")
+
+        self.config = ConfigParser.SafeConfigParser()
+        
+        # load defaults
+        self.config.readfp(open(self.configFileDefault))
+                           
+        # read the user config file
+        self.config.read(self.configFile)
+        
+        self.debug = self.config.getboolean('Shared', 'debug')
+    
+    def writeConfig(self):
+        self.debugPrint("Writing Config")
+        with open(self.configFile, 'wb') as configfile:
+            self.config.write(configfile)
+
+if __name__ == "__main__":
+    app = SandyLauncher()
+    app.on_excute()
+
