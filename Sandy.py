@@ -281,8 +281,8 @@ class GuiPart:
                             image=self.photoimage)
         
         # some labels
-        Label(gframe, text='Radio Enable Pin'
-              ).grid(row=self.gridDigitalRowOffset+5, column=5, columnspan=3,
+        Label(gframe, text='Reserved for Radio Enable Pin'
+              ).grid(row=self.gridDigitalRowOffset+5, column=5, columnspan=4,
                      sticky=W)
         Label(gframe, text='Serial TX'
               ).grid(row=self.gridDigitalRowOffset+13, column=5, columnspan=3,
