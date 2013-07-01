@@ -8,8 +8,8 @@ import ConfigParser
 class SandyLauncher:
     def __init__(self):
         self.debug = True # untill we read config or get command line
-        self.configFileDefault = "sandy_default.cfg"
-        self.configFile = "sandy.cfg"
+        self.configFileDefault = "Python/sandy_default.cfg"
+        self.configFile = "Python/sandy.cfg"
         self._running = False
     
     def on_excute(self):
@@ -79,13 +79,13 @@ class SandyLauncher:
             sys.exit(2)
 
         try:
-            f = open(self.config.get('Update', 'versionfile'))
+            f = open('Python/' + self.config.get('Update', 'versionfile'))
             self.currentVersion = f.read()
             f.close()
         except:
             pass
 
-        self.debugPrint("Latest Version: {}, Current Version: {}".formate(self.newVersion, self.currentVersion))
+        self.debugPrint("Latest Version: {}, Current Version: {}".format(self.newVersion, self.currentVersion))
     
     def downloadUpdate(self):
         self.debugPrint("Downloading Update Zip")
