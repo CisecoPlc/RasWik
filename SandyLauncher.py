@@ -52,8 +52,48 @@ class SandyLauncher:
 
     def checkForUpdate(self):
         self.debugPrint("Checking for update")
+        # go download version file
+        try:
+            request = urllib2.urlopen(self.config.get('Update', 'updateurl') +
+                                      self.config.get('Update', 'versionfile'))
+            self.newVersion = request.read()
+
+        except urllib2.HTTPError, e:
+            self.debugPrint('Unable to get latest version info - HTTPError = ' +
+                            str(e.reason))
+            sys.exit(2)
+
+        except urllib2.URLError, e:
+            self.debugPrint('Unable to get latest version info - URLError = ' +
+                            str(e.reason))
+            sys.exit(2)
+
+        except httplib.HTTPException, e:
+            self.debugPrint('Unable to get latest version info - HTTPException')
+            sys.exit(2)
+
+        except Exception, e:
+            import traceback
+            self.debugPrint('Unable to get latest version info - Exception = ' +
+                            traceback.format_exc())
+            sys.exit(2)
+
+        try:
+            f = open(self.config.get('Update', 'versionfile'))
+            self.currentVersion = f.read()
+            f.close()
+        except:
+            pass
+
+        self.debugPrint("Latest Version: {}, Current Version: {}".formate(self.newVersion, self.currentVersion))
     
-    def doUpdate(self):
+    def downloadUpdate(self):
+        self.debugPrint("Downloading Update Zip")
+    
+    def manualZipUpdate(self):
+        self.debugPrint("Location Zip for Update")
+            
+    def doUpdate(self, path):
         self.debugPrint("Doing update")
 
     def runLauncher(self):
@@ -66,7 +106,7 @@ class SandyLauncher:
         
         # load defaults
         self.config.readfp(open(self.configFileDefault))
-                           
+    
         # read the user config file
         self.config.read(self.configFile)
         

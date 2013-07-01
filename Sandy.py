@@ -224,10 +224,39 @@ class GuiPart:
         self.tBarFrame.add(iframe)
     
         canvas = Canvas(iframe, bd=0, width=self.widthMain-4,
-                        height=self.heightTab-4, highlightthickness=0)
-        canvas.grid(row=0, column=0)
+                        height=self.heightTab-(29*4), highlightthickness=0)
+        canvas.grid(row=0, column=0, columnspan=6)
+        
+        for n in range(4):
+            Canvas(iframe, bd=0, highlightthickness=0,
+                   width=self.widthMain-4, height=28
+                   ).grid(row=self.gridComRowOffset+n, column=0, columnspan=6)
+
+
+        Label(iframe, text=INTRO).grid(row=0, column=0, columnspan=6, sticky=W+E+N+S)
     
-        Label(iframe, text=INTRO).grid(row=0, column=0, sticky=W+E+N+S)
+        # com selection bits
+        Label(iframe, text='Com Port').grid(row=self.gridComRowOffset+0,
+                                            column=1, columnspan=2)
+        Entry(iframe, textvariable=self.comport, width=17
+              ).grid(row=self.gridComRowOffset+1, column=1, columnspan=2)
+        Button(iframe, textvariable=self.connectText,
+               command=self.connectCommand, width=10
+               ).grid(row=self.gridComRowOffset+2, column=1, columnspan=2)
+
+        Label(iframe, text='Device ID').grid(row=self.gridComRowOffset+0,
+                                             column=3, columnspan=2)
+        self.devIDInput = Entry(iframe, width=3, validate='key', justify=CENTER,
+                                textvariable=self.devID, invalidcommand='bell',
+                                validatecommand=self.vdev, name='devIDInput')
+                                
+        self.devIDInput.grid(row=self.gridComRowOffset+1, column=3,
+                             columnspan=2)
+        Label(iframe, text="A-Z, -, #, @, ?, \, *"
+              ).grid(row=self.gridComRowOffset+2, column=3, columnspan=2)
+    
+
+        
 
     
     def initGrid(self):
@@ -238,6 +267,9 @@ class GuiPart:
         self.tBarFrame.add(gframe)
 
         # pack the grid to get the damn size right
+        Canvas(gframe, bd=0, highlightthickness=0, width=self.widthMain-4,
+               height = 28).grid(row=0, column=0, columnspan=9)
+               
         for n in range(17):
             """
             Canvas(aframe, bg=("black" if n%2 else "gray"), bd=0, relief=FLAT,
@@ -245,30 +277,9 @@ class GuiPart:
                    highlightcolor='white'
                    ).grid(row=n, column=0)
             """       
-            Canvas(gframe, bd=0, relief=FLAT,
-                   width=50, height=28, highlightthickness=0,
+            Canvas(gframe, bd=0, width=50, height=28, highlightthickness=0,
                    ).grid(row=n, column=1)
     
-        # com selection bits
-        Label(gframe, text='Com Port').grid(row=self.gridComRowOffset+0,
-                                            column=0, columnspan=3)
-        Entry(gframe, textvariable=self.comport, width=17
-              ).grid(row=self.gridComRowOffset+1, column=0, columnspan=3)
-        Button(gframe, textvariable=self.connectText,
-               command=self.connectCommand, width=10
-               ).grid(row=self.gridComRowOffset+2, column=0, columnspan=3)
-
-        Label(gframe, text='Device ID').grid(row=self.gridComRowOffset+4,
-                                             column=0, columnspan=3)
-        self.devIDInput = Entry(gframe, width=3, validate='key', justify=CENTER,
-                                textvariable=self.devID, invalidcommand='bell',
-                                validatecommand=self.vdev, name='devIDInput')
-                                
-        self.devIDInput.grid(row=self.gridComRowOffset+5, column=0,
-                             columnspan=3)
-        Label(gframe, text="A-Z, -, #, @, ?, \, *"
-              ).grid(row=self.gridComRowOffset+6, column=0, columnspan=3)
-
         # image in the middles
         canvas = Canvas(gframe, width=self.canvasWidth,
                         height=self.canvasHeight, bd=0,
