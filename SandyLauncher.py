@@ -97,13 +97,6 @@ class SandyLauncher:
                             traceback.format_exc())
             sys.exit(2)
 
-        try:
-            f = open('Python/' + self.config.get('Update', 'versionfile'))
-            self.currentVersion = f.read()
-            f.close()
-        except:
-            pass
-
         self.debugPrint(
             "Latest Version: {}, Current Version: {}".format(self.newVersion,
                                                              self.currentVersion)
@@ -268,6 +261,13 @@ class SandyLauncher:
         
         self.debug = self.config.getboolean('Shared', 'debug')
     
+        try:
+            f = open('Python/' + self.config.get('Update', 'versionfile'))
+            self.currentVersion = f.read()
+            f.close()
+        except:
+            pass
+                
     def writeConfig(self):
         self.debugPrint("Writing Config")
         with open(self.configFile, 'wb') as configfile:
