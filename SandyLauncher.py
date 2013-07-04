@@ -13,6 +13,8 @@ import ConfigParser
 import tkMessageBox
 import threading
 import Queue
+import zipfile
+import time
 
 class SandyLauncher:
     def __init__(self):
@@ -179,7 +181,7 @@ class SandyLauncher:
                 self.progressUpdate()
 
     def progressUpdate(self):
-        self.debugPrint("Progress Update")
+        self.debugPrint("Download Progress Update")
         value = self.progressQueue.get()
         self.progressBar.set(value)
         self.progressQueue.task_done()
@@ -187,7 +189,7 @@ class SandyLauncher:
             self.progressWindow.destroy()
             tkMessageBox.showerror("Update Failed", self.updateFailed)
         elif value < self.file_size:
-            self.master.after(5, self.progressUpdate)
+            self.master.after(1, self.progressUpdate)
         else:
             self.progressWindow.destroy()
             self.doUpdate(self.config.get('Update', 'downloaddir') + self.config.get('Update', 'updatefile').format(self.newVersion))
@@ -253,7 +255,64 @@ class SandyLauncher:
             
     def doUpdate(self, file):
         self.debugPrint("Doing Update with file: {}".format(file))
+    
+        self.zfobj = zipfile.ZipFile(file)
+        self.extractDir = self.config.get('Update', 'downloaddir') + self.newVersion + "/"
+        if not os.path.exists(self.extractDir):
+            os.mkdir(self.extractDir)
         
+        self.zipFileCount = len(self.zfobj.namelist())
+
+        position = self.master.geometry().split("+")
+        
+        self.progressWindow = tk.Toplevel()
+        self.progressWindow.geometry("+{}+{}".format(
+                                             int(position[1])+self.widthMain/4,
+                                             int(position[2])+self.heightMain/4
+                                                     )
+                                     )
+            
+        self.progressWindow.title("Extracting Zip Files")
+
+        tk.Label(self.progressWindow, text="Extracting Zip Progress").pack()
+
+        self.progressBar = tk.IntVar()
+        ttk.Progressbar(self.progressWindow, orient="horizontal",
+                     length=200, mode="determinate",
+                     maximum=self.zipFileCount,
+                     variable=self.progressBar).pack()
+                     
+        self.zipThread = threading.Thread(target=self.zipExtract)
+        self.progressQueue = Queue.Queue()
+        self.zipThread.start()
+        self.zipProgressUpdate()
+
+    def zipProgressUpdate(self):
+        self.debugPrint("Zip Progress Update")
+        
+        value = self.progressQueue.get()
+        self.progressBar.set(value)
+        self.progressQueue.task_done()
+        if self.updateFailed:
+            self.progressWindow.destroy()
+            tkMessageBox.showerror("Update Failed", self.updateFailed)
+        elif value < self.zipFileCount:
+            self.master.after(1, self.zipProgressUpdate)
+        else:
+            self.progressWindow.destroy()
+
+    def zipExtract(self):
+        count = 0
+        for name in self.zfobj.namelist():
+            count += 1
+            self.progressQueue.put(count)
+            (dirname, filename) = os.path.split(name)
+            if dirname.startswith("__MACOSX") or filename == ".DS_Store":
+                pass
+            else:
+                self.debugPrint("Decompressing " + filename + " on " + dirname)
+                self.zfobj.extract(name, self.extractDir)
+            time.sleep(0.2)
 
     def runLauncher(self):
         self.debugPrint("Running Main Launcher")
@@ -367,7 +426,7 @@ class SandyLauncher:
                         height=self.heightTab-4, highlightthickness=0)
         canvas.grid(row=0, column=0, columnspan=6)
 
-        tk.Label(iframe, text="Advance").grid(row=0, column=0, columnspan=6,
+        tk.Label(iframe, text="Advance Coming Soon").grid(row=0, column=0, columnspan=6,
                                             sticky=tk.W+tk.E+tk.N+tk.S)
 
     def onAppSelect(self, *args):
