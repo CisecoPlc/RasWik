@@ -786,6 +786,7 @@ class GuiPart:
 
                 self.text.see(END)
                 self.text.config(state=DISABLED)
+                self.queue.task_done()
             except Queue.Empty:
                 pass
 
