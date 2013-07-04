@@ -100,7 +100,7 @@ class SandyLauncher:
             self.debugPrint('Unable to get latest version info - URLError = ' +
                             str(e.reason))
             self.newVersion = False
-
+        
         except httplib.HTTPException, e:
             self.debugPrint('Unable to get latest version info - HTTPException')
             self.newVersion = False
@@ -112,24 +112,148 @@ class SandyLauncher:
             self.newVersion = False
 
         if self.newVersion:
-        self.debugPrint(
+            self.debugPrint(
                 "Latest Version: {}, Current Version: {}".format(
                               self.newVersion,self.currentVersion)
-                        )
+                            )
             if float(self.currentVersion) < float(self.newVersion):
                 self.debugPrint("New Version Available")
                 self.updateAvailable = True
         else:
             self.debugPrint("Could not check for new Version")
-    
+            
+        
+    def offerUpdate(self):
+        self.debugPrint("Ask to update")
+        if tkMessageBox.askyesno("WIK Update Available", "There is an update for WIK available would you like to download it?"):
+            self.updateFailed = False
+            # grab zip size for progress bar length
+            try:
+                u = urllib2.urlopen(self.config.get('Update', 'updateurl') + self.config.get('Update', 'updatefile').format(self.newVersion))
+                meta = u.info()
+                self.file_size = int(meta.getheaders("Content-Length")[0])
+            except urllib2.HTTPError, e:
+                self.debugPrint('Unable to get download file size - HTTPError = ' +
+                                str(e.reason))
+                self.updateFailed = "Unable to get download file size"
+            
+            except urllib2.URLError, e:
+                self.debugPrint('Unable to get download file size- URLError = ' +
+                                str(e.reason))
+                self.updateFailed = "Unable to get download file size"
+            
+            except httplib.HTTPException, e:
+                self.debugPrint('Unable to get download file size- HTTPException')
+                self.updateFailed = "Unable to get download file size"
+            
+            except Exception, e:
+                import traceback
+                self.debugPrint('Unable to get download file size - Exception = ' +
+                                traceback.format_exc())
+                self.updateFailed = "Unable to get download file size"
+            
+            if self.updateFailed:
+                tkMessageBox.showerror("Update Failed", self.updateFailed)
+            else:
+                position = self.master.geometry().split("+")
+                
+                self.progressWindow = tk.Toplevel()
+                self.progressWindow.geometry("+{}+{}".format(
+                                                int(position[1])+self.widthMain/4,
+                                                int(position[2])+self.heightMain/4
+                                                             )
+                                             )
+                self.progressWindow.title("Downloading Zip Files")
+                
+                tk.Label(self.progressWindow, text="Downloading Zip Progress").pack()
+                
+                self.progressBar = tk.IntVar()
+                ttk.Progressbar(self.progressWindow, orient="horizontal",
+                                length=200, mode="determinate",
+                                maximum=self.file_size,
+                                variable=self.progressBar).pack()
+                
+                self.downloadThread = threading.Thread(target=self.downloadUpdate)
+                self.progressQueue = Queue.Queue()
+                self.downloadThread.start()
+                self.progressUpdate()
+
+    def progressUpdate(self):
+        self.debugPrint("Progress Update")
+        value = self.progressQueue.get()
+        self.progressBar.set(value)
+        self.progressQueue.task_done()
+        if self.updateFailed:
+            self.progressWindow.destroy()
+            tkMessageBox.showerror("Update Failed", self.updateFailed)
+        elif value < self.file_size:
+            self.master.after(5, self.progressUpdate)
+        else:
+            self.progressWindow.destroy()
+            self.doUpdate(self.config.get('Update', 'downloaddir') + self.config.get('Update', 'updatefile').format(self.newVersion))
+
     def downloadUpdate(self):
         self.debugPrint("Downloading Update Zip")
-    
+        
+        url = self.config.get('Update', 'updateurl') + self.config.get('Update', 'updatefile').format(self.newVersion)
+        self.debugPrint(url)
+        # mk dir Download
+        if not os.path.exists(self.config.get('Update', 'downloaddir')):
+            os.makedirs(self.config.get('Update', 'downloaddir'))
+        
+        localFile = self.config.get('Update', 'downloaddir') + self.config.get('Update', 'updatefile').format(self.newVersion)
+        
+        self.debugPrint(localFile)
+
+        try:
+            u = urllib2.urlopen(url)
+            f = open(localFile, 'wb')
+            meta = u.info()
+            file_size = int(meta.getheaders("Content-Length")[0])
+            self.debugPrint("Downloading: {0} Bytes: {1}".format(url, file_size))
+
+            file_size_dl = 0
+            block_sz = 8192
+            while True:
+                buffer = u.read(block_sz)
+                if not buffer:
+                    break
+                
+                file_size_dl += len(buffer)
+                f.write(buffer)
+                p = float(file_size_dl) / file_size
+                status = r"{0}  [{1:.2%}]".format(file_size_dl, p)
+                status = status + chr(8)*(len(status)+1)
+                self.debugPrint(status)
+                self.progressQueue.put(file_size_dl)
+
+            f.close()
+        except urllib2.HTTPError, e:
+            self.debugPrint('Unable to get download file - HTTPError = ' +
+                            str(e.reason))
+            self.updateFailed = "Unable to get download file"
+        
+        except urllib2.URLError, e:
+            self.debugPrint('Unable to get download file - URLError = ' +
+                            str(e.reason))
+            self.updateFailed = "Unable to get download file"
+        
+        except httplib.HTTPException, e:
+            self.debugPrint('Unable to get download file - HTTPException')
+            self.updateFailed = "Unable to get download file"
+        
+        except Exception, e:
+            import traceback
+            self.debugPrint('Unable to get download file - Exception = ' +
+                            traceback.format_exc())
+            self.updateFailed = "Unable to get download file"
+
     def manualZipUpdate(self):
         self.debugPrint("Location Zip for Update")
             
-    def doUpdate(self, path):
-        self.debugPrint("Doing update")
+    def doUpdate(self, file):
+        self.debugPrint("Doing Update with file: {}".format(file))
+        
 
     def runLauncher(self):
         self.debugPrint("Running Main Launcher")
@@ -157,6 +281,9 @@ class SandyLauncher:
         self.initAdvanced()
         
         self.tBarFrame.show()
+        
+        if self.updateAvailable:
+            self.master.after(500, self.offerUpdate)
         
         self.master.mainloop()
 
@@ -280,7 +407,7 @@ class SandyLauncher:
             sys.exit()
         
         self.debug = self.config.getboolean('Shared', 'debug')
-    
+
         try:
             f = open('Python/' + self.config.get('Update', 'versionfile'))
             self.currentVersion = f.read()
