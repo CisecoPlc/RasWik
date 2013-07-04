@@ -31,13 +31,15 @@ class SandyLauncher:
         self.disableLaunch = False
         self.updateAvailable = False
 
-        
         self._running = False
     
     def on_excute(self):
-        self.readConfig()
         self.checkArgs()
+        self.readConfig()
         self.loadApps()
+
+        if self.args.noupdate:
+            self.checkForUpdate()
 
         self._running = True
 
@@ -64,7 +66,7 @@ class SandyLauncher:
         self.writeConfig()
     
     def debugPrint(self, msg):
-        if self.debug or self.debugArg:
+        if self.debugArg or self.debug:
             print(msg)
 
     def checkArgs(self):
@@ -77,13 +79,13 @@ class SandyLauncher:
                             help='Extra Debug Output, overrides sandy.cfg setting',
                             action='store_true')
         
-        args = parser.parse_args()
+        self.args = parser.parse_args()
         
-        if args.debug:
+        if self.args.debug:
             self.debugArg = True
+        else:
+            self.debugArg = False
 
-        if args.noupdate:
-            self.checkForUpdate()
 
     def checkForUpdate(self):
         self.debugPrint("Checking for update")
