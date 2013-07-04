@@ -37,7 +37,7 @@ class SandyLauncher:
         self.checkArgs()
         self.readConfig()
         self.loadApps()
-
+        
         if self.args.noupdate:
             self.checkForUpdate()
 
@@ -47,6 +47,18 @@ class SandyLauncher:
         self.runLauncher()
 
         self.cleanUp()
+    
+    def restart(self):
+        # restart after update
+        args = sys.argv[:]
+        
+        self.debugPrint('Re-spawning %s' % ' '.join(args))
+        args.append('-u')   # no need to check for update again
+        args.insert(0, sys.executable)
+        if sys.platform == 'win32':
+            args = ['"%s"' % arg for arg in args]
+        
+        os.execv(sys.executable, args)
 
     def endLauncher(self):
         self.debugPrint("End Launcher")
@@ -302,6 +314,7 @@ class SandyLauncher:
             self.master.after(1, self.zipProgressUpdate)
         else:
             self.progressWindow.destroy()
+            self.restart()
 
     def zipExtract(self):
         count = 0
