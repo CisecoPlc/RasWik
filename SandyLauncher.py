@@ -16,7 +16,7 @@ import Queue
 
 class SandyLauncher:
     def __init__(self):
-        self.debug = False # untill we read config
+        self.debug = False # until we read config
         self.debugArg = False # or get command line
         self.configFileDefault = "Python/sandy_default.cfg"
         self.configFile = "Python/sandy.cfg"
@@ -27,7 +27,7 @@ class SandyLauncher:
         self.heightTab = self.heightMain - 40
         self.proc = []
         self.disableLaunch = False
-        self.updateAvalible = False
+        self.updateAvailable = False
 
         
         self._running = False
@@ -46,16 +46,16 @@ class SandyLauncher:
 
     def endLauncher(self):
         self.debugPrint("End Launcher")
-        postion = self.master.geometry().split("+")
-        self.config.set('Launcher', 'window_width_offset', postion[1])
-        self.config.set('Launcher', 'window_height_offset', postion[2])
+        position = self.master.geometry().split("+")
+        self.config.set('Launcher', 'window_width_offset', position[1])
+        self.config.set('Launcher', 'window_height_offset', position[2])
         self.master.destroy()
         self._running = False
 
     def cleanUp(self):
         self.debugPrint("Clean up and exit")
         # disconnect resources
-        # kill childs??
+        # kill child's??
         for c in self.proc:
             if c.poll() == None:
                 c.terminate()
@@ -72,7 +72,7 @@ class SandyLauncher:
                             help='disable checking for update',
                             action='store_false')
         parser.add_argument('-d', '--debug',
-                            help='Extra Debug Output, overides sandy.cfg setting',
+                            help='Extra Debug Output, overrides sandy.cfg setting',
                             action='store_true')
         
         args = parser.parse_args()
@@ -117,8 +117,8 @@ class SandyLauncher:
                               self.newVersion,self.currentVersion)
                         )
             if float(self.currentVersion) < float(self.newVersion):
-                self.debugPrint("New Version Avalable")
-                self.updateAvalible = True
+                self.debugPrint("New Version Available")
+                self.updateAvailable = True
         else:
             self.debugPrint("Could not check for new Version")
     
@@ -273,7 +273,7 @@ class SandyLauncher:
         
         # read the user config file
         if not self.config.read(self.configFile):
-            self.debugPrint("Could Not Load User Conifg, One Will be Created on Exit")
+            self.debugPrint("Could Not Load User Config, One Will be Created on Exit")
         
         if not self.config.sections():
             self.debugPrint("No Config Loaded, Quitting")
@@ -341,7 +341,7 @@ class TabBar(tk.Frame):
         self.tabs[tab.tab_name] = tab						# add it to the list of tabs
         b = tk.Button(self, text=tab.tab_name, relief=BASE,	# basic button stuff
                       command=(lambda name=tab.tab_name: self.switch_tab(name)))	# set the command to switch tabs
-        b.pack(side=tk.LEFT)											 	# pack the buttont to the left mose of self
+        b.pack(side=tk.LEFT)											 	# pack the button to the left most of self
         self.buttons[tab.tab_name] = b											# add it to the list of buttons
     
     def delete(self, tabname):
