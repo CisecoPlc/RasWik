@@ -27,6 +27,7 @@ class SandyLauncher:
         self.heightTab = self.heightMain - 40
         self.proc = []
         self.disableLaunch = False
+        self.updateAvalible = False
 
         
         self._running = False
@@ -93,27 +94,33 @@ class SandyLauncher:
         except urllib2.HTTPError, e:
             self.debugPrint('Unable to get latest version info - HTTPError = ' +
                             str(e.reason))
-            sys.exit(2)
+            self.newVersion = False
 
         except urllib2.URLError, e:
             self.debugPrint('Unable to get latest version info - URLError = ' +
                             str(e.reason))
-            sys.exit(2)
+            self.newVersion = False
 
         except httplib.HTTPException, e:
             self.debugPrint('Unable to get latest version info - HTTPException')
-            sys.exit(2)
+            self.newVersion = False
 
         except Exception, e:
             import traceback
             self.debugPrint('Unable to get latest version info - Exception = ' +
                             traceback.format_exc())
-            sys.exit(2)
+            self.newVersion = False
 
+        if self.newVersion:
         self.debugPrint(
-            "Latest Version: {}, Current Version: {}".format(self.newVersion,
-                                                             self.currentVersion)
+                "Latest Version: {}, Current Version: {}".format(
+                              self.newVersion,self.currentVersion)
                         )
+            if float(self.currentVersion) < float(self.newVersion):
+                self.debugPrint("New Version Avalable")
+                self.updateAvalible = True
+        else:
+            self.debugPrint("Could not check for new Version")
     
     def downloadUpdate(self):
         self.debugPrint("Downloading Update Zip")
