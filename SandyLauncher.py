@@ -16,7 +16,8 @@ import Queue
 
 class SandyLauncher:
     def __init__(self):
-        self.debug = True # untill we read config or get command line
+        self.debug = False # untill we read config
+        self.debugArg = False # or get command line
         self.configFileDefault = "Python/sandy_default.cfg"
         self.configFile = "Python/sandy.cfg"
         self.appFile = "Python/AppList.json"
@@ -60,7 +61,7 @@ class SandyLauncher:
         self.writeConfig()
     
     def debugPrint(self, msg):
-        if self.debug:
+        if self.debug or self.debugArg:
             print(msg)
 
     def checkArgs(self):
@@ -76,7 +77,7 @@ class SandyLauncher:
         args = parser.parse_args()
         
         if args.debug:
-            self.debug = True
+            self.debugArg = True
 
         if args.noupdate:
             self.checkForUpdate()
