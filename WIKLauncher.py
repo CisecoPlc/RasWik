@@ -1,4 +1,15 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+""" Wireless Inventers Kit Launcher
+    Ciseco Ltd. Copyright 2013
+    
+    Author: Matt Lloyd
+    
+    This code is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    
+"""
 import Tkinter as tk
 import ttk
 import sys
@@ -453,7 +464,7 @@ class WIKLauncher:
 
         tk.Label(iframe, text="Advance Coming Soon").grid(row=0, column=0,
                                                           columnspan=6,
-                                            sticky=tk.W+tk.E+tk.N+tk.S)
+                                                          sticky=tk.W+tk.E+tk.N+tk.S)
 
     def onAppSelect(self, *args):
         self.debugPrint("App select update")

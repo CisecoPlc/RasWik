@@ -1,21 +1,15 @@
 #!/usr/bin/env python
-
+# -*- coding: utf-8 -*-
+""" Wireless Inventers Kit Basic Intreface
+    Ciseco Ltd. Copyright 2013
+    
+    Author: Matt Lloyd
+    
+    This code is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    
 """
-Ciseco
-    
-    Under Development
-    
-    https://github.com/dpslwk/Sandy
-    dpslwk 24/06/2013
-    
-    Base threading logic from recipe-82965-1.py
-    Created by Jacob Hallen, AB Strakt, Sweden. 2001-10-17
-
-    Base tab logic from recipe-577261-1.py
-    by www.sunjay-varma.com
-
-"""
-
 from Tkinter import *
 import time
 import threading
