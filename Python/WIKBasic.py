@@ -194,9 +194,12 @@ class GuiPart:
                         '12': StringVar(),
                         '13': StringVar()}
         
+    def on_excute(self):
         self.checkArgs()
         self.readConfig()
-    
+        self.runBasic()
+            
+    def runBasic(self):
         # validation setup
         self.initValidationRules()
         
@@ -671,7 +674,7 @@ class GuiPart:
                             format(num, self.digital[num].get()))
             
     def servo(self, value):
-        self.debugPrint("servo")
+        self.debugPrint("servo: {}".format(value))
         self.servoVal.set(int(float(value)))
         self.sendLLAP(self.devID.get(), "SERVO{}".format(int(float(value))))
         
@@ -924,6 +927,7 @@ class ThreadedClient:
         self.gui = GuiPart(master, self.queue, self.endApplication,
                            self.sendLLAP, self.connect)
 
+        self.gui.on_excute()
 
         # Set up the thread to do asynchronous I/O
         # More can be made if necessary
