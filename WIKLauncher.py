@@ -110,7 +110,7 @@ class WIKLauncher:
 
         except urllib2.HTTPError, e:
             self.debugPrint('Unable to get latest version info - HTTPError = ' +
-                            str(e.reason))
+                            str(e.code))
             self.newVersion = False
 
         except urllib2.URLError, e:
@@ -154,7 +154,7 @@ class WIKLauncher:
                 self.file_size = int(meta.getheaders("Content-Length")[0])
             except urllib2.HTTPError, e:
                 self.debugPrint('Unable to get download file size - HTTPError = ' +
-                                str(e.reason))
+                                str(e.code))
                 self.updateFailed = "Unable to get download file size"
             
             except urllib2.URLError, e:
@@ -255,7 +255,7 @@ class WIKLauncher:
             f.close()
         except urllib2.HTTPError, e:
             self.debugPrint('Unable to get download file - HTTPError = ' +
-                            str(e.reason))
+                            str(e.code))
             self.updateFailed = "Unable to get download file"
         
         except urllib2.URLError, e:
