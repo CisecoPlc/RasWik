@@ -4,14 +4,14 @@
             "id" : 0,
             "Name" : "Basic's",
             "FileName" : "WIKBasic.py",
-            "Args" : "",
+            "Args" : "-s",
             "Description" : "Basic Interface for the Wireless inventors kit"
         },
         {
             "id" : 2,
             "Name" : "Temperature Graph",
             "FileName" : "Graph.py",
-            "Args" : "-T",
+            "Args" : "-s",
             "Description" : "Sandy covers the basic of the WIK Kit"
         }
     ]

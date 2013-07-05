@@ -100,7 +100,7 @@ class WIKLauncher:
                             help='disable checking for update',
                             action='store_false')
         parser.add_argument('-d', '--debug',
-                            help='Extra Debug Output, overrides sandy.cfg setting',
+                            help='Extra Debug Output, overrides wik.cfg setting',
                             action='store_true')
         
         self.args = parser.parse_args()
@@ -480,11 +480,12 @@ class WIKLauncher:
     def launch(self):
         items = map(int, self.appSelect.curselection())
         if items:
-            app = self.appList[int(self.appSelect.curselection()[0]
-                                   )]['FileName']
-            args = self.appList[int(self.appSelect.curselection()[0])]['Args']
+            app = ["./{}".format(self.appList[int(self.appSelect.curselection()[0])]['FileName']),
+                    self.appList[int(self.appSelect.curselection()[0])]['Args'],
+                   "-d" if self.debugArg else ''
+                   ]
             self.debugPrint("Launching {}".format(app))
-            self.proc.append(subprocess.Popen("./{}".format(app),
+            self.proc.append(subprocess.Popen(app,
                                               cwd='./Python'))
         else:
             self.debugPrint("Nothing Selected to Launch")
