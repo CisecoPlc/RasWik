@@ -11,14 +11,23 @@
     
 """
 from Tkinter import *
-import time
-import threading
-import random
-import Queue
-import serial
-import sys
-import math
 import ttk
+import sys
+import os
+import subprocess
+import argparse
+import math
+import serial
+import json
+import urllib2
+import httplib
+import shutil
+import ConfigParser
+import tkMessageBox
+import threading
+import Queue
+import zipfile
+import time
 #import ImageTk
 
 
@@ -42,25 +51,25 @@ LLAP
 Basic's
 Advance Analog
 """
-ADCExplain = """1 This is lots of text about how we can do diffrent analog readings
-2 RAW ADC
-3 TEMP
-4 LDR
-5
-6
-7
-8"""
+ADCExplain = """This is lots of text about how we can do diffrent analog readings
+Volts
+Temperature
+Percentage
+
+RAW ADC is the number give back by the Xino RF this is betwee 0 and 1023
+
+"""
 
 ADC = """This is the raw ADC value as read from the analog pin
-RawADC = analogRead(A0);"""
+Volts = RawADC / 1023 *5.0V"""
 
 TMP = """Temperature is calculated using the following formula
-RTemp = (1024.0/RawADC) - 1)*10000
+RTemp = (1023.0/RawADC) - 1)*10000
 Kelvin = RTEMP*BVAL / (BVAL+RTEMP*( log(Rtherm/RNOM) ) )
 Temperature = Kelvin - 273.15"""
 
 LDR = """The light reading from the LDR is presented as a percentage
-Percentage = RawADC / 1024 * 100"""
+Percentage = RawADC / 1023 * 100"""
 
 LEDTEXT = """LED trafic light buttons
 """
@@ -165,6 +174,7 @@ class GuiPart:
                          '3': StringVar(),
                          '4': StringVar(),
                          '5': StringVar(),
+                         '0VOLT': StringVar(),
                          '0TMP': StringVar(),
                          '0LDR': StringVar()}
         
@@ -459,9 +469,9 @@ class GuiPart:
         Label(aframe, text=ADCExplain).grid(row=1, column=1, columnspan=cols-2,
                                             rowspan=5, sticky=W+E+N+S)
     
-        Label(aframe, text='RawADC').grid(row=9,
+        Label(aframe, text='Volts').grid(row=9,
                                            column=1, sticky=E)
-        Label(aframe, textvariable =self.anaLabel['0'], width=10,
+        Label(aframe, textvariable =self.anaLabel['0VOLT'], width=10,
               relief=RAISED).grid(row=9,
                                   column=2, sticky=W)
         Label(aframe, text=ADC).grid(row=8, column=3,
@@ -762,6 +772,7 @@ class GuiPart:
                                       msg['payload'][2:3]
                                       ].set(msg['payload'][4:])
                         if msg['payload'][2:3] == '0':
+                            self.anaLabel['0VOLT'].set(self.voltCalc(msg['payload'][4:]))
                             self.anaLabel['0TMP'].set(self.tmpCalc(msg['payload'][4:]))
                             self.anaLabel['0LDR'].set(self.ldrCalc(msg['payload'][4:]))
                     
@@ -794,6 +805,11 @@ class GuiPart:
             except Queue.Empty:
                 pass
 
+    def voltCalc(self, ADCvalue):
+        AREF = 5.0
+        MAX = 1023
+        return "{:0.2f}V".format(float(ADCvalue)/MAX*AREF)
+    
     def tmpCalc(self, ADCvalue):
         BVAL = 3977              # default beta value for the thermistor; adjust for your thermistor
         RTEMP = 25.0 + 273.15    # reference temperature (25C expressed in Kelvin)
@@ -802,14 +818,16 @@ class GuiPart:
         # calculate the temperature from an ADC value
         if float(ADCvalue) == 0:
             ADCvalue = 0.001        # catch div by zero
-        Rtherm = (1024.0/float(ADCvalue) - 1)*10000            # value of the resistance of the thermistor
+        Rtherm = (1023.0/float(ADCvalue) - 1)*10000            # value of the resistance of the thermistor
         T = RTEMP*BVAL/(BVAL+RTEMP*(math.log(Rtherm/RNOM)))  # see http:#en.wikipedia.org/wiki/Thermistor for an explanation of the formula
         T = T - 273.15                                        # convert from Kelvin to Celsius
 
         return u"{:0.2f}\u2103".format(T)
     
     def ldrCalc(self, val):
-        return "{} %".format(int((float(val)/1024)*100))
+        MAX = 1023
+        return "{} %".format(int((float(val)/MAX)*100))
+
 
 class ThreadedClient:
     """
