@@ -3,7 +3,7 @@
         {
             "id" : 0,
             "Name" : "Basic's",
-            "FileName" : "Sandy.py",
+            "FileName" : "WIKBasic.py",
             "Args" : "",
             "Description" : "Basic Interface for the Wireless inventors kit"
         },

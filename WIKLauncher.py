@@ -16,12 +16,13 @@ import Queue
 import zipfile
 import time
 
-class SandyLauncher:
+
+class WIKLauncher:
     def __init__(self):
         self.debug = False # until we read config
         self.debugArg = False # or get command line
-        self.configFileDefault = "Python/sandy_default.cfg"
-        self.configFile = "Python/sandy.cfg"
+        self.configFileDefault = "Python/wik_defaults.cfg"
+        self.configFile = "Python/wik.cfg"
         self.appFile = "Python/AppList.json"
 
         self.widthMain = 550
@@ -83,7 +84,7 @@ class SandyLauncher:
 
     def checkArgs(self):
         self.debugPrint("Parse Args")
-        parser = argparse.ArgumentParser(description='Sandy Launcher')
+        parser = argparse.ArgumentParser(description='Wireless Invertors Kit Launcher')
         parser.add_argument('-u', '--noupdate',
                             help='disable checking for update',
                             action='store_false')
@@ -141,11 +142,14 @@ class SandyLauncher:
         
     def offerUpdate(self):
         self.debugPrint("Ask to update")
-        if tkMessageBox.askyesno("WIK Update Available", "There is an update for WIK available would you like to download it?"):
+        if tkMessageBox.askyesno("WIK Update Available",
+                                 "There is an update for WIK available would you like to download it?"):
             self.updateFailed = False
             # grab zip size for progress bar length
             try:
-                u = urllib2.urlopen(self.config.get('Update', 'updateurl') + self.config.get('Update', 'updatefile').format(self.newVersion))
+                u = urllib2.urlopen(self.config.get('Update', 'updateurl') +
+                                    self.config.get('Update',
+                                                    'updatefile').format(self.newVersion))
                 meta = u.info()
                 self.file_size = int(meta.getheaders("Content-Length")[0])
             except urllib2.HTTPError, e:
@@ -206,18 +210,23 @@ class SandyLauncher:
             self.master.after(1, self.progressUpdate)
         else:
             self.progressWindow.destroy()
-            self.doUpdate(self.config.get('Update', 'downloaddir') + self.config.get('Update', 'updatefile').format(self.newVersion))
+            self.doUpdate(self.config.get('Update', 'downloaddir') +
+                          self.config.get('Update',
+                                          'updatefile').format(self.newVersion))
 
     def downloadUpdate(self):
         self.debugPrint("Downloading Update Zip")
         
-        url = self.config.get('Update', 'updateurl') + self.config.get('Update', 'updatefile').format(self.newVersion)
+        url = (self.config.get('Update', 'updateurl') +
+               self.config.get('Update', 'updatefile').format(self.newVersion))
+               
         self.debugPrint(url)
         # mk dir Download
         if not os.path.exists(self.config.get('Update', 'downloaddir')):
             os.makedirs(self.config.get('Update', 'downloaddir'))
         
-        localFile = self.config.get('Update', 'downloaddir') + self.config.get('Update', 'updatefile').format(self.newVersion)
+        localFile = (self.config.get('Update', 'downloaddir') +
+                     self.config.get('Update', 'updatefile').format(self.newVersion))
         
         self.debugPrint(localFile)
 
@@ -271,9 +280,10 @@ class SandyLauncher:
         self.debugPrint("Doing Update with file: {}".format(file))
     
         self.zfobj = zipfile.ZipFile(file)
-        self.extractDir = self.config.get('Update', 'downloaddir') + self.newVersion + "/"
-        if not os.path.exists(self.extractDir):
-            os.mkdir(self.extractDir)
+        self.extractDir = ""
+        # self.config.get('Update', 'downloaddir') + self.newVersion + "/"
+        # if not os.path.exists(self.extractDir):
+        #       os.mkdir(self.extractDir)
         
         self.zipFileCount = len(self.zfobj.namelist())
 
@@ -441,7 +451,8 @@ class SandyLauncher:
                         height=self.heightTab-4, highlightthickness=0)
         canvas.grid(row=0, column=0, columnspan=6)
 
-        tk.Label(iframe, text="Advance Coming Soon").grid(row=0, column=0, columnspan=6,
+        tk.Label(iframe, text="Advance Coming Soon").grid(row=0, column=0,
+                                                          columnspan=6,
                                             sticky=tk.W+tk.E+tk.N+tk.S)
 
     def onAppSelect(self, *args):
@@ -512,6 +523,8 @@ class SandyLauncher:
                             'Description': 'Error loading AppList file'
                             }]
             self.disableLaunch = True
+
+
 # including these here as python is stupid when it comes to relative imports
 
 BASE = tk.RAISED
@@ -534,16 +547,22 @@ class TabBar(tk.Frame):
     
     def show(self):
         self.pack(side=tk.TOP, expand=1, fill=tk.X)
-        self.switch_tab(self.init_name or self.tabs.keys()[-1])# switch the tab to the first tab
+        # switch the tab to the first tab
+        self.switch_tab(self.init_name or self.tabs.keys()[-1])
     
     def add(self, tab):
-        tab.pack_forget()									# hide the tab on init
+        # hide the tab on init
+        tab.pack_forget()
         
-        self.tabs[tab.tab_name] = tab						# add it to the list of tabs
-        b = tk.Button(self, text=tab.tab_name, relief=BASE,	# basic button stuff
-                      command=(lambda name=tab.tab_name: self.switch_tab(name)))	# set the command to switch tabs
-        b.pack(side=tk.LEFT)											 	# pack the button to the left most of self
-        self.buttons[tab.tab_name] = b											# add it to the list of buttons
+        # add it to the list of tabs
+        self.tabs[tab.tab_name] = tab
+        # basic button stuff set the command to switch tabs
+        b = tk.Button(self, text=tab.tab_name, relief=BASE,	
+                      command=(lambda name=tab.tab_name: self.switch_tab(name)))	
+        # pack the button to the left most of self
+        b.pack(side=tk.LEFT)
+        # add it to the list of buttons
+        self.buttons[tab.tab_name] = b
     
     def delete(self, tabname):
         
@@ -562,13 +581,17 @@ class TabBar(tk.Frame):
     def switch_tab(self, name):
         if self.current_tab:
             self.buttons[self.current_tab].config(relief=BASE)
-            self.tabs[self.current_tab].pack_forget()			# hide the current tab
-        self.tabs[name].pack(side=tk.BOTTOM)							# add the new tab to the display
-        self.current_tab = name									# set the current tab to itself
-        
-        self.buttons[name].config(relief=SELECTED)					# set it to the selected style
+            # hide the current tab
+           
+            self.tabs[self.current_tab].pack_forget()
+        # add the new tab to the display
+        self.tabs[name].pack(side=tk.BOTTOM)
+        # set the current tab to itself
+        self.current_tab = name
+        # set it to the selected style        
+        self.buttons[name].config(relief=SELECTED)
 
 if __name__ == "__main__":
-    app = SandyLauncher()
+    app = WIKLauncher()
     app.on_excute()
 
