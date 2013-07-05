@@ -203,8 +203,12 @@ class GuiPart:
         # Set up the GUI
         self.master.geometry("{}x{}+{}+{}".format(self.widthMain,
                                                   self.heightMain,
-                                                  self.widthOffset,
-                                                  self.heightOffset) )
+                                                  self.config.get('WIKBasic',
+                                                                  'window_width_offset'),
+                                                  self.config.get('WIKBasic',
+                                                                  'window_height_offset')
+                                                  )
+                             )
         self.master.protocol("WM_DELETE_WINDOW", self.endCommand)
         self.master.title("WIK Basic's Interface v{}".format(self.currentVersion))
         self.master.resizable(0,0)
