@@ -81,17 +81,23 @@ class TabBar(Frame):
         self.init_name = init_name
 
     def show(self):
-        self.pack(side=TOP, expand=YES, fill=X)
-        self.switch_tab(self.init_name or self.tabs.keys()[-1])# switch the tab to the first tab
+        self.pack(side=TOP, expand=1, fill=X)
+        # switch the tab to the first tab
+        self.switch_tab(self.init_name or self.tabs.keys()[-1])
     
     def add(self, tab):
-        tab.pack_forget()									# hide the tab on init
-    
-        self.tabs[tab.tab_name] = tab						# add it to the list of tabs
-        b = Button(self, text=tab.tab_name, relief=BASE,	# basic button stuff
-                   command=(lambda name=tab.tab_name: self.switch_tab(name)))	# set the command to switch tabs
-        b.pack(side=LEFT)											 	# pack the buttont to the left mose of self
-        self.buttons[tab.tab_name] = b											# add it to the list of buttons
+        # hide the tab on init
+        tab.pack_forget()
+        
+        # add it to the list of tabs
+        self.tabs[tab.tab_name] = tab
+        # basic button stuff set the command to switch tabs
+        b = Button(self, text=tab.tab_name, relief=BASE,
+                      command=(lambda name=tab.tab_name: self.switch_tab(name)))
+        # pack the button to the left most of self
+        b.pack(side=LEFT)
+        # add it to the list of buttons
+        self.buttons[tab.tab_name] = b
     
     def delete(self, tabname):
         
@@ -110,13 +116,15 @@ class TabBar(Frame):
     def switch_tab(self, name):
         if self.current_tab:
             self.buttons[self.current_tab].config(relief=BASE)
-            self.tabs[self.current_tab].pack_forget()			# hide the current tab
-        self.tabs[name].pack(side=BOTTOM)							# add the new tab to the display
-        self.current_tab = name									# set the current tab to itself
+            # hide the current tab
+            self.tabs[self.current_tab].pack_forget()
         
-        self.buttons[name].config(relief=SELECTED)					# set it to the selected style
-
-
+        # add the new tab to the display
+        self.tabs[name].pack(side=BOTTOM)
+        # set the current tab to itself
+        self.current_tab = name
+        # set it to the selected style
+        self.buttons[name].config(relief=SELECTED)
 
 
 class GuiPart:
@@ -744,8 +752,10 @@ class GuiPart:
                 # Check contents of message and do what it says
                 # As a test, we simply print it
                 self.text.config(state=NORMAL)
-                self.text.insert(END, "Received LLAP from {} with DATA: {}\n".
-                                 format(msg['devID'],msg['payload']), 'receive')
+                self.text.insert(END,
+                         "Received LLAP from {} with DATA: {}\n".format(
+                                                msg['devID'], msg['payload']),
+                         'receive')
                 if msg['devID'] == self.devID.get():
                     if msg['payload'].startswith("A"):
                         self.anaLabel[

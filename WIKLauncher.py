@@ -110,7 +110,6 @@ class WIKLauncher:
         else:
             self.debugArg = False
 
-
     def checkForUpdate(self):
         self.debugPrint("Checking for update")
         # go download version file
@@ -150,7 +149,6 @@ class WIKLauncher:
         else:
             self.debugPrint("Could not check for new Version")
             
-        
     def offerUpdate(self):
         self.debugPrint("Ask to update")
         if tkMessageBox.askyesno("WIK Update Available",
@@ -160,7 +158,8 @@ class WIKLauncher:
             try:
                 u = urllib2.urlopen(self.config.get('Update', 'updateurl') +
                                     self.config.get('Update',
-                                                    'updatefile').format(self.newVersion))
+                                                    'updatefile'
+                                                    ).format(self.newVersion))
                 meta = u.info()
                 self.file_size = int(meta.getheaders("Content-Length")[0])
             except urllib2.HTTPError, e:
@@ -190,13 +189,16 @@ class WIKLauncher:
                 
                 self.progressWindow = tk.Toplevel()
                 self.progressWindow.geometry("+{}+{}".format(
-                                                int(position[1])+self.widthMain/4,
-                                                int(position[2])+self.heightMain/4
+                                                int(position[1]
+                                                    )+self.widthMain/4,
+                                                int(position[2]
+                                                    )+self.heightMain/4
                                                              )
                                              )
                 self.progressWindow.title("Downloading Zip Files")
                 
-                tk.Label(self.progressWindow, text="Downloading Zip Progress").pack()
+                tk.Label(self.progressWindow, text="Downloading Zip Progress"
+                         ).pack()
                 
                 self.progressBar = tk.IntVar()
                 ttk.Progressbar(self.progressWindow, orient="horizontal",
@@ -237,7 +239,8 @@ class WIKLauncher:
             os.makedirs(self.config.get('Update', 'downloaddir'))
         
         localFile = (self.config.get('Update', 'downloaddir') +
-                     self.config.get('Update', 'updatefile').format(self.newVersion))
+                     self.config.get('Update', 'updatefile'
+                                     ).format(self.newVersion))
         
         self.debugPrint(localFile)
 
@@ -246,7 +249,8 @@ class WIKLauncher:
             f = open(localFile, 'wb')
             meta = u.info()
             file_size = int(meta.getheaders("Content-Length")[0])
-            self.debugPrint("Downloading: {0} Bytes: {1}".format(url, file_size))
+            self.debugPrint("Downloading: {0} Bytes: {1}".format(url,
+                                                                 file_size))
 
             file_size_dl = 0
             block_sz = 8192
@@ -476,10 +480,12 @@ class WIKLauncher:
     def launch(self):
         items = map(int, self.appSelect.curselection())
         if items:
-            app = self.appList[int(self.appSelect.curselection()[0])]['FileName']
+            app = self.appList[int(self.appSelect.curselection()[0]
+                                   )]['FileName']
             args = self.appList[int(self.appSelect.curselection()[0])]['Args']
             self.debugPrint("Launching {}".format(app))
-            self.proc.append(subprocess.Popen("./{}".format(app), cwd='./Python'))
+            self.proc.append(subprocess.Popen("./{}".format(app),
+                                              cwd='./Python'))
         else:
             self.debugPrint("Nothing Selected to Launch")
             
@@ -593,8 +599,8 @@ class TabBar(tk.Frame):
         if self.current_tab:
             self.buttons[self.current_tab].config(relief=BASE)
             # hide the current tab
-           
             self.tabs[self.current_tab].pack_forget()
+        
         # add the new tab to the display
         self.tabs[name].pack(side=tk.BOTTOM)
         # set the current tab to itself
