@@ -217,6 +217,7 @@ class GuiPart:
 
 
     def initTabBar(self):
+        self.debugPrint("Setting up TabBar")
         # tab button frame
         self.tBarFrame = TabBar(self.tabFrame, "Introduction", fname='tabBar')
         self.tBarFrame.config(relief=RAISED, pady=4)
@@ -230,6 +231,7 @@ class GuiPart:
         Label(self.tBarFrame, text=version).pack(side=RIGHT)
 
     def initIntro(self):
+        self.debugPrint("Setting up Introduction Tab")
         iframe = Tab(self.tabFrame, "Introduction", fname='intro')
         iframe.config(relief=RAISED, borderwidth=2, width=self.widthMain,
                       height=self.heightTab)
@@ -272,6 +274,7 @@ class GuiPart:
 
     
     def initGrid(self):
+        self.debugPrint("Setting up Basic's Tab")
         # grid frame
         gframe = Tab(self.tabFrame, "Basic's", fname='grid')
         gframe.config(relief=RAISED, borderwidth=2, width=self.widthMain,
@@ -441,6 +444,7 @@ class GuiPart:
         self.countEntry.grid(row=self.gridDigitalRowOffset+10, column=8)
 
     def initAdvAna(self):
+        self.debugPrint("Setting up Advanced Analog Tab")
         aframe = Tab(self.tabFrame, "Advanced Analog", fname='advana')
         aframe.config(relief=RAISED, borderwidth=2, width=self.widthMain,
                       height=self.heightTab)
@@ -496,6 +500,7 @@ class GuiPart:
                                      columnspan=cols-4, rowspan=3, sticky=W+E)
 
     def initLights(self):
+        self.debugPrint("Setting up Lights Tab")
         lframe = Tab(self.tabFrame, "Lights", fname='lights')
         lframe.config(relief=RAISED, borderwidth=2, width=self.widthMain,
                       height
@@ -521,6 +526,7 @@ class GuiPart:
                command=lambda: self.setLed(2)).grid(row=7, column=2)
 
     def initLLAPBar(self):
+        self.debugPrint("Setting up LLAP Command Bar")
         # llap command box
         lframe = Frame(self.master, relief=RAISED, borderwidth=2,
                        name='llapFrame', pady=4)
@@ -550,6 +556,7 @@ class GuiPart:
 
 
     def initSerialConsoles(self):
+        self.debugPrint("Setting up Serial Console")
         # serial console
         sframe = Frame(self.master, relief=RAISED, borderwidth=2,
                        name='serialFrame')
@@ -655,6 +662,7 @@ class GuiPart:
     # %W = the tk name of the widget
 
     def initValidationRules(self):
+        self.debugPrint("Setting up GUI validation Rules")
         self.vpwm = (self.master.register(self.validPWM), '%d', '%P', '%S')
         self.vcount = (self.master.register(self.validCount), '%d', '%P', '%S')
         self.vpay = (self.master.register(self.validPayloadLenght),
