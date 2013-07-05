@@ -40,8 +40,6 @@ else:
 
 baud = 9600
 
-version = "SandyWare v0.x " 
-
 BASE = RAISED
 SELECTED = SUNKEN
 
@@ -88,7 +86,7 @@ class TabBar(Frame):
         self.buttons = {}
         self.current_tab = None
         self.init_name = init_name
-
+    
     def show(self):
         self.pack(side=TOP, expand=1, fill=X)
         # switch the tab to the first tab
@@ -120,8 +118,8 @@ class TabBar(Frame):
         
         self.buttons[tabname].pack_forget()
         del self.buttons[tabname]
-
-
+    
+    
     def switch_tab(self, name):
         if self.current_tab:
             self.buttons[self.current_tab].config(relief=BASE)
@@ -137,13 +135,19 @@ class TabBar(Frame):
 
 
 class GuiPart:
-    def __init__(self, master, queue, endCommand, sendLLAP, connect, debug=True):
+    def __init__(self, master, queue, endCommand, sendLLAP, connect):
         self.master = master
         self.queue = queue
         self.sendLLAPcommand = sendLLAP
         self.endCommand = endCommand
         self.connectCommand = connect
-        self.debug = debug
+        
+        self.debug = False # until we read config
+        self.debugArg = False # or get command line
+        self.configFileDefault = "wik_defaults.cfg"
+        self.configFile = "wik.cfg"
+
+        
         # variables used later
         self.gridComRowOffset = 1
         self.gridDigitalRowOffset = 1
@@ -190,6 +194,9 @@ class GuiPart:
                         '12': StringVar(),
                         '13': StringVar()}
         
+        self.checkArgs()
+        self.readConfig()
+    
         # validation setup
         self.initValidationRules()
         
@@ -198,6 +205,10 @@ class GuiPart:
                                                   self.heightMain,
                                                   self.widthOffset,
                                                   self.heightOffset) )
+        self.master.protocol("WM_DELETE_WINDOW", self.endCommand)
+        self.master.title("WIK Basic's Interface v{}".format(self.currentVersion))
+        self.master.resizable(0,0)
+
         self.tabFrame = Frame(self.master, name='tabFrame')
         self.tabFrame.pack()
         self.initTabBar()
@@ -215,7 +226,51 @@ class GuiPart:
         if self.debug:
             print(msg)
 
+    def checkArgs(self):
+        self.debugPrint("Parse Args")
+        parser = argparse.ArgumentParser(description='Wireless Invertors Kit Basic Interface')
+        parser.add_argument('-d', '--debug',
+                            help='Extra Debug Output, overrides wik.cfg setting',
+                            action='store_true')
+        parser.add_argument('-s', '--subprocess',
+                            help='Used when launching as a sub process of WIK Launcher',
+                            action='store_true')
+                            
+        self.args = parser.parse_args()
+        
+        if self.args.debug:
+            self.debugArg = True
+        else:
+            self.debugArg = False
 
+    def readConfig(self):
+        self.debugPrint("Reading Config")
+
+        self.config = ConfigParser.SafeConfigParser()
+
+        # load defaults
+        try:
+            self.config.readfp(open(self.configFileDefault))
+        except:
+            self.debugPrint("Could Not Load Default Settings File")
+
+        # read the user config file
+        if not self.config.read(self.configFile):
+            self.debugPrint("Could Not Load User Config, One Will be Created on Exit")
+
+        if not self.config.sections():
+            self.debugPrint("No Config Loaded, Quitting")
+            sys.exit()
+
+        self.debug = self.config.getboolean('Shared', 'debug')
+
+        try:
+            f = open(self.config.get('Update', 'versionfile'))
+            self.currentVersion = f.read()
+            f.close()
+        except:
+            pass
+            
     def initTabBar(self):
         self.debugPrint("Setting up TabBar")
         # tab button frame
@@ -228,7 +283,7 @@ class GuiPart:
         #Button(self.tBarFrame, text="Basic's").pack(side=LEFT)
         Button(self.tBarFrame, text='Quit', command=self.endCommand
                ).pack(side=RIGHT)
-        Label(self.tBarFrame, text=version).pack(side=RIGHT)
+
 
     def initIntro(self):
         self.debugPrint("Setting up Introduction Tab")
@@ -850,9 +905,6 @@ class ThreadedClient:
         the GUI. We spawn a new thread for the worker.
         """
         self.master = master
-        self.master.protocol("WM_DELETE_WINDOW", self.endApplication)
-        self.master.title("Sandy")
-        self.master.resizable(0,0)
         
         self.disconnectFlag = threading.Event()
         self.t_stop = threading.Event()
