@@ -227,7 +227,7 @@ class GuiPart:
         self.initSerialConsoles()
     
     def debugPrint(self, msg):
-        if self.debug:
+        if self.debugArg or self.debug:
             print(msg)
 
     def checkArgs(self):
