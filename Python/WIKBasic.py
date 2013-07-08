@@ -1022,7 +1022,7 @@ class ThreadedClient:
     def endApplication(self):
         self.running = 0
 
-
-root = Tk()
-client = ThreadedClient(root)
-root.mainloop()
+if __name__ == "__main__":
+    root = Tk()
+    client = ThreadedClient(root)
+    root.mainloop()
