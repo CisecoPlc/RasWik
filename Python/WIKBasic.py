@@ -71,6 +71,9 @@ Percentage = RawADC / 1023 * 100"""
 LEDTEXT = """LED trafic light buttons
 """
 
+SCANTEXT = """Scaning LED's
+"""
+
 
 class GuiPart:
     def __init__(self, master, queue, endCommand, sendLLAP, connect):
@@ -120,7 +123,7 @@ class GuiPart:
                          '0TMP': StringVar(),
                          '0LDR': StringVar(),
                          '0Correction': StringVar()}
-                         
+
         
         self.digital = {'02': StringVar(),
                         '03': StringVar(),
@@ -133,6 +136,9 @@ class GuiPart:
                         '11': StringVar(),
                         '12': StringVar(),
                         '13': StringVar()}
+        
+        self.scanDelay = StringVar()
+        self.scanRepeat = StringVar()
         
     def on_excute(self):
         self.checkArgs()
@@ -168,7 +174,7 @@ class GuiPart:
 
         self.initLLAPBar()
         self.initSerialConsoles()
-    
+
         self.setDefaults()
     
     def debugPrint(self, msg):
@@ -517,13 +523,15 @@ class GuiPart:
 
     def initLights(self):
         self.debugPrint("Setting up Lights Tab")
-        lframe = Tab(self.tabFrame, "Lights", fname='lights')
-        lframe.config(relief=RAISED, borderwidth=2, width=self.widthMain,
+        mframe = Tab(self.tabFrame, "Lights", fname='lights')
+        mframe.config(relief=RAISED, borderwidth=2, width=self.widthMain,
                       height
                       =self.heightTab)
-        self.tBarFrame.add(lframe)
+        self.tBarFrame.add(mframe)
     
-        canvas = Canvas(lframe, bd=0, width=self.widthMain-4,
+        lframe = Frame(mframe, name='left')
+        lframe.pack(side=LEFT)
+        canvas = Canvas(lframe, bd=0, width=(self.widthMain/2)-2,
                         height=self.heightTab-4, highlightthickness=0)
         canvas.grid(row=0, column=0, rowspan=15, columnspan=5)
     
@@ -540,7 +548,36 @@ class GuiPart:
         Canvas(lframe, bg='green', height=ch).grid(row=7, column=2, sticky=W+E)
         Button(lframe, bg='green', text='GREEN LED on D09', width=20,
                command=lambda: self.setLed(2)).grid(row=7, column=2)
+    
+        rframe = Frame(mframe, name='right')
+        rframe.pack(side=RIGHT)
+        
+        canvas = Canvas(rframe, bd=0, width=(self.widthMain/2)-2,
+                        height=self.heightTab-4, highlightthickness=0)
+        canvas.grid(row=0, column=0, rowspan=15, columnspan=5)
+        
+        Label(rframe, text=SCANTEXT).grid(row=1, column=0, rowspan=2,
+                                          columnspan=5, sticky=W+E+N+S)
+    
+    
+        Label(rframe, text='Delay', anchor=E).grid(row=5, column=1, sticky=E)
+        self.scanDelayInput = Entry(rframe, textvariable=self.scanDelay, width=5, validate='key',
+              invalidcommand='bell', validatecommand=self.vfloat,
+              justify=CENTER)
+        self.scanDelayInput.grid(row=5, column=2, sticky=E+W)
+        Label(rframe, text='ms', anchor=W).grid(row=5, column=3, sticky=W)
+        
+        Label(rframe, text='Repeat', anchor=E).grid(row=7, column=1, sticky=E)
+        self.scanRepeatInput = Entry(rframe, textvariable=self.scanRepeat, width=5, validate='key',
+              invalidcommand='bell', validatecommand=self.vint,
+              justify=CENTER)
+        self.scanRepeatInput.grid(row=7, column=2, sticky=E+W)
+    
 
+        Button(rframe, text='Go', command=self.scanGo).grid(row=9, column=1,
+                                                            columnspan=3,
+                                                            sticky=E+W)
+    
     def initLLAPBar(self):
         self.debugPrint("Setting up LLAP Command Bar")
         # llap command box
@@ -595,7 +632,11 @@ class GuiPart:
         self.debugPrint("Setting Entry Defaults")
         self.anaLabel['0Correction'].set('1')
         self.correctionInput.config(validate='key')
-
+        self.scanRepeat.set('1')
+        self.scanRepeatInput.config(validate='key')
+        self.scanDelay.set('1')
+        self.scanDelayInput.config(validate='key')
+    
     def anaRead(self, num):
         self.debugPrint("anaRead: {}".format(num))
         self.sendLLAP(self.devID.get(), "A{0:02d}READ".format(num))
@@ -660,7 +701,9 @@ class GuiPart:
             self.sendLLAP(self.devID.get(), "D13LOW")
             self.sendLLAP(self.devID.get(), "D11LOW")
             self.sendLLAP(self.devID.get(), "D09HIGH")
-            
+
+    def scanGo(self):
+        self.debugPrint("Scanning")
 
     # validation rules
 
@@ -684,7 +727,15 @@ class GuiPart:
         self.vdev = (self.master.register(self.validDevID), '%d',
                      '%P', '%W', '%P', '%S')
         self.vfloat = (self.master.register(self.validFloat), '%d', '%s', '%S')
-                     
+        self.vint = (self.master.register(self.validInt), '%d', '%s', '%S')
+    
+    def validInt(self, d, s, S):
+        if d == '0':
+            return True
+        if S.isdigit():
+            return True
+        else:
+            return False
     
     def validFloat(self, d, s, S):
         if d == '0':
