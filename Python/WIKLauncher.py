@@ -32,9 +32,9 @@ class WIKLauncher:
     def __init__(self):
         self.debug = False # until we read config
         self.debugArg = False # or get command line
-        self.configFileDefault = "Python/wik_defaults.cfg"
-        self.configFile = "Python/wik.cfg"
-        self.appFile = "Python/AppList.json"
+        self.configFileDefault = "wik_defaults.cfg"
+        self.configFile = "wik.cfg"
+        self.appFile = "AppList.json"
 
         self.widthMain = 550
         self.heightMain = 300
@@ -485,8 +485,7 @@ class WIKLauncher:
                    "-d" if self.debugArg else ''
                    ]
             self.debugPrint("Launching {}".format(app))
-            self.proc.append(subprocess.Popen(app,
-                                              cwd='./Python'))
+            self.proc.append(subprocess.Popen(app))
         else:
             self.debugPrint("Nothing Selected to Launch")
             
@@ -512,7 +511,7 @@ class WIKLauncher:
         self.debug = self.config.getboolean('Shared', 'debug')
 
         try:
-            f = open('Python/' + self.config.get('Update', 'versionfile'))
+            f = open(self.config.get('Update', 'versionfile'))
             self.currentVersion = f.read()
             f.close()
         except:
