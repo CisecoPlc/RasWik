@@ -295,7 +295,7 @@ class WIKLauncher:
         self.debugPrint("Doing Update with file: {}".format(file))
     
         self.zfobj = zipfile.ZipFile(file)
-        self.extractDir = ""
+        self.extractDir = "../"
         # self.config.get('Update', 'downloaddir') + self.newVersion + "/"
         # if not os.path.exists(self.extractDir):
         #       os.mkdir(self.extractDir)
