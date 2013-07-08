@@ -121,7 +121,6 @@ class GuiPart:
                          '0LDR': StringVar(),
                          '0Correction': StringVar()}
                          
-        self.anaLabel['0Correction'].set(1)
         
         self.digital = {'02': StringVar(),
                         '03': StringVar(),
@@ -169,6 +168,8 @@ class GuiPart:
 
         self.initLLAPBar()
         self.initSerialConsoles()
+    
+        self.setDefaults()
     
     def debugPrint(self, msg):
         if self.debugArg or self.debug:
@@ -453,6 +454,7 @@ class GuiPart:
                       height=self.heightTab)
         self.tBarFrame.add(aframe)
     
+        cols = 12
         # pack the grid to get the damn size right
         for n in range(1,17):
             """
@@ -461,13 +463,14 @@ class GuiPart:
                     highlightcolor='white'
                     ).grid(row=n, column=0)
             """
-            Canvas(aframe, bd=0, relief=FLAT,
-                   width=50, height=28, highlightthickness=0
-                   ).grid(row=n, column=0)
-        cols = 10
-        for n in range(cols):
             Canvas(aframe, bd=0, relief=FLAT, width=(self.widthMain-4)/cols,
-                   height=28, highlightthickness=0).grid(row=0, column=n)
+                   height=28, highlightthickness=0
+                   ).grid(row=n, column=1)
+        
+
+        Canvas(aframe, bd=0, relief=FLAT, width=(self.widthMain-4),
+               height=28, highlightthickness=0).grid(row=0, column=0,
+                                                     columnspan=cols)
 
         Button(aframe, text='Read', command=lambda:self.anaRead(0)
                ).grid(row=10-4, column=1, rowspan=2,
@@ -483,9 +486,13 @@ class GuiPart:
         Label(aframe, textvariable=self.anaLabel['0VOLT'], width=10,
               relief=RAISED).grid(row=9, column=2, sticky=W)
               
-        Entry(aframe, textvariable=self.anaLabel['0Correction'], width=9,
-              validate='key', invalidcommand='bell', validatecommand=self.vcf,
-              relief=RAISED, justify=CENTER).grid(row=10, column=2, sticky=W)
+        self.correctionInput = Entry(aframe,
+                                     textvariable=self.anaLabel['0Correction'],
+                                     width=9, validate='key',
+                                     invalidcommand='bell',
+                                     validatecommand=self.vfloat,
+                                     justify=CENTER, name='correctionInput')
+        self.correctionInput.grid(row=10, column=2, sticky=W)
               
         Label(aframe, text=ADC).grid(row=8, column=3,
                                      columnspan=cols-4, rowspan=3, sticky=W+E)
@@ -584,12 +591,10 @@ class GuiPart:
         self.serialText.tag_config('send', foreground='red')
         self.serialText.tag_config('receive', foreground='blue')
     
-        # status bar button
-#        bframe = Frame(master, relief=RAISED, borderwidth=1,
-#                       name='statusBarFrame')
-#        bframe.pack(fill=BOTH, expand=1)
-#        bah = Button(bframe, text='Bah')
-#        bah.pack(side=LEFT)
+    def setDefaults(self):
+        self.debugPrint("Setting Entry Defaults")
+        self.anaLabel['0Correction'].set('1')
+        self.correctionInput.config(validate='key')
 
     def anaRead(self, num):
         self.debugPrint("anaRead: {}".format(num))
@@ -678,15 +683,16 @@ class GuiPart:
                      '%P', '%W', '%S')
         self.vdev = (self.master.register(self.validDevID), '%d',
                      '%P', '%W', '%P', '%S')
-        self.vcf = (self.master.register(self.validCorrectionFloat), '%d', '%P', '%S')
+        self.vfloat = (self.master.register(self.validFloat), '%d', '%s', '%S')
                      
-    def validCorrectionFloat(self, d, P, S):
-        if d == '0' or d == '-1':
+    
+    def validFloat(self, d, s, S):
+        if d == '0':
             return True
-        elif S.isdigit() or S == '.':
-            True
+        if S.isdigit() or (S == '.' and s.find('.') == -1):
+            return True
         else:
-            False
+            return False
     
     def validPayloadLenght(self, P, W, S):
         if len(P) <= 9:
