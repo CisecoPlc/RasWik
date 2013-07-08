@@ -29,6 +29,7 @@ import Queue
 import zipfile
 import time
 #import ImageTk
+from Tabs import *
 
 
 if sys.platform == 'darwin':
@@ -40,8 +41,6 @@ else:
 
 baud = 9600
 
-BASE = RAISED
-SELECTED = SUNKEN
 
 INTRO = """ BIG Introdution Text
 Sandy
@@ -71,67 +70,6 @@ Percentage = RawADC / 1023 * 100"""
 
 LEDTEXT = """LED trafic light buttons
 """
-
-# a base tab class
-class Tab(Frame):
-    def __init__(self, master, name, fname):
-        Frame.__init__(self, master, name=fname)
-        self.tab_name = name
-
-# the bulk of the logic is in the actual tab bar
-class TabBar(Frame):
-    def __init__(self, master=None, init_name=None, fname=None):
-        Frame.__init__(self, master, name=fname)
-        self.tabs = {}
-        self.buttons = {}
-        self.current_tab = None
-        self.init_name = init_name
-    
-    def show(self):
-        self.pack(side=TOP, expand=1, fill=X)
-        # switch the tab to the first tab
-        self.switch_tab(self.init_name or self.tabs.keys()[-1])
-    
-    def add(self, tab):
-        # hide the tab on init
-        tab.pack_forget()
-        
-        # add it to the list of tabs
-        self.tabs[tab.tab_name] = tab
-        # basic button stuff set the command to switch tabs
-        b = Button(self, text=tab.tab_name, relief=BASE,
-                      command=(lambda name=tab.tab_name: self.switch_tab(name)))
-        # pack the button to the left most of self
-        b.pack(side=LEFT)
-        # add it to the list of buttons
-        self.buttons[tab.tab_name] = b
-    
-    def delete(self, tabname):
-        
-        if tabname == self.current_tab:
-            self.current_tab = None
-            self.tabs[tabname].pack_forget()
-            del self.tabs[tabname]
-            self.switch_tab(self.tabs.keys()[0])
-        
-        else: del self.tabs[tabname]
-        
-        self.buttons[tabname].pack_forget()
-        del self.buttons[tabname]
-    
-    
-    def switch_tab(self, name):
-        if self.current_tab:
-            self.buttons[self.current_tab].config(relief=BASE)
-            # hide the current tab
-            self.tabs[self.current_tab].pack_forget()
-        
-        # add the new tab to the display
-        self.tabs[name].pack(side=BOTTOM)
-        # set the current tab to itself
-        self.current_tab = name
-        # set it to the selected style
-        self.buttons[name].config(relief=SELECTED)
 
 
 class GuiPart:
