@@ -12,7 +12,7 @@
             "Name" : "Temperature Graph",
             "FileName" : "Graph.py",
             "Args" : "-s",
-            "Description" : "Sandy covers the basic of the WIK Kit"
+            "Description" : "WIK Graphs App"
         }
     ]
 }

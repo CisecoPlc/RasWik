@@ -353,7 +353,7 @@ class WIKLauncher:
             else:
                 self.debugPrint("Decompressing " + filename + " on " + dirname)
                 self.zfobj.extract(name, self.extractDir)
-            time.sleep(0.2)
+                time.sleep(0.2)
 
     def runLauncher(self):
         self.debugPrint("Running Main Launcher")
@@ -370,7 +370,7 @@ class WIKLauncher:
                              )
                              
         self.master.title("WIK Launcher v{}".format(self.currentVersion))
-        #self.master.resizable(0,0)
+        self.master.resizable(0,0)
         
         
         self.tabFrame = tk.Frame(self.master, name='tabFrame')
@@ -482,9 +482,11 @@ class WIKLauncher:
         items = map(int, self.appSelect.curselection())
         if items:
             app = ["./{}".format(self.appList[int(self.appSelect.curselection()[0])]['FileName']),
-                    self.appList[int(self.appSelect.curselection()[0])]['Args'],
-                   "-d" if self.debugArg else ''
+                    self.appList[int(self.appSelect.curselection()[0])]['Args']
                    ]
+            if self.debugArg:
+                    app.append("-d")
+           
             self.debugPrint("Launching {}".format(app))
             self.proc.append(subprocess.Popen(app))
         else:
