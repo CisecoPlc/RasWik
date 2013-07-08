@@ -58,8 +58,8 @@ RAW ADC is the number give back by the Xino RF this is betwee 0 and 1023
 
 """
 
-ADC = """This is the raw ADC value as read from the analog pin
-Volts = RawADC / 1023 *5.0V"""
+ADC = """This is the raw ADC value converted to Volts
+Volts = (RawADC / 1023 * 5.0V) * Correction Factor"""
 
 TMP = """Temperature is calculated using the following formula
 RTemp = (1023.0/RawADC) - 1)*10000
@@ -180,7 +180,10 @@ class GuiPart:
                          '5': StringVar(),
                          '0VOLT': StringVar(),
                          '0TMP': StringVar(),
-                         '0LDR': StringVar()}
+                         '0LDR': StringVar(),
+                         '0Correction': StringVar()}
+                         
+        self.anaLabel['0Correction'].set(1)
         
         self.digital = {'02': StringVar(),
                         '03': StringVar(),
@@ -537,9 +540,15 @@ class GuiPart:
     
         Label(aframe, text='Volts').grid(row=9,
                                            column=1, sticky=E)
-        Label(aframe, textvariable =self.anaLabel['0VOLT'], width=10,
-              relief=RAISED).grid(row=9,
-                                  column=2, sticky=W)
+        Label(aframe, text='Correction Factor').grid(row=10,
+                                                     column=1, sticky=E)
+        Label(aframe, textvariable=self.anaLabel['0VOLT'], width=10,
+              relief=RAISED).grid(row=9, column=2, sticky=W)
+              
+        Entry(aframe, textvariable=self.anaLabel['0Correction'], width=9,
+              validate='key', invalidcommand='bell', validatecommand=self.vcf,
+              relief=RAISED, justify=CENTER).grid(row=10, column=2, sticky=W)
+              
         Label(aframe, text=ADC).grid(row=8, column=3,
                                      columnspan=cols-4, rowspan=3, sticky=W+E)
 
@@ -731,7 +740,16 @@ class GuiPart:
                      '%P', '%W', '%S')
         self.vdev = (self.master.register(self.validDevID), '%d',
                      '%P', '%W', '%P', '%S')
-
+        self.vcf = (self.master.register(self.validCorrectionFloat), '%d', '%P', '%S')
+                     
+    def validCorrectionFloat(self, d, P, S):
+        if d == '0' or d == '-1':
+            return True
+        elif S.isdigit() or S == '.':
+            True
+        else:
+            False
+    
     def validPayloadLenght(self, P, W, S):
         if len(P) <= 9:
             if S.islower():
@@ -878,7 +896,7 @@ class GuiPart:
     def voltCalc(self, ADCvalue):
         AREF = 5.0
         MAX = 1023
-        return "{:0.2f}V".format(float(ADCvalue)/MAX*AREF)
+        return "{:0.2f}V".format((float(ADCvalue)/MAX*AREF)*float(self.anaLabel['0Correction'].get()))
     
     def tmpCalc(self, ADCvalue):
         BVAL = 3977              # default beta value for the thermistor; adjust for your thermistor
