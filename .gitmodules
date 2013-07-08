@@ -1,0 +1,3 @@
+[submodule "Arduino/libraries/LLAPSerial"]
+	path = Arduino/libraries/LLAPSerial
+	url = git@github.com:CisecoPlc/LLAPSerial.git
