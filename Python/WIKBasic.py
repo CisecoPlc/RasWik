@@ -418,11 +418,8 @@ class GuiPart:
                ).grid(row=self.gridDigitalRowOffset+0, column=6, sticky=W+E)
         Button(gframe, text='HIGH', command=lambda: self.on('13')
                ).grid(row=self.gridDigitalRowOffset+0, column=5, sticky=W+E)
-        Button(gframe, text='PWM', command=lambda: self.pwm('13')
-               ).grid(row=self.gridDigitalRowOffset+0, column=7, sticky=W+E)
-        Entry(gframe, width=5, textvariable=self.digital['13'], validate='key',
-              invalidcommand='bell', validatecommand=self.vpwm, justify=CENTER,
-              name='digital13'
+        Label(gframe, width=5, textvariable=self.digital['13'], relief=RAISED,
+              anchor=CENTER
               ).grid(row=self.gridDigitalRowOffset+0, column=8)
 
 
