@@ -69,7 +69,8 @@ LDR = """The light reading from the LDR is presented as a percentage
 Percentage = RawADC / 1023 * 100"""
 
 LEDTEXT = """LED traffic lights
-Connect the matching LED and a 470R resistor to the following pins
+Connect the matching LED and a 470R 
+resistor to the following pins
 D13 Red
 D11 Yellow
 D10 Blue"""
@@ -268,7 +269,8 @@ class GuiPart:
                    ).grid(row=self.gridComRowOffset+n, column=0, columnspan=6)
 
 
-        Label(iframe, text=INTRO).grid(row=0, column=0, columnspan=6, sticky=W+E+N+S)
+        Label(iframe, text=INTRO).grid(row=0, column=0, columnspan=6,
+                                       sticky=W+E+N+S)
     
         # com selection bits
         Label(iframe, text='Com Port').grid(row=self.gridComRowOffset+0,
@@ -539,7 +541,7 @@ class GuiPart:
                         height=self.heightTab-4, highlightthickness=0)
         canvas.grid(row=0, column=0, rowspan=11, columnspan=5)
     
-        Label(lframe, text=LEDTEXT).grid(row=1, column=0, rowspan=3,
+        Label(lframe, text=LEDTEXT).grid(row=1, column=0, rowspan=4,
                                          columnspan=5, sticky=W+E+N+S)
         
         ch=50
@@ -565,16 +567,20 @@ class GuiPart:
     
     
         Label(rframe, text='Delay', anchor=E).grid(row=5, column=1, sticky=E)
-        self.scan['DelayInput'] = Entry(rframe, textvariable=self.scan['Delay'], width=5, validate='key',
-              invalidcommand='bell', validatecommand=self.vint,
-              justify=CENTER)
+        self.scan['DelayInput'] = Entry(rframe, textvariable=self.scan['Delay'],
+                                        width=5, validate='key',
+                                        invalidcommand='bell',
+                                        validatecommand=self.vint,
+                                        justify=CENTER)
         self.scan['DelayInput'].grid(row=5, column=2, sticky=E+W)
         Label(rframe, text='ms', anchor=W).grid(row=5, column=3, sticky=W)
         
         Label(rframe, text='Repeat', anchor=E).grid(row=7, column=1, sticky=E)
-        self.scan['RepeatInput'] = Entry(rframe, textvariable=self.scan['Repeat'], width=5, validate='key',
-              invalidcommand='bell', validatecommand=self.vint,
-              justify=CENTER)
+        self.scan['RepeatInput'] = Entry(rframe, textvariable=self.scan['Repeat'],
+                                         width=5, validate='key',
+                                         invalidcommand='bell',
+                                         validatecommand=self.vint,
+                                         justify=CENTER)
         self.scan['RepeatInput'].grid(row=7, column=2, sticky=E+W)
     
 
@@ -721,7 +727,8 @@ class GuiPart:
         self.scanDo()
                 
     def scanDo(self):
-        self.debugPrint("Scanning... pos: {} count: {}".format(self.scan['position'], self.scan['count']))
+        self.debugPrint("Scanning... pos: {} count: {}".format(self.scan['position'],
+                                                               self.scan['count']))
         if self.scan['position'] == 0:
             self.sendLLAP(self.devID.get(), "D13HIGH")
             self.sendLLAP(self.devID.get(), "D11LOW")
@@ -909,9 +916,12 @@ class GuiPart:
                                       msg['payload'][2:3]
                                       ].set(msg['payload'][4:])
                         if msg['payload'][2:3] == '0':
-                            self.anaLabel['0VOLT'].set(self.voltCalc(msg['payload'][4:]))
-                            self.anaLabel['0TMP'].set(self.tmpCalc(msg['payload'][4:]))
-                            self.anaLabel['0LDR'].set(self.ldrCalc(msg['payload'][4:]))
+                            self.anaLabel['0VOLT'
+                                          ].set(self.voltCalc(msg['payload'][4:]))
+                            self.anaLabel['0TMP'
+                                          ].set(self.tmpCalc(msg['payload'][4:]))
+                            self.anaLabel['0LDR'
+                                          ].set(self.ldrCalc(msg['payload'][4:]))
                     
                     elif msg['payload'].startswith("COUNT"):
                         # we have a count
@@ -944,8 +954,9 @@ class GuiPart:
     def voltCalc(self, ADCvalue):
         AREF = 5.0
         MAX = 1023
-        return "{:0.2f}V".format((float(ADCvalue)/MAX*AREF)*float(self.anaLabel['0Correction'].get()))
-    
+        volt = (float(ADCvalue) / MAX * AREF) * float(self.anaLabel['0Correction'].get())
+        return "{:0.2f}V".format(volt)
+
     def tmpCalc(self, ADCvalue):
         BVAL = 3977              # default beta value for the thermistor; adjust for your thermistor
         RTEMP = 25.0 + 273.15    # reference temperature (25C expressed in Kelvin)
@@ -954,9 +965,12 @@ class GuiPart:
         # calculate the temperature from an ADC value
         if float(ADCvalue) == 0:
             ADCvalue = 0.001        # catch div by zero
-        Rtherm = (1023.0/float(ADCvalue) - 1)*10000            # value of the resistance of the thermistor
-        T = RTEMP*BVAL/(BVAL+RTEMP*(math.log(Rtherm/RNOM)))  # see http:#en.wikipedia.org/wiki/Thermistor for an explanation of the formula
-        T = T - 273.15                                        # convert from Kelvin to Celsius
+        # value of the resistance of the thermistor
+        Rtherm = (1023.0/float(ADCvalue) - 1)*10000
+        # see http:#en.wikipedia.org/wiki/Thermistor for an explanation of the formula
+        T = RTEMP*BVAL/(BVAL+RTEMP*(math.log(Rtherm/RNOM)))
+        # convert from Kelvin to Celsius
+        T = T - 273.15
 
         return u"{:0.2f}\u2103".format(T)
     
