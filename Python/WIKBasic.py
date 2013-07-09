@@ -69,14 +69,14 @@ LDR = """The light reading from the LDR is presented as a percentage
 Percentage = RawADC / 1023 * 100"""
 
 LEDTEXT = """LED traffic lights
-Connect the matching LED and resistor to the following pins
+Connect the matching LED and a 470R resistor to the following pins
 D13 Red
 D11 Yellow
 D10 Blue"""
 
 SCANTEXT = """Scanning LED's
-
-Connect an LED and resistor to each of the following pins
+Connect an LED and 470R resistor 
+to each of the following pins
 D13, D11, D09, D06"""
 
 
