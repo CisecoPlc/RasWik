@@ -68,11 +68,16 @@ Temperature = Kelvin - 273.15"""
 LDR = """The light reading from the LDR is presented as a percentage
 Percentage = RawADC / 1023 * 100"""
 
-LEDTEXT = """LED traffic light buttons
-"""
+LEDTEXT = """LED traffic lights
+Connect the matching LED and resistor to the following pins
+D13 Red
+D11 Yellow
+D10 Blue"""
 
 SCANTEXT = """Scanning LED's
-"""
+
+Connect an LED and resistor to each of the following pins
+D13, D11, D09, D06"""
 
 
 class GuiPart:
@@ -521,8 +526,8 @@ class GuiPart:
                                      columnspan=cols-4, rowspan=3, sticky=W+E)
 
     def initLights(self):
-        self.debugPrint("Setting up Lights Tab")
-        mframe = Tab(self.tabFrame, "Lights", fname='lights')
+        self.debugPrint("Setting up LED Tab")
+        mframe = Tab(self.tabFrame, "LED's", fname='leds')
         mframe.config(relief=RAISED, borderwidth=2, width=self.widthMain,
                       height
                       =self.heightTab)
@@ -532,30 +537,30 @@ class GuiPart:
         lframe.pack(side=LEFT)
         canvas = Canvas(lframe, bd=0, width=(self.widthMain/2)-2,
                         height=self.heightTab-4, highlightthickness=0)
-        canvas.grid(row=0, column=0, rowspan=15, columnspan=5)
+        canvas.grid(row=0, column=0, rowspan=11, columnspan=5)
     
-        Label(lframe, text=LEDTEXT).grid(row=1, column=0, rowspan=2,
+        Label(lframe, text=LEDTEXT).grid(row=1, column=0, rowspan=3,
                                          columnspan=5, sticky=W+E+N+S)
         
-        ch=100
-        Canvas(lframe, bg='red', height=ch).grid(row=3, column=2, sticky=W+E)
+        ch=50
+        Canvas(lframe, bg='red', height=ch).grid(row=5, column=2, sticky=W+E)
         Button(lframe, bg='red', text='RED LED on D13', width=20,
-               command=lambda: self.setLed(0)).grid(row=3, column=2)
-        Canvas(lframe, bg='yellow', height=ch).grid(row=5, column=2, sticky=W+E)
+               command=lambda: self.setLed(0)).grid(row=5, column=2)
+        Canvas(lframe, bg='yellow', height=ch).grid(row=7, column=2, sticky=W+E)
         Button(lframe, bg='yellow', text='YELLOW LED on D11', width=20,
-               command=lambda: self.setLed(1)).grid(row=5, column=2)
-        Canvas(lframe, bg='green', height=ch).grid(row=7, column=2, sticky=W+E)
+               command=lambda: self.setLed(1)).grid(row=7, column=2)
+        Canvas(lframe, bg='green', height=ch).grid(row=9, column=2, sticky=W+E)
         Button(lframe, bg='green', text='GREEN LED on D09', width=20,
-               command=lambda: self.setLed(2)).grid(row=7, column=2)
+               command=lambda: self.setLed(2)).grid(row=9, column=2)
     
         rframe = Frame(mframe, name='right')
         rframe.pack(side=RIGHT)
         
         canvas = Canvas(rframe, bd=0, width=(self.widthMain/2)-2,
                         height=self.heightTab-4, highlightthickness=0)
-        canvas.grid(row=0, column=0, rowspan=15, columnspan=5)
+        canvas.grid(row=0, column=0, rowspan=12, columnspan=5)
         
-        Label(rframe, text=SCANTEXT).grid(row=1, column=0, rowspan=2,
+        Label(rframe, text=SCANTEXT).grid(row=1, column=0, rowspan=4,
                                           columnspan=5, sticky=W+E+N+S)
     
     
