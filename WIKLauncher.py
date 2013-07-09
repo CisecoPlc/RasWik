@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-""" Wireless Inventers Kit Launcher
+""" Wireless Inventors Kit Launcher
     Ciseco Ltd. Copyright 2013
     
     Author: Matt Lloyd

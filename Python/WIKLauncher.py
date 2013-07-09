@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-""" Wireless Inventers Kit Launcher
+""" Wireless Inventors Kit Launcher
     Ciseco Ltd. Copyright 2013
     
     Author: Matt Lloyd
@@ -371,7 +371,6 @@ class WIKLauncher:
                              
         self.master.title("WIK Launcher v{}".format(self.currentVersion))
         self.master.resizable(0,0)
-        
         
         self.tabFrame = tk.Frame(self.master, name='tabFrame')
         self.tabFrame.pack(pady=2)

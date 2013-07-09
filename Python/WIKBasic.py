@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-""" Wireless Inventers Kit Basic Intreface
+""" Wireless Inventors Kit Basic Interface
     Ciseco Ltd. Copyright 2013
     
     Author: Matt Lloyd
@@ -42,18 +42,18 @@ else:
 baud = 9600
 
 
-INTRO = """ BIG Introdution Text
+INTRO = """ BIG Introduction Text
 Sandy
 LLAP
 Basic's
 Advance Analog
 """
-ADCExplain = """This is lots of text about how we can do diffrent analog readings
+ADCExplain = """This is lots of text about how we can do different analog readings
 Volts
 Temperature
 Percentage
 
-RAW ADC is the number give back by the Xino RF this is betwee 0 and 1023
+RAW ADC is the number give back by the Xino RF this is between 0 and 1023
 
 """
 
@@ -68,10 +68,10 @@ Temperature = Kelvin - 273.15"""
 LDR = """The light reading from the LDR is presented as a percentage
 Percentage = RawADC / 1023 * 100"""
 
-LEDTEXT = """LED trafic light buttons
+LEDTEXT = """LED traffic light buttons
 """
 
-SCANTEXT = """Scaning LED's
+SCANTEXT = """Scanning LED's
 """
 
 
@@ -183,7 +183,7 @@ class GuiPart:
 
     def checkArgs(self):
         self.debugPrint("Parse Args")
-        parser = argparse.ArgumentParser(description='Wireless Invertors Kit Basic Interface')
+        parser = argparse.ArgumentParser(description='Wireless Inventors Kit Basic Interface')
         parser.add_argument('-d', '--debug',
                             help='Extra Debug Output, overrides wik.cfg setting',
                             action='store_true')
@@ -278,10 +278,6 @@ class GuiPart:
                              columnspan=2)
         Label(iframe, text="A-Z, -, #, @, ?, \, *"
               ).grid(row=self.gridComRowOffset+2, column=3, columnspan=2)
-    
-
-        
-
     
     def initGrid(self):
         self.debugPrint("Setting up Basic's Tab")
