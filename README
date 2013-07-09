@@ -10,13 +10,13 @@ $ ./WIKLauncher.py
 
 The Arduino Folder:
 This contains a copy of the latest WIK firmware for use on the XinoRF.
-Details on how to update you Xino RF can be found in the documentation
+Details on how to update you XinoRF can be found in the documentation
 
 The Docs Folder:
-This contains a PDF copy of the WIK Documentaion found at
+This contains a PDF copy of the WIK Documentation found at
 http://openmicros.org/index.php/articles/81-xrf-projects/296
 
 The Python Folder:
-This contaions all the Python code that make up the WIK Launcher and other App's
+This contains all the Python code that make up the WIK Launcher and other App's
 like the "Basic Interface"
 
