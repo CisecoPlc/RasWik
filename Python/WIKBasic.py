@@ -930,8 +930,7 @@ class GuiPart:
                                      ].set(msg['payload'][3:])
                         if (msg['payload'][1:3] == '06' or
                             msg['payload'][1:3] == '09' or
-                            msg['payload'][1:3] == '11' or
-                            msg['payload'][1:3] == '13'):
+                            msg['payload'][1:3] == '11'):
                             self.master.nametowidget(".tabFrame.grid.digital{}".format(
                                   msg['payload'][1:3])).config(validate='key')
                             
