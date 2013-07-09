@@ -137,8 +137,14 @@ class GuiPart:
                         '12': StringVar(),
                         '13': StringVar()}
         
-        self.scanDelay = StringVar()
-        self.scanRepeat = StringVar()
+        self.scan = {'Delay': StringVar(),
+                     'DelayInput': 0,
+                     'Repeat':  StringVar(),
+                     'RepeatInput': 0,
+                     'position': 0,
+                     'count': 0,
+                     'button': 0,
+                     'forward': True}
         
     def on_excute(self):
         self.checkArgs()
@@ -557,22 +563,21 @@ class GuiPart:
     
     
         Label(rframe, text='Delay', anchor=E).grid(row=5, column=1, sticky=E)
-        self.scanDelayInput = Entry(rframe, textvariable=self.scanDelay, width=5, validate='key',
-              invalidcommand='bell', validatecommand=self.vfloat,
+        self.scan['DelayInput'] = Entry(rframe, textvariable=self.scan['Delay'], width=5, validate='key',
+              invalidcommand='bell', validatecommand=self.vint,
               justify=CENTER)
-        self.scanDelayInput.grid(row=5, column=2, sticky=E+W)
+        self.scan['DelayInput'].grid(row=5, column=2, sticky=E+W)
         Label(rframe, text='ms', anchor=W).grid(row=5, column=3, sticky=W)
         
         Label(rframe, text='Repeat', anchor=E).grid(row=7, column=1, sticky=E)
-        self.scanRepeatInput = Entry(rframe, textvariable=self.scanRepeat, width=5, validate='key',
+        self.scan['RepeatInput'] = Entry(rframe, textvariable=self.scan['Repeat'], width=5, validate='key',
               invalidcommand='bell', validatecommand=self.vint,
               justify=CENTER)
-        self.scanRepeatInput.grid(row=7, column=2, sticky=E+W)
+        self.scan['RepeatInput'].grid(row=7, column=2, sticky=E+W)
     
 
-        Button(rframe, text='Go', command=self.scanGo).grid(row=9, column=1,
-                                                            columnspan=3,
-                                                            sticky=E+W)
+        self.scan['button'] = Button(rframe, text='Go', command=self.scanGo)
+        self.scan['button'].grid(row=9, column=1, columnspan=3, sticky=E+W)
     
     def initLLAPBar(self):
         self.debugPrint("Setting up LLAP Command Bar")
@@ -628,10 +633,10 @@ class GuiPart:
         self.debugPrint("Setting Entry Defaults")
         self.anaLabel['0Correction'].set('1')
         self.correctionInput.config(validate='key')
-        self.scanRepeat.set('1')
-        self.scanRepeatInput.config(validate='key')
-        self.scanDelay.set('1')
-        self.scanDelayInput.config(validate='key')
+        self.scan['Repeat'].set('1')
+        self.scan['RepeatInput'].config(validate='key')
+        self.scan['Delay'].set('500')
+        self.scan['DelayInput'].config(validate='key')
     
     def anaRead(self, num):
         self.debugPrint("anaRead: {}".format(num))
@@ -699,7 +704,58 @@ class GuiPart:
             self.sendLLAP(self.devID.get(), "D09HIGH")
 
     def scanGo(self):
-        self.debugPrint("Scanning")
+        self.debugPrint("Setup Scan")
+        # need to track delay, repeats, position in sequence
+        # or just refer to var's?
+        
+        self.scan['position'] = 0
+        self.scan['count'] = 0
+        self.scan['forward'] = True
+        
+        #disable button and entry
+        self.scan['DelayInput'].config(state=DISABLED)
+        self.scan['RepeatInput'].config(state=DISABLED)
+        self.scan['button'].config(state=DISABLED)
+        self.scanDo()
+                
+    def scanDo(self):
+        self.debugPrint("Scanning... pos: {} count: {}".format(self.scan['position'], self.scan['count']))
+        if self.scan['position'] == 0:
+            self.sendLLAP(self.devID.get(), "D13HIGH")
+            self.sendLLAP(self.devID.get(), "D11LOW")
+            self.sendLLAP(self.devID.get(), "D09LOW")
+            self.sendLLAP(self.devID.get(), "D06LOW")
+            self.scan['position'] = 1
+            if self.scan['forward'] == False:
+                self.scan['count'] += 1
+                self.scan['forward'] = True
+        elif self.scan['position'] == 1:
+            self.sendLLAP(self.devID.get(), "D13LOW")
+            self.sendLLAP(self.devID.get(), "D11HIGH")
+            self.sendLLAP(self.devID.get(), "D09LOW")
+            self.sendLLAP(self.devID.get(), "D06LOW")
+            self.scan['position'] = 2 if self.scan['forward'] == True else 0
+        elif self.scan['position'] == 2:
+            self.sendLLAP(self.devID.get(), "D13LOW")
+            self.sendLLAP(self.devID.get(), "D11LOW")
+            self.sendLLAP(self.devID.get(), "D09HIGH")
+            self.sendLLAP(self.devID.get(), "D06LOW")
+            self.scan['position'] = 3 if self.scan['forward'] == True else 1
+        elif self.scan['position'] == 3:
+            self.sendLLAP(self.devID.get(), "D13LOW")
+            self.sendLLAP(self.devID.get(), "D11LOW")
+            self.sendLLAP(self.devID.get(), "D09LOW")
+            self.sendLLAP(self.devID.get(), "D06HIGH")
+            self.scan['position'] = 2
+            self.scan['forward'] = False
+        
+        if self.scan['count'] < int(self.scan['Repeat'].get()): 
+            self.master.after(int(self.scan['Delay'].get()), self.scanDo)
+        else: 
+            # enable button and entry
+            self.scan['DelayInput'].config(state=NORMAL)
+            self.scan['RepeatInput'].config(state=NORMAL)
+            self.scan['button'].config(state=NORMAL)
 
     # validation rules
 
