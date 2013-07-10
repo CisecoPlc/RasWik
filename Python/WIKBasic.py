@@ -27,7 +27,7 @@ import tkMessageBox
 import threading
 import Queue
 import zipfile
-import time
+import time as time_
 #import ImageTk
 from Tabs import *
 

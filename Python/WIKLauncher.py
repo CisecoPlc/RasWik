@@ -25,7 +25,7 @@ import tkMessageBox
 import threading
 import Queue
 import zipfile
-import time
+import time as time_
 from Tabs import *
 
 
@@ -353,7 +353,7 @@ class WIKLauncher:
             else:
                 self.debugPrint("Decompressing " + filename + " on " + dirname)
                 self.zfobj.extract(name, self.extractDir)
-                time.sleep(0.2)
+                time_.sleep(0.1)
 
     def runLauncher(self):
         self.debugPrint("Running Main Launcher")
