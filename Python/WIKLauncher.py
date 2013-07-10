@@ -464,12 +464,16 @@ class WIKLauncher:
 
         canvas = tk.Canvas(iframe, bd=0, width=self.widthMain-4,
                         height=self.heightTab-4, highlightthickness=0)
-        canvas.grid(row=0, column=0, columnspan=6)
+        canvas.grid(row=0, column=0, columnspan=6, rowspan=4)
 
-        tk.Label(iframe, text="Advance Coming Soon").grid(row=0, column=0,
+        tk.Label(iframe, text="Advanced Coming Soon").grid(row=0, column=0,
                                                           columnspan=6,
                                                           sticky=tk.W+tk.E+tk.N+tk.S)
-
+    
+        tk.Button(iframe, text="Reset Slice of Radio Settings", state=tk.DISABLED).grid(row=1, column=0, columnspan=6, sticky=tk.E+tk.W)
+        tk.Button(iframe, text="Reser XinoRF Radio Settings", state=tk.DISABLED).grid(row=2, column=0, columnspan=6, sticky=tk.E+tk.W)
+        tk.Button(iframe, text="Update XinoRF Firmware", state=tk.DISABLED).grid(row=3, column=0, columnspan=6, sticky=tk.E+tk.W)
+    
     def onAppSelect(self, *args):
         self.debugPrint("App select update")
         #self.debugPrint(args)
