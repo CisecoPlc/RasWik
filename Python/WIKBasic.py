@@ -73,7 +73,7 @@ Connect the matching LED and a 470R
 resistor to the following pins
 D13 Red
 D11 Yellow
-D10 Blue"""
+D10 Green"""
 
 SCANTEXT = """Scanning LED's
 Connect an LED and 470R resistor 
