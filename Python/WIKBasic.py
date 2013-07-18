@@ -112,6 +112,9 @@ class GuiPart:
         self.devID = StringVar()
         self.devID.set("--")
         self.gif = "XinoRF.gif"
+        self.prof = "ProfWireless-250px.gif"
+        self.profX = 207
+        self.profY = 250
         self.historyList = []
         self.widthMain = 828
         self.heightMain = 662
@@ -271,7 +274,18 @@ class GuiPart:
 
         Label(iframe, text=INTRO).grid(row=0, column=0, columnspan=6,
                                        sticky=W+E+N+S)
-    
+            
+        # prof image
+        canvas = Canvas(iframe, width=self.profX,
+                       height=self.profY, bd=0,
+                       relief=FLAT, highlightthickness=0)
+        canvas.grid(row=0, column=0, columnspan=2,
+                   sticky=W+E+N+S, padx=5, pady=5)
+                   
+        self.profimage = PhotoImage(file=self.prof)
+        canvas.create_image(self.profX/2, self.profY/2,
+                           image=self.profimage)
+
         # com selection bits
         Label(iframe, text='Com Port').grid(row=self.gridComRowOffset+0,
                                             column=1, columnspan=2)
@@ -314,7 +328,7 @@ class GuiPart:
             Canvas(gframe, bd=0, width=50, height=28, highlightthickness=0,
                    ).grid(row=n, column=1)
     
-        # image in the middles
+        # image in the middle
         canvas = Canvas(gframe, width=self.canvasWidth,
                         height=self.canvasHeight, bd=0,
                         relief=FLAT, highlightthickness=0)
@@ -1040,7 +1054,7 @@ class ThreadedClient:
             # This is the brutal stop of the system. You may want to do
             #  some cleanup before actually shutting it down.
             self.kill(1)
-        self.master.after(100, self.periodicCall)
+        self.master.after(5, self.periodicCall)
 
     def sendLLAP(self, devID, data):
         llapMsg = "a{}{}".format(devID, data)
