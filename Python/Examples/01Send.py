@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-""" Wireless Inventors Kit Python Eaxmple 01Send.py
+""" Wireless Inventors Kit Python Example 01Send.py
     Ciseco Ltd. Copyright 2013
     
     This basic Python example just open a serial port and send one LLAP message
