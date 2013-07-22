@@ -42,18 +42,21 @@ else:
 baud = 9600
 
 
-INTRO = """ BIG Introduction Text
-Sandy
-LLAP
-Basic's
-Advance Analog
-"""
-ADCExplain = """This is lots of text about how we can do different analog readings
-Volts
-Temperature
-Percentage
+INTRO = """Welcome to the elementary section of the Wireless Inventors Kit
 
-RAW ADC is the number give back by the Xino RF this is between 0 and 1023
+First set up the serial COM port used to communicate with the Raspberry Pi radio and press connect.
+
+Then go to the Basics tab above to read inputs and control outputs on your remote XinoRF.
+
+The Advanced Analog tab allows you to take readings of voltage, temperature and light levels.
+
+The LEDs tab lets you control a traffic light and do other cool things with light emitting diodes.
+"""
+ADCExplain = """Via this interface we take advanced readings of voltage, 
+temperature and light levels experienced on sensors on the remote XinoRF.
+
+The XinoRF gives out a RawADC number that is between 0 and 1023, as seen on the Basic's tab, 
+this is then converted into more useful information using the formauals given below.
 
 """
 
@@ -271,21 +274,13 @@ class GuiPart:
                    width=self.widthMain-4, height=28
                    ).grid(row=self.gridComRowOffset+n, column=0, columnspan=6)
 
-
-        Label(iframe, text=INTRO).grid(row=0, column=0, columnspan=6,
-                                       sticky=W+E+N+S)
-            
         # prof image
-        canvas = Canvas(iframe, width=self.profX,
-                       height=self.profY, bd=0,
-                       relief=FLAT, highlightthickness=0)
-        canvas.grid(row=0, column=0, columnspan=2,
-                   sticky=W+E+N+S, padx=5, pady=5)
-                   
         self.profimage = PhotoImage(file=self.prof)
         canvas.create_image(self.profX/2, self.profY/2,
                            image=self.profimage)
-
+                           
+        canvas.create_text(180, 120, text=INTRO, anchor=NW)
+        
         # com selection bits
         Label(iframe, text='Com Port').grid(row=self.gridComRowOffset+0,
                                             column=1, columnspan=2)

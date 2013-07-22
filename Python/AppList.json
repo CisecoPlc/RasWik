@@ -5,7 +5,7 @@
             "Name" : "Basic's",
             "FileName" : "WIKBasic.py",
             "Args" : "-s",
-            "Description" : "Basic Interface for the Wireless inventors kit"
+             "Description" : "Basic Interface for the Wireless Inventors Kit \r\rIntroduction to the kit, \rLearn to remotely control input and output, \rPerform more advanced remote analog input and\r output, \rEnjoy playing with remote light emitting diodes"
         },
         {
             "id" : 2,
