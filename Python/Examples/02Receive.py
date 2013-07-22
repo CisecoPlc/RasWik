@@ -43,6 +43,6 @@ reply = ser.read(12)
 print(reply)
 
 # close the serial port
-ser.close
+ser.close()
 
 # at the end of the script python automatically exits

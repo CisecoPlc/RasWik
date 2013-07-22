@@ -11,7 +11,7 @@
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
     
-    """
+"""
 #import the PySerial library and sleep from the time library
 import serial
 from time import sleep
@@ -70,6 +70,6 @@ while count < 4:
     count += 1
 
 # close the serial port
-ser.close
+ser.close()
 
 # at the end of the script python automatically exits

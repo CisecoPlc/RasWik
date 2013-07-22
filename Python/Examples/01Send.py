@@ -36,6 +36,6 @@ ser.write('a--D13HIGH--')
 sleep(0.2)
 
 # close the serial port
-ser.close
+ser.close()
 
 # at the end of the script python automatically exits

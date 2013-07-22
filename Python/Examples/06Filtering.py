@@ -4,6 +4,8 @@
     Ciseco Ltd. Copyright 2013
     
     Filtering incoming LLAP messages
+    In this example we will filter incoming messages for a set devID
+    Then filter different replies to be handled differently
     
     
     Author: Matt Lloyd
@@ -29,67 +31,59 @@ ser = serial.Serial(port=port, baudrate=baud)
 # wait for a moment before doing anything else
 sleep(0.2)
 
-# setup a counter starting at 0
-count = 0
+# this time we are going to send 4 commands one after the other
+# the replies will get buffered by Python until
+# we later call ser.read()
+# after each ser.write() we print to the console and sleep() to give the
+# XinoRF time to reply before sending the next
+ser.write('a--D13HIGH--')
+print("Sent a--D13HIGH--")
+sleep(1)
+ser.write('a--A00READ--')
+print("Sent a--A00READ--")
+sleep(1)
+ser.write('a--A01READ--')
+print("Sent a--A01READ--")
+sleep(1)
+ser.write('a--D02READ--')
+print("Sent a--D02READ--")
+sleep(0.2)
 
-# loop over the block of code while the count is less than 4
-# when the count = 4 the loop will break and we carry on with the rest
-while count < 4:
-    # write a--A00READ-- out to the serial port
-    # this will return the current ADC reading for Pin A0
-    ser.write('a--A00READ--')
+# loop until the serial buffer is empty
+while ser.inWaiting():
+    # read a single character
+    char = ser.read()
     
-    # wait for a moment before doing anything else
-    sleep(0.2)
-    
-    # read 12 characters from the serial port
-    reply = ser.read(12)
-    
-    # at this point reply should contain something like 'a--A01+532--'
-    # the numbers after the + are the ADC reading we interested in
-    
-    # take just the last part of the message
-    adc = reply[7:]
-    
-    # strip the trailing '-'
-    adc = adc.strip('-')
-    
-    # adc is currently a string, we need to convert this to an integer
-    # before we can do any maths
-    adc = int(adc)
-    
-    # to calculate the temperature we use a more complex formula
-    # here we store some of the fixed numbers in variables
-    BVAL = 3977              # default beta value for the thermistor
-    RTEMP = 25.0 + 273.15    # reference temperature (25C expressed in Kelvin)
-    RNOM = 10000.0           # default reference resistance at reference temperature; adjust to calibrate
-    SRES = 10000.0           # default series resister value; adjust as per your implementation
-    
-    # to catch a divide by zero error we check the value of adc and fake it if needed
-    if adc == 0:
-        adc = 0.001
-    
-    # value of the resistance of the thermistor
-    Rtherm = (1023.0/float(adc) - 1)*10000
-    
-    # see http:#en.wikipedia.org/wiki/Thermistor for an explanation of the formula
-    kelvin = RTEMP*BVAL/(BVAL+RTEMP*(math.log(Rtherm/RNOM)))
-    
-    # convert from Kelvin to Celsius
-    temperature = kelvin - 273.15
-    
-    # print the ADC Value and the Temperature value
-    # here we are doing a little formatting of the output
-    # the first {} inside the quotes is replaced with the contents of value
-    # the second {} is replaced with our calculated Volts
-    # the :0.2f inside the second {} limits the
-    # floating point number to two decimal places
-    print("ADC: {} Temperature: {:0.2f}C".format(adc, temperature))
-    
-    # increase the count by 1 at the end of the block
-    count += 1
+    # check we have the start of a LLAP message
+    if char == 'a':
+        # start building the full llap message by adding the 'a' we have
+        llapMsg = 'a'
+        
+        # read in the next 11 characters form the serial buffer
+        # into the llap message
+        llapMsg += ser.read(11)
+        
+        # now we split the llap message apart into devID and data
+        devID = llapMsg[1:3]
+        data = llapMsg[3:]
+        
+        # check the devID is correct for our device
+        # (RasWIK ships as -- be default)
+        if devID == '--':
+            # check to see if the message is about A00
+            if data.startswith('A00'):
+                # split out the pin & the return value and print to the console
+                print("Got Analog reading for {} of {}".format(data[0:3],
+                                                               data[4:].strip('-')))
+            
+            # check to see if the message relates to a digital pin
+            elif data.startswith('D'):
+                # split out the pin & the return value and print to the console
+                print("Got digital reading for {} of {}".format(data[0:3],
+                                                                data[3:].strip('-')))
+
 
 # close the serial port
-ser.close
+ser.close()
 
 # at the end of the script python automatically exits
