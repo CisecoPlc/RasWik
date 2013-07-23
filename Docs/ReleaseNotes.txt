@@ -1,0 +1,21 @@
+Wireless Inventors Kit from Ciseco
+
+
+0.8: 23/07/13
+    Adding Python Examples
+    Renamed launch wrapper to RunMe.py
+    Fixed launch handeling of working path
+    WIKSketch (firmware) update for devID save
+    Text updates
+
+0.7:
+    WIKLauncher: Advance Tab place holder buttons
+    WIKSketch (firmware) update
+
+0.6:
+    Minor Bugs and Text
+
+0.5:
+    WIKBasic: Fix Setting default Correction Factor and Input validation
+    WIKBasic: Scanning LED's Code
+    WIKBasic: Remove PWM from D13
