@@ -236,6 +236,7 @@ class GuiPart:
             sys.exit()
 
         self.debug = self.config.getboolean('Shared', 'debug')
+        self.devID.set(self.config.get('Shared', 'devID'))
 
         try:
             f = open(self.config.get('Update', 'versionfile'))
@@ -300,6 +301,9 @@ class GuiPart:
                              columnspan=2)
         Label(iframe, text="A-Z, -, #, @, ?, \, *"
               ).grid(row=self.gridComRowOffset+2, column=3, columnspan=2)
+        if not self.config.getboolean('Shared', 'devid_enabled'):
+            self.devIDInput.config(state=DISABLED)
+        
     
     def initGrid(self):
         self.debugPrint("Setting up Basic's Tab")
