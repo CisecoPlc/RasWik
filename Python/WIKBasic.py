@@ -680,7 +680,10 @@ class GuiPart:
         if self.digital[num].get().isdigit():
             if int(self.digital[num].get()) < 255:
                 self.sendLLAP(self.devID.get(),
-                              "D{}PWM{}".format(num, self.digital[num].get()))
+                              "D{}PWM{:03d}".format(num,
+                                                    int(self.digital[num].get())
+                                                    )
+                              )
             else:
                 self.appendText("D{} PWM: '{}' is too large. Range 0-255\n".
                                 format(num, self.digital[num].get()))
