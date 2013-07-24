@@ -68,7 +68,7 @@ while ser.inWaiting():
         data = llapMsg[3:]
         
         # check the devID is correct for our device
-        # (RasWIK ships as -- be default)
+        # (WIK ships as -- be default)
         if devID == '--':
             # check to see if the message is about A00
             if data.startswith('A00'):

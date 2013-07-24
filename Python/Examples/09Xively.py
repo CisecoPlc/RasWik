@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-""" Wireless Inventors Kit Python Example 08Logging.py
+""" Wireless Inventors Kit Python Example 08Xively.py
     Ciseco Ltd. Copyright 2013
     
-    Logging incomming LLAP messgaes to a text file
-    include conversion to temperature
+    Logging incoming LLAP temperatures to a Xively datastream
+    
+    Note the Example requires you to create a Xively account and obtain an API key
     
     Authors: Matt Lloyd & Rob van der Linden
     
@@ -18,10 +19,42 @@ import serial
 from time import sleep, asctime
 # for temperature we also need the math library
 import math
+# we need the Xively Python module and a few others
+import xively
+import requests
+from datetime import datetime
+
+# function to be called later in the script
+def open_datastream(feed):
+    # the function returns a Xively datastream handle
+    # if the datastream is not present on Xively within your feed one is created
+    try:
+        datastream = feed.datastreams.get("Temperature")
+        print("Datastream for Temperature found")
+        return datastream
+    except:
+        # no datadtream was found so we create a new Temperature based stream
+        datastream = feed.datastreams.create("Temperature", tags="temp",
+                                             unit=xively.Unit(label='Celsius',
+                                                              type='basicSI',
+                                                              symbol='C'))
+        print("Datastream for Temperature created")
+        return datastream
+
 
 # declare to variables, holding the com port we wish to talk to and the speed
 port = '/dev/ttyAMA0'
 baud = 9600
+
+# declare variables for Xively
+# you need to copy in you API_KEY and FEED_ID paste them between the quotes
+# the WIK documentation includes details on how to obtain these
+FEED_ID = "***YOUR FEED ID***"
+API_KEY = "***YOUR API KEY***"
+
+
+# initialise api client
+api = xively.XivelyAPIClient(API_KEY)
 
 # open a serial connection using the variables above
 ser = serial.Serial(port=port, baudrate=baud)
@@ -34,14 +67,14 @@ count = 0
 # number of times round the loop
 maxcount = 20
 
-# open a file to log the data to
-file = open('./log.csv', 'w')
-
-# we are going to output data in a csv format so this adds a heading row
-file.write("\"Time\",\"LLAP\",\"Temperature\"\n")
-
 # clear out the serial input buffer to ensure there are no old messages lying around
 ser.flushInput()
+
+feed = api.feeds.get(FEED_ID)
+
+datastream = open_datastream(feed)
+datastream.max_value = None
+datastream.min_value = None
 
 # loop over the block of code while the count is less than maxcount
 # when the count = maxcount the loop will break and we carry on with the rest
@@ -78,7 +111,7 @@ while count < maxcount:
                 # if not we skip the section of code
                 if data.startswith('A00'):
                     # take just the last part of the message
-                    # strip the traling -'s
+                    # strip the trailing -'s
                     # and convert to an int
                     adc = int(data[4:].strip('-'))
                     
@@ -102,22 +135,24 @@ while count < maxcount:
                     # convert from Kelvin to Celsius
                     temperature = kelvin - 273.15
                     
-                    # now log the time, orignal llap messgae and temperature
-                    # to the file in a csv format
-                    file.write("\"{}\",\"{}\",\"{:0.2f}\"\n".format(asctime(),
-                                                                    llapMsg,
-                                                                    temperature
-                                                                    )
-                               )
-
+                    # set a new dataint with the temperature and time
+                    datastream.current_value = temperature
+                    datastream.at = datetime.utcnow()
+                    
+                    # now we push the update to Xively, and create an error if it fails
+                    try:
+                        datastream.update()
+                    except requests.HTTPError as e:
+                        print "HTTPError({0}): {1}".format(e.errno, e.strerror)
+                
                     # little bit of user feed back so we know the script is working
                     print("Logged {}".format(count))
-
+                   
                     # increase the count by 1 at the end of the block
                     count += 1
 
-# close the file
-file.close()
+                    # sleep a while before logging another temp
+                    sleep(10)
 
 # close the serial port
 ser.close()
