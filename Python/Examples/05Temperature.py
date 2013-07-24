@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-""" Wireless Inventors Kit Python Example 04Temperature.py
+""" Wireless Inventors Kit Python Example 05Temperature.py
     Ciseco Ltd. Copyright 2013
     
     Conversion of a ADC Value to Temperature

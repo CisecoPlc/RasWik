@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-""" Wireless Inventors Kit Python Example 08Xively.py
+""" Wireless Inventors Kit Python Example 09Xively.py
     Ciseco Ltd. Copyright 2013
     
     Logging incoming LLAP temperatures to a Xively datastream
@@ -13,7 +13,7 @@
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
     
-    """
+"""
 #import the PySerial library and sleep from the time library
 import serial
 from time import sleep, asctime
