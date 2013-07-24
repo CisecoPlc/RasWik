@@ -1,5 +1,10 @@
 Wireless Inventors Kit from Ciseco
 
+0.9: 
+    WIKBasic: devID now read from config file
+    WIKBasic: Ablity to disable devID entry box
+    WIKBasic: Fix PWM zero padding
+    Examples: Adding 09Xively.py
 
 0.8: 23/07/13
     Adding Python Examples
