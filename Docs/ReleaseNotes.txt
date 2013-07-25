@@ -1,6 +1,13 @@
 Wireless Inventors Kit from Ciseco
 
-0.9: 
+0.10:
+    WIKSketch: Firmware update to swap around D05 and D09
+    WIKBasic: Swap D05 and D09 on Basic's tab
+    WWIKBasic: Swap D05 and D09 on LED tab
+    Examples: 07Feedback updated to swap D09 for D06
+    
+    
+0.9:
     WIKBasic: devID now read from config file
     WIKBasic: Ablity to disable devID entry box
     WIKBasic: Fix PWM zero padding
