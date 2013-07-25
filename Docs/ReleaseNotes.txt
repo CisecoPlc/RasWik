@@ -1,6 +1,6 @@
 Wireless Inventors Kit from Ciseco
 
-0.10:
+0.91:
     WIKSketch: Firmware update to swap around D05 and D09
     WIKBasic: Swap D05 and D09 on Basic's tab
     WWIKBasic: Swap D05 and D09 on LED tab
