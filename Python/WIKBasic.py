@@ -414,16 +414,16 @@ class GuiPart:
               name='digital06'
               ).grid(row=self.gridDigitalRowOffset+8, column=8)
 
-        Button(gframe, text='LOW', command=lambda: self.off('09')
-               ).grid(row=self.gridDigitalRowOffset+4, column=6, sticky=W+E)
-        Button(gframe, text='HIGH', command=lambda: self.on('09')
-               ).grid(row=self.gridDigitalRowOffset+4, column=5, sticky=W+E)
-        Button(gframe, text='PWM', command=lambda: self.pwm('09')
-               ).grid(row=self.gridDigitalRowOffset+4, column=7, sticky=W+E)
-        Entry(gframe, width=5, textvariable=self.digital['09'], validate='key',
+        Button(gframe, text='LOW', command=lambda: self.off('05')
+               ).grid(row=self.gridDigitalRowOffset+9, column=6, sticky=W+E)
+        Button(gframe, text='HIGH', command=lambda: self.on('05')
+               ).grid(row=self.gridDigitalRowOffset+9, column=5, sticky=W+E)
+        Button(gframe, text='PWM', command=lambda: self.pwm('05')
+               ).grid(row=self.gridDigitalRowOffset+9, column=7, sticky=W+E)
+        Entry(gframe, width=5, textvariable=self.digital['05'], validate='key',
               invalidcommand='bell', validatecommand=self.vpwm, justify=CENTER,
               name='digital09'
-              ).grid(row=self.gridDigitalRowOffset+4, column=8)
+              ).grid(row=self.gridDigitalRowOffset+9, column=8)
         Button(gframe, text='LOW', command=lambda: self.off('11')
                ).grid(row=self.gridDigitalRowOffset+2, column=6, sticky=W+E)
         Button(gframe, text='HIGH', command=lambda: self.on('11')
@@ -444,16 +444,16 @@ class GuiPart:
 
 
         # servo button
-        Label(gframe, text='SERVO').grid(row=self.gridDigitalRowOffset+9,
+        Label(gframe, text='SERVO').grid(row=self.gridDigitalRowOffset+4,
                                          column=5, sticky=W)
         servo = Scale(gframe, orient=HORIZONTAL, from_=0, to=180, digits=3,
                       command=lambda value: self.servo(value), showvalue=0,
                       )
-        servo.grid(row=self.gridDigitalRowOffset+9, column=6, columnspan=2,
+        servo.grid(row=self.gridDigitalRowOffset+4, column=6, columnspan=2,
                    sticky=W+E)
         
         Label(gframe, width=5, textvariable=self.servoVal, anchor=CENTER,
-              relief=RAISED).grid(row=self.gridDigitalRowOffset+9, column=8)
+              relief=RAISED).grid(row=self.gridDigitalRowOffset+4, column=8)
               
         # set servo initial val
         servo.set(90)
