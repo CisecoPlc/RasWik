@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """ Wireless Inventors Kit Python Example 07Feedback.py
-    Ciseco Ltd. Copyright 2013
+    Copyright (c) 2013 Ciseco Ltd.
     
     Polled (or repeated) send and receive of LLAP messages,
     measuring Voltage on A0 and setting red/yellow/green charge light

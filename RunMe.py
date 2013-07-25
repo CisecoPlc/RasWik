@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """ Wireless Inventors Kit Run Me
-    Ciseco Ltd. Copyright 2013
+    Copyright (c) 2013 Ciseco Ltd.
     
     Author: Matt Lloyd
     

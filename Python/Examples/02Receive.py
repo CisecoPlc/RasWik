@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """ Wireless Inventors Kit Python Example 02Receive.py
-    Ciseco Ltd. Copyright 2013
+    Copyright (c) 2013 Ciseco Ltd.
     
     This basic Python example just open a serial port and send one LLAP message
     and receive a reply and prints it to the console

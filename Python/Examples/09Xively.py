@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """ Wireless Inventors Kit Python Example 09Xively.py
-    Ciseco Ltd. Copyright 2013
+    Copyright (c) 2013 Ciseco Ltd.
     
     Logging incoming LLAP temperatures to a Xively datastream
     

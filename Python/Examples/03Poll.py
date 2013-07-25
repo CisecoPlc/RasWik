@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """ Wireless Inventors Kit Python Example 03Poll.py
-    Ciseco Ltd. Copyright 2013
+    Copyright (c) 2013 Ciseco Ltd.
     
     Polled (or repeated) send and receive of LLAP messages
     
