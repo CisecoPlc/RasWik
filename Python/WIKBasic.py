@@ -76,12 +76,12 @@ Connect the matching LED and a 470R
 resistor to the following pins
 D13 Red
 D11 Yellow
-D10 Green"""
+D06 Green"""
 
 SCANTEXT = """Scanning LED's
 Connect an LED and 470R resistor 
 to each of the following pins
-D13, D11, D09, D06"""
+D13, D11, D06, D05"""
 
 
 class GuiPart:
@@ -714,18 +714,18 @@ class GuiPart:
         if c == 0:
             # set D09
             self.sendLLAP(self.devID.get(), "D11LOW")
-            self.sendLLAP(self.devID.get(), "D09LOW")
+            self.sendLLAP(self.devID.get(), "D06LOW")
             self.sendLLAP(self.devID.get(), "D13HIGH")
         elif c == 1:
             # set D11
             self.sendLLAP(self.devID.get(), "D13LOW")
-            self.sendLLAP(self.devID.get(), "D09LOW")
+            self.sendLLAP(self.devID.get(), "D06LOW")
             self.sendLLAP(self.devID.get(), "D11HIGH")
         elif c == 2:
             # set D13
             self.sendLLAP(self.devID.get(), "D13LOW")
             self.sendLLAP(self.devID.get(), "D11LOW")
-            self.sendLLAP(self.devID.get(), "D09HIGH")
+            self.sendLLAP(self.devID.get(), "D06HIGH")
 
     def scanGo(self):
         self.debugPrint("Setup Scan")
@@ -747,8 +747,8 @@ class GuiPart:
                                                                self.scan['count']))
         if self.scan['position'] == 0:
             self.sendLLAP(self.devID.get(), "D11LOW")
-            self.sendLLAP(self.devID.get(), "D09LOW")
             self.sendLLAP(self.devID.get(), "D06LOW")
+            self.sendLLAP(self.devID.get(), "D05LOW")
             self.sendLLAP(self.devID.get(), "D13HIGH")
             self.scan['position'] = 1
             if self.scan['forward'] == False:
@@ -756,21 +756,21 @@ class GuiPart:
                 self.scan['forward'] = True
         elif self.scan['position'] == 1:
             self.sendLLAP(self.devID.get(), "D13LOW")
-            self.sendLLAP(self.devID.get(), "D09LOW")
             self.sendLLAP(self.devID.get(), "D06LOW")
+            self.sendLLAP(self.devID.get(), "D05LOW")
             self.sendLLAP(self.devID.get(), "D11HIGH")
             self.scan['position'] = 2 if self.scan['forward'] == True else 0
         elif self.scan['position'] == 2:
             self.sendLLAP(self.devID.get(), "D13LOW")
             self.sendLLAP(self.devID.get(), "D11LOW")
-            self.sendLLAP(self.devID.get(), "D06LOW")
-            self.sendLLAP(self.devID.get(), "D09HIGH")
+            self.sendLLAP(self.devID.get(), "D05LOW")
+            self.sendLLAP(self.devID.get(), "D06HIGH")
             self.scan['position'] = 3 if self.scan['forward'] == True else 1
         elif self.scan['position'] == 3:
             self.sendLLAP(self.devID.get(), "D13LOW")
             self.sendLLAP(self.devID.get(), "D11LOW")
-            self.sendLLAP(self.devID.get(), "D09LOW")
-            self.sendLLAP(self.devID.get(), "D06HIGH")
+            self.sendLLAP(self.devID.get(), "D06LOW")
+            self.sendLLAP(self.devID.get(), "D05HIGH")
             self.scan['position'] = 2
             self.scan['forward'] = False
         
