@@ -678,7 +678,7 @@ class GuiPart:
     def pwm(self, num):
         self.debugPrint("pwm: {}".format(num))
         if self.digital[num].get().isdigit():
-            if int(self.digital[num].get()) < 255:
+            if int(self.digital[num].get()) <= 255:
                 self.sendLLAP(self.devID.get(),
                               "D{}PWM{:03d}".format(num,
                                                     int(self.digital[num].get())
