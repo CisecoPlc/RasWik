@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """ Wireless Inventors Kit Launcher
-    Ciseco Ltd. Copyright 2013
+    Copyright (c) 2013 Ciseco Ltd.
     
     Author: Matt Lloyd
     
@@ -27,6 +27,7 @@ import Queue
 import zipfile
 import time as time_
 import tkFileDialog
+from distutils import dir_util
 from Tabs import *
 
 
@@ -154,7 +155,9 @@ class WIKLauncher:
     def offerUpdate(self):
         self.debugPrint("Ask to update")
         if tkMessageBox.askyesno("WIK Update Available",
-                                 "There is an update for WIK available would you like to download it?"):
+                                 ("There is an update for WIK available would "
+                                  "you like to download it?")
+                                 ):
             self.updateFailed = False
             # grab zip size for progress bar length
             try:
@@ -371,6 +374,40 @@ class WIKLauncher:
                 self.zfobj.extract(name, self.extractDir)
                 time_.sleep(0.1)
 
+    def updateArduino(self):
+        self.debugPrint("Update Local Arduino Sketchbook Files")
+        # copy the LLAPSerial library and WIKSketch example to the users sketchbook
+        if tkMessageBox.askyesno("Update Arduino IDE Files",
+                                 ("This will update the copy of the LLAPSerial "
+                                  "library and WIKSketch code in your Arduino "
+                                  "IDE Sketchbook folder,\r"
+                                  "Do you whis to proceed?")
+                                 ):
+            # present dir selection
+            path = tkFileDialog.askdirectory(
+                             initialdir=self.config.get('Update',
+                                                        'sketchbook_folder'))
+                                                        
+            self.debugPrint("Given Path to Skecthbook folder of {}".format(path))
+            if path == '':
+                # user cancled
+                self.debugPrint("User Cancled")
+            else:
+                self.config.set('Update', 'sketchbook_folder', path)
+                # copy files accross
+                self.debugPrint("Copying files to {}".format(path))
+                filesCopied = dir_util.copy_tree(self.config.get('Update',
+                                                           'arduino_src_dir'),
+                                           path)
+                
+                self.debugPrint("Files Copied :{}".format(filesCopied))
+                tkMessageBox.showinfo("WIK Sketch Files",
+                                  ("Update done. \rThe latest WIKSketch "
+                                   "can now be found in the Arduino IDE "
+                                   "under the following \r"
+                                   "Examples->LLAPSerial->Examples->WIKSetch")
+                                      )
+
     def runLauncher(self):
         self.debugPrint("Running Main Launcher")
         self.master = tk.Tk()
@@ -480,7 +517,7 @@ class WIKLauncher:
 
         canvas = tk.Canvas(iframe, bd=0, width=self.widthMain-4,
                         height=self.heightTab-4, highlightthickness=0)
-        canvas.grid(row=0, column=0, columnspan=6, rowspan=5)
+        canvas.grid(row=0, column=0, columnspan=6, rowspan=6)
 
         tk.Label(iframe, text="Advanced Options, Some functions are comming soon"
                  ).grid(row=0, column=0, columnspan=6,
@@ -496,8 +533,9 @@ class WIKLauncher:
                   ).grid(row=3, column=0, columnspan=6, sticky=tk.E+tk.W)
         tk.Button(iframe, text="Update XinoRF Firmware", state=tk.DISABLED
                   ).grid(row=4, column=0, columnspan=6, sticky=tk.E+tk.W)
-        
-    
+        tk.Button(iframe, text="Update Arduino IDE WIKSketch Files",
+                  command=self.updateArduino
+                  ).grid(row=5, column=0, columnspan=6, sticky=tk.E+tk.W)
     
     def onAppSelect(self, *args):
         self.debugPrint("App select update")
