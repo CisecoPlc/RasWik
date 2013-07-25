@@ -85,21 +85,21 @@ while count < maxcount:
                     
                     if v < 342:
                         # print("RED")
-                        ser.write("a--D09LOW---")
+                        ser.write("a--D06LOW---")
                         sleep(0.2)
                         ser.write("a--D11LOW---")
                         sleep(0.2)
                         ser.write("a--D13HIGH--")
                     elif v >=342 and v <= 685:
                         # print("YELLOW")
-                        ser.write("a--D09LOW---")
+                        ser.write("a--D06LOW---")
                         sleep(0.2)
                         ser.write("a--D11HIGH--")
                         sleep(0.2)
                         ser.write("a--D13LOW---")
                     elif v > 685:
                         # print("GREEN")
-                        ser.write("a--D09HIGH--")
+                        ser.write("a--D06HIGH--")
                         sleep(0.2)
                         ser.write("a--D11LOW---")
                         sleep(0.2)
