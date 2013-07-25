@@ -384,7 +384,8 @@ class WIKLauncher:
                                   "Do you whis to proceed?")
                                  ):
             # present dir selection
-            path = tkFileDialog.askdirectory(
+            path = tkFileDialog.askdirectory(title=("Please select you Arduino"
+                                                    " Sketchbook folder"),
                              initialdir=self.config.get('Update',
                                                         'sketchbook_folder'))
                                                         

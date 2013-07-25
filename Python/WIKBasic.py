@@ -565,7 +565,7 @@ class GuiPart:
         Button(lframe, bg='yellow', text='YELLOW LED on D11', width=20,
                command=lambda: self.setLed(1)).grid(row=7, column=2)
         Canvas(lframe, bg='green', height=ch).grid(row=9, column=2, sticky=W+E)
-        Button(lframe, bg='green', text='GREEN LED on D09', width=20,
+        Button(lframe, bg='green', text='GREEN LED on D06', width=20,
                command=lambda: self.setLed(2)).grid(row=9, column=2)
     
         rframe = Frame(mframe, name='right')
