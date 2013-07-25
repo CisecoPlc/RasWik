@@ -26,6 +26,7 @@ import threading
 import Queue
 import zipfile
 import time as time_
+import tkFileDialog
 from Tabs import *
 
 
@@ -291,6 +292,21 @@ class WIKLauncher:
 
     def manualZipUpdate(self):
         self.debugPrint("Location Zip for Update")
+        self.updateFailed = False
+        
+        filename = tkFileDialog.askopenfilename(title="Please select the WIK Update zip",
+                                                filetypes = [("Zip Files",
+                                                              "*.zip")])
+        self.debugPrint("Given file name of {}".format(filename))
+        # need to check we have a valid zip file name else updateFailed
+        if filename == '':
+            # cancelled so do nothing
+            self.updateFailed = True
+            self.debugPrint("Update cancelled")
+        elif filename.endswith('.zip'):
+            # do the update
+            self.doUpdate(filename)
+
             
     def doUpdate(self, file):
         self.debugPrint("Doing Update with file: {}".format(file))
@@ -466,11 +482,12 @@ class WIKLauncher:
                         height=self.heightTab-4, highlightthickness=0)
         canvas.grid(row=0, column=0, columnspan=6, rowspan=5)
 
-        tk.Label(iframe, text="Advanced Coming Soon").grid(row=0, column=0,
-                                                           columnspan=6,
-                                                           sticky=tk.W+tk.E+tk.N+tk.S)
-                                                          
-        tk.Button(iframe, text="Update from Zip File", state=tk.DISABLED
+        tk.Label(iframe, text="Advanced Options, Some functions are comming soon"
+                 ).grid(row=0, column=0, columnspan=6,
+                        sticky=tk.W+tk.E+tk.N+tk.S)
+                                      
+        tk.Button(iframe, text="Update from Zip File",
+                  command=self.manualZipUpdate,
                   ).grid(row=1, column=0, columnspan=6, sticky=tk.E+tk.W)
         tk.Button(iframe, text="Reset Slice of Radio Settings",
                   state=tk.DISABLED).grid(row=2, column=0, columnspan=6,
@@ -492,7 +509,9 @@ class WIKLauncher:
     def launch(self):
         items = map(int, self.appSelect.curselection())
         if items:
-            app = ["./{}".format(self.appList[int(self.appSelect.curselection()[0])]['FileName']),
+            app = ["./{}".format(
+                 self.appList[int(self.appSelect.curselection()[0])]['FileName']
+                                 ),
                     self.appList[int(self.appSelect.curselection()[0])]['Args']
                    ]
             if self.debugArg:
