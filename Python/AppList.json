@@ -10,7 +10,7 @@
         {
             "id" : 2,
             "Name" : "Temperature Graph",
-            "FileName" : "Graph.py",
+            "FileName" : "WIKGraph.py",
             "Args" : "-s",
             "Description" : "WIK Graphs App"
         }
