@@ -169,7 +169,8 @@ class GuiPart:
                       'position': 0,
                       'count': 0,
                       'button': 0,
-                      'forward': True}
+                      'forward': True,
+                      'canvas': 0}
 
 
     def on_excute(self):
@@ -660,27 +661,27 @@ class GuiPart:
                                           justify=CENTER)
         self.graph['RepeatInput'].grid(row=4, column=2, sticky=E+W)
                                          
-        self.graph['button'] = Button(mframe, text='Go', command=self.scanGo)
+        self.graph['button'] = Button(mframe, text='Go', command=self.graphGo)
         self.graph['button'].grid(row=6, column=1, columnspan=3, sticky=E+W)
 
         # main graph canvas
-        graphCanvas = Canvas(mframe, bg='white', bd=2, relief=RAISED,
+        self.graph['canvas'] = Canvas(mframe, bg='white', bd=2, relief=RAISED,
                              height=300, width=graphwidth)
-        graphCanvas.grid(row=1, column=5, rowspan=6)
+        self.graph['canvas'].grid(row=1, column=5, rowspan=6)
 
         # axis and labels
-        graphCanvas.create_line(100,275,400,275, width=2)
-        graphCanvas.create_line(100,275,100,35,  width=2)
+        self.graph['canvas'].create_line(100,275,400,275, width=2)
+        self.graph['canvas'].create_line(100,275,100,35,  width=2)
             
         for i in range(11):
             x = 100 + (i * 30)
-            graphCanvas.create_line(x,275,x,270, width=2)
+            self.graph['canvas'].create_line(x,275,x,270, width=2)
             # graphCanvas.create_text(x,279, text='%d'% (10*i), anchor=N)
 
         for i in range(9):
             y = 275 - (i * 30)
-            graphCanvas.create_line(100,y,105,y, width=2)
-            graphCanvas.create_text(96,y, text='%5.1f'% (5.*i), anchor=E)
+            self.graph['canvas'].create_line(100,y,105,y, width=2)
+            self.graph['canvas'].create_text(96,y, text='%5.1f'% (5.*i), anchor=E)
 
 
     def initLLAPBar(self):
@@ -868,6 +869,10 @@ class GuiPart:
             self.scan['DelayInput'].config(state=NORMAL)
             self.scan['RepeatInput'].config(state=NORMAL)
             self.scan['button'].config(state=NORMAL)
+
+
+    def graphGo:
+        self.debugPrint("Setup Grpahing Run")
 
     # validation rules
 
