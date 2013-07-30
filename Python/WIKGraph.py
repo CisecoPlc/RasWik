@@ -669,7 +669,18 @@ class GuiPart:
         graphCanvas.grid(row=1, column=5, rowspan=6)
 
         # axis and labels
-        
+        graphCanvas.create_line(100,275,400,275, width=2)
+        graphCanvas.create_line(100,275,100,35,  width=2)
+            
+        for i in range(11):
+            x = 100 + (i * 30)
+            graphCanvas.create_line(x,275,x,270, width=2)
+            # graphCanvas.create_text(x,279, text='%d'% (10*i), anchor=N)
+
+        for i in range(9):
+            y = 275 - (i * 30)
+            graphCanvas.create_line(100,y,105,y, width=2)
+            graphCanvas.create_text(96,y, text='%5.1f'% (5.*i), anchor=E)
 
 
     def initLLAPBar(self):
