@@ -170,8 +170,10 @@ class GuiPart:
                       'count': 0,
                       'button': 0,
                       'forward': True,
-                      'canvas': 0}
+                      'canvas': 0,
+                      'line': ''}
 
+        self.dataPoints = []
 
     def on_excute(self):
         self.checkArgs()
@@ -670,18 +672,18 @@ class GuiPart:
         self.graph['canvas'].grid(row=1, column=5, rowspan=6)
 
         # axis and labels
-        self.graph['canvas'].create_line(100,275,400,275, width=2)
-        self.graph['canvas'].create_line(100,275,100,35,  width=2)
+        self.graph['canvas'].create_line(50,275,470,275, width=2)
+        self.graph['canvas'].create_line(50,275,50,35,  width=2)
             
-        for i in range(11):
-            x = 100 + (i * 30)
+        for i in range(15):
+            x = 50 + (i * 30)
             self.graph['canvas'].create_line(x,275,x,270, width=2)
             # graphCanvas.create_text(x,279, text='%d'% (10*i), anchor=N)
 
         for i in range(9):
             y = 275 - (i * 30)
-            self.graph['canvas'].create_line(100,y,105,y, width=2)
-            self.graph['canvas'].create_text(96,y, text='%5.1f'% (5.*i), anchor=E)
+            self.graph['canvas'].create_line(50,y,55,y, width=2)
+            self.graph['canvas'].create_text(46,y, text='%5.1f'% (5.*i), anchor=E)
 
 
     def initLLAPBar(self):
@@ -871,9 +873,52 @@ class GuiPart:
             self.scan['button'].config(state=NORMAL)
 
 
-    def graphGo:
-        self.debugPrint("Setup Grpahing Run")
+    def graphGo(self):
+        self.debugPrint("Setup Graphing Run")
+    
+        self.graph['count'] = 0
+        self.dataPoints = [0]
 
+        self.graph['DelayInput'].config(state=DISABLED)
+        self.graph['RepeatInput'].config(state=DISABLED)
+        self.graph['button'].config(state=DISABLED)
+        self.graphDo()
+
+    def graphDo(self):
+        self.debugPrint("Logging to graph count: {}".format(self.graph['count']))
+    
+        if self.graph['count'] < int(self.graph['Repeat'].get()):
+            self.graph['count'] += 1
+            self.sendLLAP(self.devID.get(), "A00READ---")
+            self.master.after(int(self.graph['Delay'].get()), self.graphDo)
+        else:
+            # enable button and entry
+            self.graph['DelayInput'].config(state=NORMAL)
+            self.graph['RepeatInput'].config(state=NORMAL)
+            self.graph['button'].config(state=NORMAL)
+    
+    def updateGraph(self, ADC):
+        self.debugPrint("Updating Graph")
+                              
+        self.dataPoints.append(self.tmpCalc(ADC))
+        
+        if not self.graph['line'] == '':
+            self.graph['canvas'].delete(self.graph['line'])
+        
+        points = []
+        
+        for n in range(len(self.dataPoints)):
+            x = 470-((len(self.dataPoints)-n-1)*30)
+            y = 275-((float(self.dataPoints[n])/5.0)*30)
+            points.append([x,y])
+        
+        self.debugPrint(points)
+        if len(self.dataPoints) > 1:
+            self.graph['line'] = self.graph['canvas'].create_line(points,
+                                                                  fill='black',
+                                                                  smooth=1)
+                              
+                              
     # validation rules
 
     # valid percent substitutions (from the Tk entry man page)
@@ -1020,39 +1065,9 @@ class GuiPart:
                          'receive')
                 if msg['devID'] == self.devID.get():
                     if msg['payload'].startswith("A"):
-                        self.anaLabel[
-                                      msg['payload'][2:3]
-                                      ].set(msg['payload'][4:])
                         if msg['payload'][2:3] == '0':
-                            self.anaLabel['0VOLT'
-                                          ].set(self.voltCalc(msg['payload'][4:]))
-                            self.anaLabel['0TMP'
-                                          ].set(self.tmpCalc(msg['payload'][4:]))
-                            self.anaLabel['0LDR'
-                                          ].set(self.ldrCalc(msg['payload'][4:]))
-                    
-                    elif msg['payload'].startswith("COUNT"):
-                        # we have a count
-                        self.digital['04'].set(msg['payload'][5:])
-                        self.countEntry.config(validate='key')
-                    
-                    elif msg['payload'][3:].startswith("PWM"):
-                        # we have pwm
-                        self.digital[
-                                     msg['payload'][1:3]
-                                     ].set(msg['payload'][6:])
-                    
-                    elif msg['payload'].startswith("D"):
-                        self.digital[
-                                     msg['payload'][1:3]
-                                     ].set(msg['payload'][3:])
-                        if (msg['payload'][1:3] == '06' or
-                            msg['payload'][1:3] == '09' or
-                            msg['payload'][1:3] == '11'):
-                            self.master.nametowidget(".tabFrame.grid.digital{}".format(
-                                  msg['payload'][1:3])).config(validate='key')
-                            
-
+                            self.updateGraph(msg['payload'][4:])
+                
                 self.text.see(END)
                 self.text.config(state=DISABLED)
                 self.queue.task_done()
@@ -1080,7 +1095,7 @@ class GuiPart:
         # convert from Kelvin to Celsius
         T = T - 273.15
 
-        return u"{:0.2f}\u2103".format(T)
+        return "{:0.2f}".format(T)
     
     def ldrCalc(self, val):
         MAX = 1023
