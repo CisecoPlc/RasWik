@@ -67,7 +67,9 @@ while count < 4:
     
     # to catch a divide by zero error we check the value of adc and fake it if needed
     if adc == 0:
-        adc = 0.001        
+        adc = 0.001
+    elif adc >= 1023:
+        adc = 1022.009
     
     # value of the resistance of the thermistor
     Rtherm = (1023.0/float(adc) - 1)*10000

@@ -981,6 +981,8 @@ class GuiPart:
         # calculate the temperature from an ADC value
         if float(ADCvalue) == 0:
             ADCvalue = 0.001        # catch div by zero
+        elif float(ADCvalue) >= 1023:
+            ADCvalue = 1022.009
         # value of the resistance of the thermistor
         Rtherm = (1023.0/float(ADCvalue) - 1)*10000
         # see http:#en.wikipedia.org/wiki/Thermistor for an explanation of the formula
