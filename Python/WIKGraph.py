@@ -42,15 +42,10 @@ else:
 baud = 9600
 
 
-INTRO = """Welcome to the elementary section of the Wireless Inventors Kit
+INTRO = """Welcome to the Wireless Inventors Kit Grpah Appliction
 
 First set up the serial COM port used to communicate with the Raspberry Pi radio and press connect.
 
-Then go to the Basics tab above to read inputs and control outputs on your remote XinoRF.
-
-The Advanced Analog tab allows you to take readings of voltage, temperature and light levels.
-
-The LEDs tab lets you control a traffic light and do other cool things with light emitting diodes.
 """
 ADCExplain = """Via this interface we take advanced readings of voltage, 
 temperature and light levels experienced on sensors on the remote XinoRF.
@@ -83,10 +78,10 @@ Connect an LED and 470R resistor
 to each of the following pins
 D13, D11, D06, D05"""
 
-GRAPHTEXT = """Scanning LED's
-Connect an LED and 470R resistor
-to each of the following pins
-D13, D11, D06, D05"""
+GRAPHTEXT = """Graphing of Temperature over Time
+Based on readings from A0
+    
+"""
 
 class GuiPart:
     def __init__(self, master, queue, endCommand, sendLLAP, connect):
@@ -631,12 +626,12 @@ class GuiPart:
         
         # pack the grid
         for n in range(7):
-            Canvas(mframe, bg=("black" if n%2 else "gray"), bd=0, relief=FLAT,
+            Canvas(mframe, bd=0, relief=FLAT,
                    width=widths[n], height=28, highlightthickness=0
                    ).grid(row=0, column=n)
 
         for n in range(8):
-            Canvas(mframe, bg=("black" if n%2 else "gray"), bd=0, relief=FLAT,
+            Canvas(mframe, bd=0, relief=FLAT,
                    height=heights[n], width=widths[1], highlightthickness=0
                    ).grid(row=n, column=1)
 
@@ -907,12 +902,16 @@ class GuiPart:
         
         points = []
         
-        for n in range(len(self.dataPoints)):
+        start = len(self.dataPoints)-15
+        if start < 0:
+            start = 0
+        stop = len(self.dataPoints)
+
+        for n in range(start, stop):
             x = 470-((len(self.dataPoints)-n-1)*30)
             y = 275-((float(self.dataPoints[n])/5.0)*30)
             points.append([x,y])
         
-        self.debugPrint(points)
         if len(self.dataPoints) > 1:
             self.graph['line'] = self.graph['canvas'].create_line(points,
                                                                   fill='black',
