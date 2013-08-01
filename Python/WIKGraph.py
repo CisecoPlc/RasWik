@@ -47,36 +47,6 @@ INTRO = """Welcome to the Wireless Inventors Kit Grpah Appliction
 First set up the serial COM port used to communicate with the Raspberry Pi radio and press connect.
 
 """
-ADCExplain = """Via this interface we take advanced readings of voltage, 
-temperature and light levels experienced on sensors on the remote XinoRF.
-
-The XinoRF gives out a RawADC number that is between 0 and 1023, as seen on the Basic's tab, 
-this is then converted into more useful information using the formauals given below.
-
-"""
-
-ADC = """This is the raw ADC value converted to Volts
-Volts = (RawADC / 1023 * 5.0V) * Correction Factor"""
-
-TMP = """Temperature is calculated using the following formula
-RTemp = (1023.0/RawADC) - 1)*10000
-Kelvin = RTEMP*BVAL / (BVAL+RTEMP*( log(Rtherm/RNOM) ) )
-Temperature = Kelvin - 273.15"""
-
-LDR = """The light reading from the LDR is presented as a percentage
-Percentage = RawADC / 1023 * 100"""
-
-LEDTEXT = """LED traffic lights
-Connect the matching LED and a 470R 
-resistor to the following pins
-D13 Red
-D11 Yellow
-D06 Green"""
-
-SCANTEXT = """Scanning LED's
-Connect an LED and 470R resistor 
-to each of the following pins
-D13, D11, D06, D05"""
 
 GRAPHTEXT = """Graphing of Temperature over Time
 Based on readings from A0
@@ -104,7 +74,6 @@ class GuiPart:
         self.serialConsoleWidth = 45
         self.canvasWidth = 400
         self.canvasHeight = 459
-        self.servoVal = IntVar()
         self.payload = StringVar()
         self.payload.set("HELLO")
         self.comport = StringVar()
@@ -123,40 +92,7 @@ class GuiPart:
         self.heightTab = 480
         self.widthOffset = 650
         self.heightOffset = 150
-        
-        self.anaLabel = {'0': StringVar(),
-                         '1': StringVar(),
-                         '2': StringVar(),
-                         '3': StringVar(),
-                         '4': StringVar(),
-                         '5': StringVar(),
-                         '0VOLT': StringVar(),
-                         '0TMP': StringVar(),
-                         '0LDR': StringVar(),
-                         '0Correction': StringVar()}
-
-        
-        self.digital = {'02': StringVar(),
-                        '03': StringVar(),
-                        '04': StringVar(),
-                        '05': StringVar(),
-                        '06': StringVar(),
-                        '07': StringVar(),
-                        '09': StringVar(),
-                        '10': StringVar(),
-                        '11': StringVar(),
-                        '12': StringVar(),
-                        '13': StringVar()}
-        
-        self.scan = {'Delay': StringVar(),
-                     'DelayInput': 0,
-                     'Repeat':  StringVar(),
-                     'RepeatInput': 0,
-                     'position': 0,
-                     'count': 0,
-                     'button': 0,
-                     'forward': True}
-
+       
         self.graph = {'Delay': StringVar(),
                       'DelayInput': 0,
                       'Repeat':  StringVar(),
@@ -182,23 +118,20 @@ class GuiPart:
         # Set up the GUI
         self.master.geometry("{}x{}+{}+{}".format(self.widthMain,
                                                   self.heightMain,
-                                                  self.config.get('WIKBasic',
+                                                  self.config.get('WIKGraph',
                                                                   'window_width_offset'),
                                                   self.config.get('WIKBasic',
                                                                   'window_height_offset')
                                                   )
                              )
         self.master.protocol("WM_DELETE_WINDOW", self.endCommand)
-        self.master.title("WIK Basic's Interface v{}".format(self.currentVersion))
+        self.master.title("WIK Temperature Graph v{}".format(self.currentVersion))
         self.master.resizable(0,0)
 
         self.tabFrame = Frame(self.master, name='tabFrame')
         self.tabFrame.pack()
         self.initTabBar()
         self.initIntro()
-        #self.initGrid()
-        #self.initAdvAna()
-        #self.initLights()
         self.initGraph()
         
         self.tBarFrame.show()
@@ -214,7 +147,7 @@ class GuiPart:
 
     def checkArgs(self):
         self.debugPrint("Parse Args")
-        parser = argparse.ArgumentParser(description='Wireless Inventors Kit Basic Interface')
+        parser = argparse.ArgumentParser(description='Wireless Inventors Kit Graping Application')
         parser.add_argument('-d', '--debug',
                             help='Extra Debug Output, overrides wik.cfg setting',
                             action='store_true')
@@ -317,301 +250,6 @@ class GuiPart:
         if not self.config.getboolean('Shared', 'devid_enabled'):
             self.devIDInput.config(state=DISABLED)
         
-    
-    def initGrid(self):
-        self.debugPrint("Setting up Basic's Tab")
-        # grid frame
-        gframe = Tab(self.tabFrame, "Basic's", fname='grid')
-        gframe.config(relief=RAISED, borderwidth=2, width=self.widthMain,
-                      height=self.heightTab)
-        self.tBarFrame.add(gframe)
-
-        # pack the grid to get the damn size right
-        Canvas(gframe, bd=0, highlightthickness=0, width=self.widthMain-4,
-               height = 28).grid(row=0, column=0, columnspan=9)
-               
-        for n in range(17):
-            """
-            Canvas(aframe, bg=("black" if n%2 else "gray"), bd=0, relief=FLAT,
-                   width=50, height=28, highlightthickness=0,
-                   highlightcolor='white'
-                   ).grid(row=n, column=0)
-            """       
-            Canvas(gframe, bd=0, width=50, height=28, highlightthickness=0,
-                   ).grid(row=n, column=1)
-    
-        # image in the middle
-        canvas = Canvas(gframe, width=self.canvasWidth,
-                        height=self.canvasHeight, bd=0,
-                        relief=FLAT, highlightthickness=0)
-        canvas.grid(row=0, column=3, columnspan=1, rowspan=18,
-                    sticky=W+E+N+S, padx=5, pady=5)
-        
-        self.photoimage = PhotoImage(file=self.gif)
-        canvas.create_image(self.canvasWidth/2, self.canvasHeight/2,
-                            image=self.photoimage)
-        
-        # some labels
-        Label(gframe, text='Reserved for Radio Enable Pin'
-              ).grid(row=self.gridDigitalRowOffset+5, column=5, columnspan=4,
-                     sticky=W)
-        Label(gframe, text='Serial TX'
-              ).grid(row=self.gridDigitalRowOffset+13, column=5, columnspan=3,
-                     sticky=W)
-        Label(gframe, text='Serial RX'
-              ).grid(row=self.gridDigitalRowOffset+14, column=5, columnspan=3,
-                     sticky=W)
-        
-        
-        # analog buttons
-        for n in range(6):
-            Button(gframe, text='READ', command=lambda n=n: self.anaRead(n)
-                   ).grid(row=self.gridAnalogRowOffset+n, column=1)
-            Label(gframe, width=5, textvariable=self.anaLabel['{}'.format(n)],
-                  relief=RAISED
-                  ).grid(row=self.gridAnalogRowOffset+n, column=0)
-            Label(gframe, width=4, bg='red', fg='white',
-                  text='A{0:02d}'.format(n)
-                  ).grid(row=self.gridAnalogRowOffset+n, column=2)
-        
-        # digital labels
-        for n in range(14):
-            if n > 7:
-                r = self.gridDigitalRowOffset+13 - n
-                color = 'green4'
-                fgcolor = 'white'
-            else:
-                r = self.gridDigitalRowOffset+14 - n
-                color = 'blue'
-                fgcolor = 'white'
-            Label(gframe, bg=color, fg=fgcolor,
-                  text="D{0:02d}".format(n)).grid(row=r, column=4)
-
-        # input buttons
-        Button(gframe, text='READ', command=lambda: self.read('02')
-               ).grid(row=self.gridDigitalRowOffset+12, column=5, sticky=W+E)
-        Label(gframe, width=5, textvariable=self.digital['02'], relief=RAISED,
-              anchor=CENTER,
-              ).grid(row=self.gridDigitalRowOffset+12, column=8)
-        Button(gframe, text='READ', command=lambda: self.read('03')
-               ).grid(row=self.gridDigitalRowOffset+11, column=5, sticky=W+E)
-        Label(gframe, width=5, textvariable=self.digital['03'], relief=RAISED,
-              anchor=CENTER,
-              ).grid(row=self.gridDigitalRowOffset+11, column=8)
-        Button(gframe, text='READ', command=lambda: self.read('07')
-               ).grid(row=self.gridDigitalRowOffset+7, column=5, sticky=W+E)
-        Label(gframe, width=5, textvariable=self.digital['07'], relief=RAISED,
-              anchor=CENTER,
-              ).grid(row=self.gridDigitalRowOffset+7, column=8)
-        Button(gframe, text='READ', command=lambda: self.read('10')
-               ).grid(row=self.gridDigitalRowOffset+3, column=5, sticky=W+E)
-        Label(gframe, width=5, textvariable=self.digital['10'], relief=RAISED,
-              anchor=CENTER,
-              ).grid(row=self.gridDigitalRowOffset+3, column=8)
-        Button(gframe, text='READ', command=lambda: self.read('12')
-               ).grid(row=self.gridDigitalRowOffset+1, column=5, sticky=W+E)
-        Label(gframe, width=5, textvariable=self.digital['12'], relief=RAISED,
-              anchor=CENTER,
-              ).grid(row=self.gridDigitalRowOffset+1, column=8)
-
-
-        # output buttons
-        Button(gframe, text='LOW', command=lambda: self.off('06')
-               ).grid(row=self.gridDigitalRowOffset+8, column=6, sticky=W+E)
-        Button(gframe, text='HIGH', command=lambda: self.on('06')
-               ).grid(row=self.gridDigitalRowOffset+8, column=5, sticky=W+E)
-        Button(gframe, text='PWM', command=lambda: self.pwm('06')
-               ).grid(row=self.gridDigitalRowOffset+8, column=7, sticky=W+E)
-        Entry(gframe, width=5, textvariable=self.digital['06'], validate='key',
-              invalidcommand='bell', validatecommand=self.vpwm, justify=CENTER,
-              name='digital06'
-              ).grid(row=self.gridDigitalRowOffset+8, column=8)
-
-        Button(gframe, text='LOW', command=lambda: self.off('05')
-               ).grid(row=self.gridDigitalRowOffset+9, column=6, sticky=W+E)
-        Button(gframe, text='HIGH', command=lambda: self.on('05')
-               ).grid(row=self.gridDigitalRowOffset+9, column=5, sticky=W+E)
-        Button(gframe, text='PWM', command=lambda: self.pwm('05')
-               ).grid(row=self.gridDigitalRowOffset+9, column=7, sticky=W+E)
-        Entry(gframe, width=5, textvariable=self.digital['05'], validate='key',
-              invalidcommand='bell', validatecommand=self.vpwm, justify=CENTER,
-              name='digital09'
-              ).grid(row=self.gridDigitalRowOffset+9, column=8)
-        Button(gframe, text='LOW', command=lambda: self.off('11')
-               ).grid(row=self.gridDigitalRowOffset+2, column=6, sticky=W+E)
-        Button(gframe, text='HIGH', command=lambda: self.on('11')
-               ).grid(row=self.gridDigitalRowOffset+2, column=5, sticky=W+E)
-        Button(gframe, text='PWM', command=lambda: self.pwm('11')
-               ).grid(row=self.gridDigitalRowOffset+2, column=7, sticky=W+E)
-        Entry(gframe, width=5, textvariable=self.digital['11'], validate='key',
-              invalidcommand='bell', validatecommand=self.vpwm, justify=CENTER,
-              name='digital11'
-              ).grid(row=self.gridDigitalRowOffset+2, column=8)
-        Button(gframe, text='LOW', command=lambda: self.off('13')
-               ).grid(row=self.gridDigitalRowOffset+0, column=6, sticky=W+E)
-        Button(gframe, text='HIGH', command=lambda: self.on('13')
-               ).grid(row=self.gridDigitalRowOffset+0, column=5, sticky=W+E)
-        Label(gframe, width=5, textvariable=self.digital['13'], relief=RAISED,
-              anchor=CENTER
-              ).grid(row=self.gridDigitalRowOffset+0, column=8)
-
-
-        # servo button
-        Label(gframe, text='SERVO').grid(row=self.gridDigitalRowOffset+4,
-                                         column=5, sticky=W)
-        servo = Scale(gframe, orient=HORIZONTAL, from_=0, to=180, digits=3,
-                      command=lambda value: self.servo(value), showvalue=0,
-                      )
-        servo.grid(row=self.gridDigitalRowOffset+4, column=6, columnspan=2,
-                   sticky=W+E)
-        
-        Label(gframe, width=5, textvariable=self.servoVal, anchor=CENTER,
-              relief=RAISED).grid(row=self.gridDigitalRowOffset+4, column=8)
-              
-        # set servo initial val
-        servo.set(90)
-        
-        # count button
-        Label(gframe, text='COUNT').grid(row=self.gridDigitalRowOffset+10,
-                                         column=5, sticky=W)
-        Button(gframe, text='READ', command=lambda: self.count('READ')
-               ).grid(row=self.gridDigitalRowOffset+10, column=6, sticky=W+E)
-        Button(gframe, text='SET', command=lambda: self.count('SET')
-               ).grid(row=self.gridDigitalRowOffset+10, column=7, sticky=W+E)
-        self.countEntry = Entry(gframe, width=5,
-                                textvariable=self.digital['04'], validate='key',
-                                invalidcommand='bell',
-                                validatecommand=self.vcount, justify=CENTER
-                                )
-        self.countEntry.grid(row=self.gridDigitalRowOffset+10, column=8)
-
-    def initAdvAna(self):
-        self.debugPrint("Setting up Advanced Analog Tab")
-        aframe = Tab(self.tabFrame, "Advanced Analog", fname='advana')
-        aframe.config(relief=RAISED, borderwidth=2, width=self.widthMain,
-                      height=self.heightTab)
-        self.tBarFrame.add(aframe)
-    
-        cols = 12
-        # pack the grid to get the damn size right
-        for n in range(1,17):
-            """
-            Canvas(gframe, bg=("black" if n%2 else "gray"), bd=0, relief=FLAT,
-                    width=50, height=28, highlightthickness=0,
-                    highlightcolor='white'
-                    ).grid(row=n, column=0)
-            """
-            Canvas(aframe, bd=0, relief=FLAT, width=(self.widthMain-4)/cols,
-                   height=28, highlightthickness=0
-                   ).grid(row=n, column=1)
-        
-
-        Canvas(aframe, bd=0, relief=FLAT, width=(self.widthMain-4),
-               height=28, highlightthickness=0).grid(row=0, column=0,
-                                                     columnspan=cols)
-
-        Button(aframe, text='Read', command=lambda:self.anaRead(0)
-               ).grid(row=10-4, column=1, rowspan=2,
-                      columnspan=cols-2, sticky=W+E+N+S)
-               
-        Label(aframe, text=ADCExplain).grid(row=1, column=1, columnspan=cols-2,
-                                            rowspan=5, sticky=W+E+N+S)
-    
-        Label(aframe, text='Volts').grid(row=9,
-                                           column=1, sticky=E)
-        Label(aframe, text='Correction Factor').grid(row=10,
-                                                     column=1, sticky=E)
-        Label(aframe, textvariable=self.anaLabel['0VOLT'], width=10,
-              relief=RAISED).grid(row=9, column=2, sticky=W)
-              
-        self.correctionInput = Entry(aframe,
-                                     textvariable=self.anaLabel['0Correction'],
-                                     width=9, validate='key',
-                                     invalidcommand='bell',
-                                     validatecommand=self.vfloat,
-                                     justify=CENTER, name='correctionInput')
-        self.correctionInput.grid(row=10, column=2, sticky=W)
-              
-        Label(aframe, text=ADC).grid(row=8, column=3,
-                                     columnspan=cols-4, rowspan=3, sticky=W+E)
-
-        
-        Label(aframe, text='Temperature',
-              anchor=E).grid(row=12, column=1, sticky=E)
-        Label(aframe, textvariable=self.anaLabel['0TMP'], width=10,
-              relief=RAISED).grid(row=12,
-                                  column=2, sticky=W)
-        Label(aframe, text=TMP).grid(row=11, column=3,
-                                     columnspan=cols-4, rowspan=3, sticky=W+E)
-
-        
-        Label(aframe, text='Percentage',
-              anchor=E).grid(row=15, column=1, sticky=E)
-        Label(aframe, textvariable=self.anaLabel['0LDR'], width=10,
-              relief=RAISED).grid(row=15, column=2,
-                                  sticky=W)
-        Label(aframe, text=LDR).grid(row=14, column=3,
-                                     columnspan=cols-4, rowspan=3, sticky=W+E)
-
-    def initLights(self):
-        self.debugPrint("Setting up LED Tab")
-        mframe = Tab(self.tabFrame, "LED's", fname='leds')
-        mframe.config(relief=RAISED, borderwidth=2, width=self.widthMain,
-                      height=self.heightTab)
-        self.tBarFrame.add(mframe)
-    
-        lframe = Frame(mframe, name='left')
-        lframe.pack(side=LEFT)
-        canvas = Canvas(lframe, bd=0, width=(self.widthMain/2)-2,
-                        height=self.heightTab-4, highlightthickness=0)
-        canvas.grid(row=0, column=0, rowspan=11, columnspan=5)
-    
-        Label(lframe, text=LEDTEXT).grid(row=1, column=0, rowspan=4,
-                                         columnspan=5, sticky=W+E+N+S)
-        
-        ch=50
-        Canvas(lframe, bg='red', height=ch).grid(row=5, column=2, sticky=W+E)
-        Button(lframe, bg='red', text='RED LED on D13', width=20,
-               command=lambda: self.setLed(0)).grid(row=5, column=2)
-        Canvas(lframe, bg='yellow', height=ch).grid(row=7, column=2, sticky=W+E)
-        Button(lframe, bg='yellow', text='YELLOW LED on D11', width=20,
-               command=lambda: self.setLed(1)).grid(row=7, column=2)
-        Canvas(lframe, bg='green', height=ch).grid(row=9, column=2, sticky=W+E)
-        Button(lframe, bg='green', text='GREEN LED on D06', width=20,
-               command=lambda: self.setLed(2)).grid(row=9, column=2)
-    
-        rframe = Frame(mframe, name='right')
-        rframe.pack(side=RIGHT)
-        
-        canvas = Canvas(rframe, bd=0, width=(self.widthMain/2)-2,
-                        height=self.heightTab-4, highlightthickness=0)
-        canvas.grid(row=0, column=0, rowspan=12, columnspan=5)
-        
-        Label(rframe, text=SCANTEXT).grid(row=1, column=0, rowspan=4,
-                                          columnspan=5, sticky=W+E+N+S)
-    
-    
-        Label(rframe, text='Delay', anchor=E).grid(row=5, column=1, sticky=E)
-        self.scan['DelayInput'] = Entry(rframe, textvariable=self.scan['Delay'],
-                                        width=5, validate='key',
-                                        invalidcommand='bell',
-                                        validatecommand=self.vint,
-                                        justify=CENTER)
-        self.scan['DelayInput'].grid(row=5, column=2, sticky=E+W)
-        Label(rframe, text='ms', anchor=W).grid(row=5, column=3, sticky=W)
-        
-        Label(rframe, text='Repeat', anchor=E).grid(row=7, column=1, sticky=E)
-        self.scan['RepeatInput'] = Entry(rframe, textvariable=self.scan['Repeat'],
-                                         width=5, validate='key',
-                                         invalidcommand='bell',
-                                         validatecommand=self.vint,
-                                         justify=CENTER)
-        self.scan['RepeatInput'].grid(row=7, column=2, sticky=E+W)
-    
-
-        self.scan['button'] = Button(rframe, text='Go', command=self.scanGo)
-        self.scan['button'].grid(row=9, column=1, columnspan=3, sticky=E+W)
-
     def initGraph(self):
         self.debugPrint("Setting up Graph Tab")
         mframe = Tab(self.tabFrame, "Graph", fname='graph')
@@ -678,7 +316,8 @@ class GuiPart:
         for i in range(9):
             y = 275 - (i * 30)
             self.graph['canvas'].create_line(50,y,55,y, width=2)
-            self.graph['canvas'].create_text(46,y, text='%5.1f'% (5.*i), anchor=E)
+            self.graph['canvas'].create_text(46,y, text='%5.1f'% (5.*i),
+                                             anchor=E)
 
 
     def initLLAPBar(self):
@@ -733,12 +372,6 @@ class GuiPart:
     
     def setDefaults(self):
         self.debugPrint("Setting Entry Defaults")
-        #self.anaLabel['0Correction'].set('1')
-        #self.correctionInput.config(validate='key')
-        #self.scan['Repeat'].set('1')
-        #self.scan['RepeatInput'].config(validate='key')
-        #self.scan['Delay'].set('500')
-        #self.scan['DelayInput'].config(validate='key')
         self.graph['Repeat'].set('20')
         self.graph['RepeatInput'].config(validate='key')
         self.graph['Delay'].set('1000')
@@ -747,127 +380,7 @@ class GuiPart:
     def anaRead(self, num):
         self.debugPrint("anaRead: {}".format(num))
         self.sendLLAP(self.devID.get(), "A{0:02d}READ".format(num))
-    
-    def read(self, num):
-        self.debugPrint("read: {}".format(num))
-        self.sendLLAP(self.devID.get(), "D{}READ".format(num))
-    
-    def on(self, num):
-        self.debugPrint("high: {}".format(num))
-        self.sendLLAP(self.devID.get(), "D{}HIGH".format(num))
-    
-    def off(self, num):
-        self.debugPrint("low: {}".format(num))
-        self.sendLLAP(self.devID.get(), "D{}LOW".format(num))
-    
-    def pwm(self, num):
-        self.debugPrint("pwm: {}".format(num))
-        if self.digital[num].get().isdigit():
-            if int(self.digital[num].get()) <= 255:
-                self.sendLLAP(self.devID.get(),
-                              "D{}PWM{:03d}".format(num,
-                                                    int(self.digital[num].get())
-                                                    )
-                              )
-            else:
-                self.appendText("D{} PWM: '{}' is too large. Range 0-255\n".
-                                format(num, self.digital[num].get()))
-        else:
-            self.appendText("D{} PWM: '{}' is not a number. Range 0-255\n".
-                            format(num, self.digital[num].get()))
-            
-    def servo(self, value):
-        self.debugPrint("servo: {}".format(value))
-        self.servoVal.set(int(float(value)))
-        self.sendLLAP(self.devID.get(), "SERVO{}".format(int(float(value))))
-        
-
-    def count(self, mode):
-        self.debugPrint("count: {}".format(mode))
-        if mode == 'READ':
-            self.sendLLAP(self.devID.get(), "COUNT")
-        elif mode == 'SET':
-            #check we have a number
-            if self.digital['04'].get().isdigit():
-                self.sendLLAP(self.devID.get(),
-                              "COUNT{}".format(self.digital['04'].get()))
-            else:
-                self.appendText("Setting COUNT requires a number\n")
-
-    def setLed(self, c):
-        self.debugPrint("setLED: {}".format(c))
-        if c == 0:
-            # set D09
-            self.sendLLAP(self.devID.get(), "D11LOW")
-            self.sendLLAP(self.devID.get(), "D06LOW")
-            self.sendLLAP(self.devID.get(), "D13HIGH")
-        elif c == 1:
-            # set D11
-            self.sendLLAP(self.devID.get(), "D13LOW")
-            self.sendLLAP(self.devID.get(), "D06LOW")
-            self.sendLLAP(self.devID.get(), "D11HIGH")
-        elif c == 2:
-            # set D13
-            self.sendLLAP(self.devID.get(), "D13LOW")
-            self.sendLLAP(self.devID.get(), "D11LOW")
-            self.sendLLAP(self.devID.get(), "D06HIGH")
-
-    def scanGo(self):
-        self.debugPrint("Setup Scan")
-        # need to track delay, repeats, position in sequence
-        # or just refer to var's?
-        
-        self.scan['position'] = 0
-        self.scan['count'] = 0
-        self.scan['forward'] = True
-        
-        #disable button and entry
-        self.scan['DelayInput'].config(state=DISABLED)
-        self.scan['RepeatInput'].config(state=DISABLED)
-        self.scan['button'].config(state=DISABLED)
-        self.scanDo()
-                
-    def scanDo(self):
-        self.debugPrint("Scanning... pos: {} count: {}".format(self.scan['position'],
-                                                               self.scan['count']))
-        if self.scan['position'] == 0:
-            self.sendLLAP(self.devID.get(), "D11LOW")
-            self.sendLLAP(self.devID.get(), "D06LOW")
-            self.sendLLAP(self.devID.get(), "D05LOW")
-            self.sendLLAP(self.devID.get(), "D13HIGH")
-            self.scan['position'] = 1
-            if self.scan['forward'] == False:
-                self.scan['count'] += 1
-                self.scan['forward'] = True
-        elif self.scan['position'] == 1:
-            self.sendLLAP(self.devID.get(), "D13LOW")
-            self.sendLLAP(self.devID.get(), "D06LOW")
-            self.sendLLAP(self.devID.get(), "D05LOW")
-            self.sendLLAP(self.devID.get(), "D11HIGH")
-            self.scan['position'] = 2 if self.scan['forward'] == True else 0
-        elif self.scan['position'] == 2:
-            self.sendLLAP(self.devID.get(), "D13LOW")
-            self.sendLLAP(self.devID.get(), "D11LOW")
-            self.sendLLAP(self.devID.get(), "D05LOW")
-            self.sendLLAP(self.devID.get(), "D06HIGH")
-            self.scan['position'] = 3 if self.scan['forward'] == True else 1
-        elif self.scan['position'] == 3:
-            self.sendLLAP(self.devID.get(), "D13LOW")
-            self.sendLLAP(self.devID.get(), "D11LOW")
-            self.sendLLAP(self.devID.get(), "D06LOW")
-            self.sendLLAP(self.devID.get(), "D05HIGH")
-            self.scan['position'] = 2
-            self.scan['forward'] = False
-        
-        if self.scan['count'] < int(self.scan['Repeat'].get()): 
-            self.master.after(int(self.scan['Delay'].get()), self.scanDo)
-        else: 
-            # enable button and entry
-            self.scan['DelayInput'].config(state=NORMAL)
-            self.scan['RepeatInput'].config(state=NORMAL)
-            self.scan['button'].config(state=NORMAL)
-
-
+   
     def graphGo(self):
         self.debugPrint("Setup Graphing Run")
     
@@ -884,7 +397,7 @@ class GuiPart:
     
         if self.graph['count'] < int(self.graph['Repeat'].get()):
             self.graph['count'] += 1
-            self.sendLLAP(self.devID.get(), "A00READ---")
+            self.anaRead(0)
             self.master.after(int(self.graph['Delay'].get()), self.graphDo)
         else:
             # enable button and entry
@@ -914,8 +427,7 @@ class GuiPart:
         
         if len(self.dataPoints) > 1:
             self.graph['line'] = self.graph['canvas'].create_line(points,
-                                                                  fill='black',
-                                                                  smooth=1)
+                                                                  fill='black')
                               
                               
     # validation rules
@@ -933,8 +445,6 @@ class GuiPart:
 
     def initValidationRules(self):
         self.debugPrint("Setting up GUI validation Rules")
-        self.vpwm = (self.master.register(self.validPWM), '%d', '%P', '%S')
-        self.vcount = (self.master.register(self.validCount), '%d', '%P', '%S')
         self.vpay = (self.master.register(self.validPayloadLenght),
                      '%P', '%W', '%S')
         self.vdev = (self.master.register(self.validDevID), '%d',
@@ -984,23 +494,7 @@ class GuiPart:
             return True
         else:
             return False
-    
-    def validPWM(self, d, P, S):
-        if d == '0':
-            return True
-        elif S.isdigit() and (len(P) <=3) :
-            return True
-        else:
-            return False
-
-    def validCount(self, d, P, S):
-        if d == '0':
-            return True
-        elif S.isdigit() and (len(P) <=4) :
-            return True
-        else:
-            return False
-
+ 
     def vdevSet(self):
         self.devIDInput.icursor(self.devIDInput.index(INSERT)+1)
         self.devIDInput.config(validate='key')
@@ -1073,12 +567,6 @@ class GuiPart:
             except Queue.Empty:
                 pass
 
-    def voltCalc(self, ADCvalue):
-        AREF = 5.0
-        MAX = 1023
-        volt = (float(ADCvalue) / MAX * AREF) * float(self.anaLabel['0Correction'].get())
-        return "{:0.2f}V".format(volt)
-
     def tmpCalc(self, ADCvalue):
         BVAL = 3977              # default beta value for the thermistor; adjust for your thermistor
         RTEMP = 25.0 + 273.15    # reference temperature (25C expressed in Kelvin)
@@ -1097,10 +585,6 @@ class GuiPart:
         T = T - 273.15
 
         return "{:0.2f}".format(T)
-    
-    def ldrCalc(self, val):
-        MAX = 1023
-        return "{} %".format(int((float(val)/MAX)*100))
 
 
 class ThreadedClient:
