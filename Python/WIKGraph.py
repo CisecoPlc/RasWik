@@ -42,15 +42,19 @@ else:
 baud = 9600
 
 
-INTRO = """Welcome to the Wireless Inventors Kit Grpah Appliction
+INTRO = """Welcome to the Wireless Inventors Kit Graph Application.
 
 First set up the serial COM port used to communicate with the Raspberry Pi radio and press connect.
 
+Then go to the tabs above to enjoy graphs for temperature, light levels and voltage.
 """
 
-GRAPHTEXT = """Graphing of Temperature over Time
-Based on readings from A0
+TEMPTEXT = """Graph of Temperature over Time
     
+Based on thermistior readings from A0
+    
+Attach a thermistor and 10K resistor
+to A0 as in Activity 10
 """
 
 class GuiPart:
@@ -93,7 +97,7 @@ class GuiPart:
         self.widthOffset = 650
         self.heightOffset = 150
        
-        self.graph = {'Delay': StringVar(),
+        self.tempGraph = {'Delay': StringVar(),
                       'DelayInput': 0,
                       'Repeat':  StringVar(),
                       'RepeatInput': 0,
@@ -125,14 +129,14 @@ class GuiPart:
                                                   )
                              )
         self.master.protocol("WM_DELETE_WINDOW", self.endCommand)
-        self.master.title("WIK Temperature Graph v{}".format(self.currentVersion))
+        self.master.title("WIK Graph v{}".format(self.currentVersion))
         self.master.resizable(0,0)
 
         self.tabFrame = Frame(self.master, name='tabFrame')
         self.tabFrame.pack()
         self.initTabBar()
         self.initIntro()
-        self.initGraph()
+        self.initTemp()
         
         self.tBarFrame.show()
 
@@ -147,7 +151,7 @@ class GuiPart:
 
     def checkArgs(self):
         self.debugPrint("Parse Args")
-        parser = argparse.ArgumentParser(description='Wireless Inventors Kit Graping Application')
+        parser = argparse.ArgumentParser(description='Wireless Inventors Kit Graph Application')
         parser.add_argument('-d', '--debug',
                             help='Extra Debug Output, overrides wik.cfg setting',
                             action='store_true')
@@ -250,9 +254,9 @@ class GuiPart:
         if not self.config.getboolean('Shared', 'devid_enabled'):
             self.devIDInput.config(state=DISABLED)
         
-    def initGraph(self):
-        self.debugPrint("Setting up Graph Tab")
-        mframe = Tab(self.tabFrame, "Graph", fname='graph')
+    def initTemp(self):
+        self.debugPrint("Setting up Temp Tab")
+        mframe = Tab(self.tabFrame, "Temperature", fname='temp')
         mframe.config(relief=RAISED, borderwidth=2, width=self.widthMain,
                       height=self.heightTab)
         self.tBarFrame.add(mframe)
@@ -274,49 +278,49 @@ class GuiPart:
                    ).grid(row=n, column=1)
 
         # text and buttons to the left
-        Label(mframe, text=GRAPHTEXT).grid(row=1, column=1, columnspan=3,
+        Label(mframe, text=TEMPTEXT).grid(row=1, column=1, columnspan=3,
                                            sticky=W+E+N+S)
 
         Label(mframe, text='Delay', anchor=E).grid(row=2, column=1, sticky=E)
-        self.graph['DelayInput'] = Entry(mframe,
-                                         textvariable=self.graph['Delay'],
+        self.tempGraph['DelayInput'] = Entry(mframe,
+                                         textvariable=self.tempGraph['Delay'],
                                          width=5, validate='key',
                                          invalidcommand='bell',
                                          validatecommand=self.vint,
                                          justify=CENTER)
-        self.graph['DelayInput'].grid(row=2, column=2, sticky=E+W)
+        self.tempGraph['DelayInput'].grid(row=2, column=2, sticky=E+W)
         Label(mframe, text='ms', anchor=W).grid(row=2, column=3, sticky=W)
         
         Label(mframe, text='Repeat', anchor=E).grid(row=4, column=1, sticky=E)
-        self.graph['RepeatInput'] = Entry(mframe,
-                                          textvariable=self.graph['Repeat'],
+        self.tempGraph['RepeatInput'] = Entry(mframe,
+                                          textvariable=self.tempGraph['Repeat'],
                                           width=5, validate='key',
                                           invalidcommand='bell',
                                           validatecommand=self.vint,
                                           justify=CENTER)
-        self.graph['RepeatInput'].grid(row=4, column=2, sticky=E+W)
+        self.tempGraph['RepeatInput'].grid(row=4, column=2, sticky=E+W)
                                          
-        self.graph['button'] = Button(mframe, text='Go', command=self.graphGo)
-        self.graph['button'].grid(row=6, column=1, columnspan=3, sticky=E+W)
+        self.tempGraph['button'] = Button(mframe, text='Go', command=self.tempGraphGo)
+        self.tempGraph['button'].grid(row=6, column=1, columnspan=3, sticky=E+W)
 
         # main graph canvas
-        self.graph['canvas'] = Canvas(mframe, bg='white', bd=2, relief=RAISED,
+        self.tempGraph['canvas'] = Canvas(mframe, bg='white', bd=2, relief=RAISED,
                              height=300, width=graphwidth)
-        self.graph['canvas'].grid(row=1, column=5, rowspan=6)
+        self.tempGraph['canvas'].grid(row=1, column=5, rowspan=6)
 
         # axis and labels
-        self.graph['canvas'].create_line(50,275,470,275, width=2)
-        self.graph['canvas'].create_line(50,275,50,35,  width=2)
+        self.tempGraph['canvas'].create_line(50,275,470,275, width=2)
+        self.tempGraph['canvas'].create_line(50,275,50,35,  width=2)
             
         for i in range(15):
             x = 50 + (i * 30)
-            self.graph['canvas'].create_line(x,275,x,270, width=2)
+            self.tempGraph['canvas'].create_line(x,275,x,270, width=2)
             # graphCanvas.create_text(x,279, text='%d'% (10*i), anchor=N)
 
         for i in range(9):
             y = 275 - (i * 30)
-            self.graph['canvas'].create_line(50,y,55,y, width=2)
-            self.graph['canvas'].create_text(46,y, text='%5.1f'% (5.*i),
+            self.tempGraph['canvas'].create_line(50,y,55,y, width=2)
+            self.tempGraph['canvas'].create_text(46,y, text='%5.1f'% (5.*i),
                                              anchor=E)
 
 
@@ -372,46 +376,46 @@ class GuiPart:
     
     def setDefaults(self):
         self.debugPrint("Setting Entry Defaults")
-        self.graph['Repeat'].set('20')
-        self.graph['RepeatInput'].config(validate='key')
-        self.graph['Delay'].set('1000')
-        self.graph['DelayInput'].config(validate='key')
+        self.tempGraph['Repeat'].set('20')
+        self.tempGraph['RepeatInput'].config(validate='key')
+        self.tempGraph['Delay'].set('1000')
+        self.tempGraph['DelayInput'].config(validate='key')
         
     def anaRead(self, num):
         self.debugPrint("anaRead: {}".format(num))
         self.sendLLAP(self.devID.get(), "A{0:02d}READ".format(num))
    
-    def graphGo(self):
+    def tempGraphGo(self):
         self.debugPrint("Setup Graphing Run")
     
-        self.graph['count'] = 0
+        self.tempGraph['count'] = 0
         self.dataPoints = [0]
 
-        self.graph['DelayInput'].config(state=DISABLED)
-        self.graph['RepeatInput'].config(state=DISABLED)
-        self.graph['button'].config(state=DISABLED)
-        self.graphDo()
+        self.tempGraph['DelayInput'].config(state=DISABLED)
+        self.tempGraph['RepeatInput'].config(state=DISABLED)
+        self.tempGraph['button'].config(state=DISABLED)
+        self.tempGraphDo()
 
-    def graphDo(self):
-        self.debugPrint("Logging to graph count: {}".format(self.graph['count']))
+    def tempGraphDo(self):
+        self.debugPrint("Logging to graph count: {}".format(self.tempGraph['count']))
     
-        if self.graph['count'] < int(self.graph['Repeat'].get()):
-            self.graph['count'] += 1
+        if self.tempGraph['count'] < int(self.tempGraph['Repeat'].get()):
+            self.tempGraph['count'] += 1
             self.anaRead(0)
-            self.master.after(int(self.graph['Delay'].get()), self.graphDo)
+            self.master.after(int(self.tempGraph['Delay'].get()), self.tempGraphDo)
         else:
             # enable button and entry
-            self.graph['DelayInput'].config(state=NORMAL)
-            self.graph['RepeatInput'].config(state=NORMAL)
-            self.graph['button'].config(state=NORMAL)
+            self.tempGraph['DelayInput'].config(state=NORMAL)
+            self.tempGraph['RepeatInput'].config(state=NORMAL)
+            self.tempGraph['button'].config(state=NORMAL)
     
     def updateGraph(self, ADC):
         self.debugPrint("Updating Graph")
                               
         self.dataPoints.append(self.tmpCalc(ADC))
         
-        if not self.graph['line'] == '':
-            self.graph['canvas'].delete(self.graph['line'])
+        if not self.tempGraph['line'] == '':
+            self.tempGraph['canvas'].delete(self.tempGraph['line'])
         
         points = []
         
@@ -426,7 +430,7 @@ class GuiPart:
             points.append([x,y])
         
         if len(self.dataPoints) > 1:
-            self.graph['line'] = self.graph['canvas'].create_line(points,
+            self.tempGraph['line'] = self.tempGraph['canvas'].create_line(points,
                                                                   fill='black')
                               
                               

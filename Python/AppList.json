@@ -9,10 +9,10 @@
         },
         {
             "id" : 2,
-            "Name" : "Temperature Graph",
+            "Name" : "Graphs",
             "FileName" : "WIKGraph.py",
             "Args" : "-s",
-            "Description" : "WIK Graphs App"
+             "Description" : "Wireless Inventors Kit Graphing applications. \r\rDisplay graphs based on data from the \ranalog inputs."
         }
     ]
 }
