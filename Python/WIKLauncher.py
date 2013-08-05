@@ -28,6 +28,7 @@ import zipfile
 import time as time_
 import tkFileDialog
 from distutils import dir_util
+import stat
 from Tabs import *
 
 
@@ -372,6 +373,10 @@ class WIKLauncher:
             else:
                 self.debugPrint("Decompressing " + filename + " on " + dirname)
                 self.zfobj.extract(name, self.extractDir)
+                if name.endswith(".py"):
+                    self.debugPrint("Setting execute bits")
+                    st = os.stat(self.extractDir + name)
+                    os.chmod(self.extractDir + name, (st.st_mode | stat.S_IXUSR | stat.S_IXGRP))
                 time_.sleep(0.1)
 
     def updateArduino(self):
