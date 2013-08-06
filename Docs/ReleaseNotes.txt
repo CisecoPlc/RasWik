@@ -1,7 +1,13 @@
 Wireless Inventors Kit from Ciseco
 
+0.94:
+    Tabs: Adding source credits and MIT License
+    WIKSketch: Typos in comments
+    WIKGraph: Text updates
+    WIKLauncher: Set execute permissions on .py file extraction
+
 0.93:
-    WIKGraph: New App, for Graphing temerature over time based on delay and repeat
+    WIKGraph: New App, for Graphing temperature over time based on delay and repeat
     WIKBasic & WIK Graph & 05Temperature: Catch 1023 and above
  
 0.92:
