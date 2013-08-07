@@ -136,7 +136,7 @@ while count < maxcount:
                     temperature = kelvin - 273.15
                     
                     # set a new dataint with the temperature and time
-                    datastream.current_value = temperature
+                    datastream.current_value = round(temperature, 2)
                     datastream.at = datetime.utcnow()
                     
                     # now we push the update to Xively, and create an error if it fails
