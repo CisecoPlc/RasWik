@@ -927,7 +927,7 @@ class GuiPart:
                                                 msg['devID'], msg['payload']),
                          'receive')
                 if msg['devID'] == self.devID.get():
-                    if msg['payload'].startswith("A"):
+                    if msg['payload'].startswith("A") and not msg['payload'][4:].startswith('READ'):
                         self.anaLabel[
                                       msg['payload'][2:3]
                                       ].set(msg['payload'][4:])
