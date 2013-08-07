@@ -389,7 +389,7 @@ class WIKLauncher:
                                   "Do you whis to proceed?")
                                  ):
             # present dir selection
-            path = tkFileDialog.askdirectory(title=("Please select you Arduino"
+            path = tkFileDialog.askdirectory(title=("Please select your Arduino"
                                                     " Sketchbook folder"),
                              initialdir=self.config.get('Update',
                                                         'sketchbook_folder'))
@@ -411,7 +411,7 @@ class WIKLauncher:
                                   ("Update done. \rThe latest WIKSketch "
                                    "can now be found in the Arduino IDE "
                                    "under the following \r"
-                                   "Examples->LLAPSerial->Examples->WIKSetch")
+                                   "Files->Examples->LLAPSerial->WIKSetch")
                                       )
 
     def runLauncher(self):

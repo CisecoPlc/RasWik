@@ -53,8 +53,10 @@ TEMPTEXT = """Graph of Temperature over Time
     
 Based on thermistior readings from A0
     
-Attach a thermistor and 10K resistor
-to A0 as in Activity 10
+Attach a thermistor between 
+A0 and 5v0
+Attach a 10K resistor between 
+A0 and GND
 """
 
 class GuiPart:

@@ -55,7 +55,7 @@ The LEDs tab lets you control a traffic light and do other cool things with ligh
 ADCExplain = """Via this interface we take advanced readings of voltage, 
 temperature and light levels experienced on sensors on the remote XinoRF.
 
-The XinoRF gives out a RawADC number that is between 0 and 1023, as seen on the Basic's tab, 
+The XinoRF gives out a RawADC number that is between 0 and 1023, as seen on the Basics tab,
 this is then converted into more useful information using the formauals given below.
 
 """
@@ -78,7 +78,7 @@ D13 Red
 D11 Yellow
 D06 Green"""
 
-SCANTEXT = """Scanning LED's
+SCANTEXT = """Scanning LEDs
 Connect an LED and 470R resistor 
 to each of the following pins
 D13, D11, D06, D05"""
@@ -177,7 +177,7 @@ class GuiPart:
                                                   )
                              )
         self.master.protocol("WM_DELETE_WINDOW", self.endCommand)
-        self.master.title("WIK Basic's Interface v{}".format(self.currentVersion))
+        self.master.title("WIK Basics Interface v{}".format(self.currentVersion))
         self.master.resizable(0,0)
 
         self.tabFrame = Frame(self.master, name='tabFrame')
@@ -254,7 +254,7 @@ class GuiPart:
         # tab buttons
         # place holder
         #Button(self.tBarFrame, text="Introduction").pack(side=LEFT)
-        #Button(self.tBarFrame, text="Basic's").pack(side=LEFT)
+        #Button(self.tBarFrame, text="Basics").pack(side=LEFT)
         Button(self.tBarFrame, text='Quit', command=self.endCommand
                ).pack(side=RIGHT)
 
@@ -306,9 +306,9 @@ class GuiPart:
         
     
     def initGrid(self):
-        self.debugPrint("Setting up Basic's Tab")
+        self.debugPrint("Setting up Basics Tab")
         # grid frame
-        gframe = Tab(self.tabFrame, "Basic's", fname='grid')
+        gframe = Tab(self.tabFrame, "Basics", fname='grid')
         gframe.config(relief=RAISED, borderwidth=2, width=self.widthMain,
                       height=self.heightTab)
         self.tBarFrame.add(gframe)
@@ -542,7 +542,7 @@ class GuiPart:
 
     def initLights(self):
         self.debugPrint("Setting up LED Tab")
-        mframe = Tab(self.tabFrame, "LED's", fname='leds')
+        mframe = Tab(self.tabFrame, "LEDs", fname='leds')
         mframe.config(relief=RAISED, borderwidth=2, width=self.widthMain,
                       height
                       =self.heightTab)
