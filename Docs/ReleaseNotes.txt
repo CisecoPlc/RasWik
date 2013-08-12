@@ -1,5 +1,11 @@
 Wireless Inventors Kit from Ciseco
 
+0.95:
+    WIKLauncher, WIKBasic, WIKGraph: Typo's and Text Updates
+    Examples: Round temp before sending to Xively
+    WIKBasic: Catch incoming A0*READ's that we can not display
+    WIKSketch: Update to have FVER and DEVTYPE
+    
 0.94:
     Tabs: Adding source credits and MIT License
     WIKSketch: Typos in comments
