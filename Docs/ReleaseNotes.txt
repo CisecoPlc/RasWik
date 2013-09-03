@@ -1,9 +1,12 @@
 Wireless Inventors Kit from Ciseco
 
+1.01:
+    WIKLauncher: Missing launchAdvance sub routine
+
 1.00:
     WIKLauncher: Advance Tab rework
     Adding PDF Documentation
-    
+
 0.95:
     WIKLauncher, WIKBasic, WIKGraph: Typo's and Text Updates
     Examples: Round temp before sending to Xively
