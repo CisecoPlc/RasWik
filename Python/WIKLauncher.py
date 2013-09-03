@@ -520,28 +520,49 @@ class WIKLauncher:
         iframe.config(relief=tk.RAISED, borderwidth=2, width=self.widthMain,
                       height=self.heightTab)
         self.tBarFrame.add(iframe)
+        
+        tk.Canvas(iframe, bd=0, highlightthickness=0, width=self.widthMain-4,
+                  height=28).grid(row=1, column=1, columnspan=3)
+        tk.Canvas(iframe, bd=0, highlightthickness=0, width=150,
+                  height=self.heightTab-4).grid(row=1, column=1, rowspan=3)
+              
+        tk.Label(iframe, text="Select an Advanced Task to Launch").grid(row=1,
+                                                                        columnspan=3,
+                                                                        column=1,
+                                                                        sticky=tk.W)
+                                                            
+        lbframe = tk.Frame(iframe, bd=2, relief=tk.SUNKEN)
+        
+        self.scrollbar = tk.Scrollbar(lbframe)
+        self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        self.advanceSelect = tk.Listbox(lbframe, bd=0, height=10,
+                                    yscrollcommand=self.scrollbar.set)
+        self.advanceSelect.bind('<<ListboxSelect>>', self.onAdvanceSelect)
+        self.advanceSelect.pack()
+        
+        self.scrollbar.config(command=self.advanceSelect.yview)
+        
+        lbframe.grid(row=2, column=1, sticky=tk.W+tk.E+tk.N+tk.S, padx=2)
+        
+        for n in range(len(self.advanceList)):
+            self.advanceSelect.insert(n, "{}: {}".format(n+1,
+                                                     self.advanceList[n]['Name']))
+        
+        self.launchAdvanceButton = tk.Button(iframe, text="Launch",
+                                      command=self.launchAdvance,)
+        self.launchAdvanceButton.grid(row=3, column=1)
 
-        canvas = tk.Canvas(iframe, bd=0, width=self.widthMain-4,
-                        height=self.heightTab-4, highlightthickness=0)
-        canvas.grid(row=0, column=0, columnspan=6, rowspan=6)
+        if self.disableLaunch:
+          self.launchAdvanceButton.config(state=tk.DISABLED)
 
-        tk.Label(iframe, text="Advanced Options, Some functions are comming soon"
-                 ).grid(row=0, column=0, columnspan=6,
-                        sticky=tk.W+tk.E+tk.N+tk.S)
-                                      
-        tk.Button(iframe, text="Update from Zip File",
-                  command=self.manualZipUpdate,
-                  ).grid(row=1, column=0, columnspan=6, sticky=tk.E+tk.W)
-        tk.Button(iframe, text="Reset Slice of Radio Settings",
-                  state=tk.DISABLED).grid(row=2, column=0, columnspan=6,
-                                          sticky=tk.E+tk.W)
-        tk.Button(iframe, text="Reser XinoRF Radio Settings", state=tk.DISABLED
-                  ).grid(row=3, column=0, columnspan=6, sticky=tk.E+tk.W)
-        tk.Button(iframe, text="Update XinoRF Firmware", state=tk.DISABLED
-                  ).grid(row=4, column=0, columnspan=6, sticky=tk.E+tk.W)
-        tk.Button(iframe, text="Update Arduino IDE WIKSketch Files",
-                  command=self.updateArduino
-                  ).grid(row=5, column=0, columnspan=6, sticky=tk.E+tk.W)
+        self.advanceText = tk.Label(iframe, text="", width=40, height=11,
+                              relief=tk.RAISED, justify=tk.LEFT, anchor=tk.NW)
+        self.advanceText.grid(row=2, column=3, rowspan=2, sticky=tk.W+tk.E+tk.N,
+                        padx=2)
+                        
+        self.advanceSelect.selection_set(0)
+        self.onAdvanceSelect(None)
     
     def onAppSelect(self, *args):
         self.debugPrint("App select update")
@@ -549,7 +570,14 @@ class WIKLauncher:
         self.appText.config(
                         text=self.appList[int(self.appSelect.curselection()[0])
                                           ]['Description'])
-    
+                            
+    def onAdvanceSelect(self, *args):
+        self.debugPrint("Advnace select update")
+        #self.debugPrint(args)
+        self.advanceText.config(
+                          text=self.advanceList[int(self.advanceSelect.curselection()[0])
+                                            ]['Description'])
+
     def launch(self):
         items = map(int, self.appSelect.curselection())
         if items:
@@ -565,7 +593,15 @@ class WIKLauncher:
             self.proc.append(subprocess.Popen(app))
         else:
             self.debugPrint("Nothing Selected to Launch")
-            
+
+    def launchAdvance(self):
+        items = map(int, self.advanceSelect.curselection())
+        if items:
+            self.debugPrint(items)
+        else:
+            self.debugPrint("Nothing Selected to Launch")
+
+
     def readConfig(self):
         self.debugPrint("Reading Config")
 
@@ -607,6 +643,7 @@ class WIKLauncher:
             f.closed
             
             self.appList = json.loads(read_data)['Apps']
+            self.advanceList = json.loads(read_data)['Advanced']
         except IOError:
             self.debugPrint("Could Not Load AppList File")
             self.appList = [
@@ -616,6 +653,11 @@ class WIKLauncher:
                             'Args': '',
                             'Description': 'Error loading AppList file'
                             }]
+            self.advanceList = [
+                                {'id': 0,
+                                'Name': 'Error',
+                                'Description': 'Error loading AppList file'
+                                }]
             self.disableLaunch = True
 
 

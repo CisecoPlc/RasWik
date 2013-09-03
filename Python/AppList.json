@@ -14,5 +14,17 @@
             "Args" : "-s",
              "Description" : "Wireless Inventors Kit Graphing applications. \r\rDisplay graphs based on data from the \ranalog inputs."
         }
+    ],
+    "Advanced": [
+        {
+            "id" : 0,
+            "Name" : "Update from Zip File",
+            "Description" : "Update using a downlaoded zip file"
+        },
+        {
+            "id" : 1,
+            "Name" : "Update Arduino Files",
+            "Description" : "Update your local Skectchbook with the \rLLAPSerial Library and the WIKSketch example files"
+        }
     ]
 }
