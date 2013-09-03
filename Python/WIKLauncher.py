@@ -597,7 +597,10 @@ class WIKLauncher:
     def launchAdvance(self):
         items = map(int, self.advanceSelect.curselection())
         if items:
-            self.debugPrint(items)
+            if items[0] == 0:
+                self.manualZipUpdate()
+            elif items[0] == 1:
+                self.updateArduino()
         else:
             self.debugPrint("Nothing Selected to Launch")
 
