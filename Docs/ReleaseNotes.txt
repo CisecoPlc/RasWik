@@ -1,5 +1,12 @@
 Wireless Inventors Kit from Ciseco
 
+1.02:
+    LLAPSerial: Small changes to sleep function to allow use by RFu-328 example
+    LLAPSerial: WiKSketch Update, should help with compile from the Pi
+        To update your sketchbook copy of the LLAPSerial library use 
+        "Update Arduino Files" from WIK Launcher -> Advanced
+    WIKBasic: minor typo's
+    
 1.01:
     WIKLauncher: Missing launchAdvance sub routine
 
