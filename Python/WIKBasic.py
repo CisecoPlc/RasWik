@@ -1044,7 +1044,7 @@ class ThreadedClient:
                 self.s.open()
                 self.gui.connectText.set('Disconnect')
             except serial.SerialException, e:
-                self.gui.appendText("Could not open port %r: %s\n" % (port, e))
+                self.gui.appendText("Could not open port %r: %s\n" % (self.s.port, e))
         else:
             self.disconnectFlag.set()
             self.gui.connectText.set('Connect')
